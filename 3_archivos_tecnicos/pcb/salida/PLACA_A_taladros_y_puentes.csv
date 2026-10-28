@@ -1,0 +1,113 @@
+tipo,pieza,pata,red,x_mm,y_mm,diametro_mm
+taladro,REG.Rz,1,vm,7.62,50.8,0.9
+taladro,REG.Rz,2,REG.bz,17.78,50.8,0.9
+taladro,REG.DZ,K,REG.bz,25.4,50.8,0.9
+taladro,REG.DZ,A,REG.N1,35.56,50.8,0.9
+taladro,REG.Rtr,1,0,43.18,50.8,0.9
+taladro,REG.Rtr,W,REG.N1,45.72,50.8,0.9
+taladro,REG.Rtr,3,NC,48.26,50.8,0.9
+taladro,REG.Q1,E,v5,58.42,50.8,1.0
+taladro,REG.Q1,C,vm,60.96,50.8,1.0
+taladro,REG.Q1,B,REG.bz,63.5,50.8,1.0
+taladro,REG.Cout,+,v5,71.12,50.8,0.9
+taladro,REG.Cout,-,0,76.2,50.8,0.9
+taladro,REG.C2,1,v5,86.36,50.8,0.9
+taladro,REG.C2,2,0,91.44,50.8,0.9
+taladro,TMP.Rfix,1,tnode,22.86,142.24,0.9
+taladro,TMP.Rfix,2,0,33.02,142.24,0.9
+taladro,TMP.Ra,1,v5,40.64,142.24,0.9
+taladro,TMP.Ra,2,TMP.rt,50.8,142.24,0.9
+taladro,TMP.Rb,1,TMP.rb2,58.42,142.24,0.9
+taladro,TMP.Rb,2,0,68.58,142.24,0.9
+taladro,TMP.Rh,1,setn,76.2,142.24,0.9
+taladro,TMP.Rh,2,TMP.ref,86.36,142.24,0.9
+taladro,TMP.T1,1,TMP.rt,93.98,142.24,0.9
+taladro,TMP.T1,W,TMP.ref,96.52,142.24,0.9
+taladro,TMP.T1,3,TMP.rb2,99.06,142.24,0.9
+taladro,POT.Q3,E,POT.g,30.48,73.66,0.9
+taladro,POT.Q3,B,POT.pwmg,33.02,73.66,0.9
+taladro,POT.Q3,C,v5,35.56,73.66,0.9
+taladro,POT.Q4,E,POT.g,43.18,73.66,0.9
+taladro,POT.Q4,B,POT.pwmg,45.72,73.66,0.9
+taladro,POT.Q4,C,0,48.26,73.66,0.9
+taladro,POT.Rg,1,POT.g,55.88,73.66,0.9
+taladro,POT.Rg,2,POT.gate,66.04,73.66,0.9
+taladro,POT.Rpd,1,POT.gate,73.66,73.66,0.9
+taladro,POT.Rpd,2,0,83.82,73.66,0.9
+taladro,POT.M1,G,POT.gate,91.44,73.66,1.0
+taladro,POT.M1,D,dm,93.98,73.66,1.0
+taladro,POT.M1,S,sh,96.52,73.66,1.0
+taladro,POT.Dfw,A,dm,104.14,73.66,0.9
+taladro,POT.Dfw,K,vm,114.3,73.66,0.9
+taladro,POT.Rsh,1,sh,7.62,96.52,1.0
+taladro,POT.Rsh,2,0,20.32,96.52,1.0
+taladro,ALA.Rb,1,f,7.62,116.84,0.9
+taladro,ALA.Rb,2,ALA.ba,17.78,116.84,0.9
+taladro,ALA.Q6,E,0,25.4,116.84,0.9
+taladro,ALA.Q6,B,ALA.ba,27.94,116.84,0.9
+taladro,ALA.Q6,C,ALA.cz,30.48,116.84,0.9
+taladro,ALA.BZ,+,vm,38.1,116.84,1.0
+taladro,ALA.BZ,-,ALA.cz,45.72,116.84,1.0
+taladro,ALA.Rl,1,f,55.88,116.84,0.9
+taladro,ALA.Rl,2,ALA.nl,66.04,116.84,0.9
+taladro,ALA.Dl,A,ALA.nl,73.66,116.84,0.9
+taladro,ALA.Dl,K,0,76.2,116.84,0.9
+taladro,ENT.J1,+12V,vin,7.62,25.4,1.0
+taladro,ENT.J1,GND,0,12.7,25.4,1.0
+taladro,ENT.D1,A,vin,25.4,25.4,0.9
+taladro,ENT.D1,K,vm,35.56,25.4,0.9
+taladro,ENT.Cin,+,vm,43.18,25.4,0.9
+taladro,ENT.Cin,-,0,50.8,25.4,0.9
+taladro,ENT.TBM,M+,vm,60.96,25.4,1.0
+taladro,ENT.TBM,M-,dm,66.04,25.4,1.0
+taladro,ENT.TBN,5V,v5,109.22,142.24,1.0
+taladro,ENT.TBN,NTC,tnode,114.3,142.24,1.0
+taladro,U2,1,setn,7.62,149.86,0.9
+taladro,U2,2,tnode,10.16,149.86,0.9
+taladro,U2,3,TMP.ref,12.7,149.86,0.9
+taladro,U2,4,0,15.24,149.86,0.9
+taladro,U2,5,0,15.24,142.24,0.9
+taladro,U2,6,0,12.7,142.24,0.9
+taladro,U2,7,NC,10.16,142.24,0.9
+taladro,U2,8,v5,7.62,142.24,0.9
+taladro,U10,1,pwm,7.62,81.28,0.9
+taladro,U10,2,m,10.16,81.28,0.9
+taladro,U10,3,POT.pwmg,12.7,81.28,0.9
+taladro,U10,4,0,15.24,81.28,0.9
+taladro,U10,5,0,17.78,81.28,0.9
+taladro,U10,6,NC,20.32,81.28,0.9
+taladro,U10,7,0,22.86,81.28,0.9
+taladro,U10,8,NC,22.86,73.66,0.9
+taladro,U10,9,0,20.32,73.66,0.9
+taladro,U10,10,0,17.78,73.66,0.9
+taladro,U10,11,NC,15.24,73.66,0.9
+taladro,U10,12,0,12.7,73.66,0.9
+taladro,U10,13,0,10.16,73.66,0.9
+taladro,U10,14,v5,7.62,73.66,0.9
+taladro,X,GND,0,10.16,10.16,1.0
+taladro,X,f,f,17.78,10.16,1.0
+taladro,X,m,m,25.4,10.16,1.0
+taladro,X,pwm,pwm,33.02,10.16,1.0
+taladro,X,setn,setn,40.64,10.16,1.0
+taladro,X,sh,sh,48.26,10.16,1.0
+taladro,X,+5V,v5,55.88,10.16,1.0
+taladro,X,+12V,vm,63.5,10.16,1.0
+puente P1,X.m -> U10.2,,m,25.4,10.16,
+puente P2,X.pwm -> U10.1,,pwm,33.02,10.16,
+puente P3,POT.Q4.E -> POT.Q3.E,,POT.g,43.18,73.66,
+puente P4,POT.Q4.B -> POT.Q3.B,,POT.pwmg,45.72,73.66,
+puente P5,U10.3 -> POT.Q3.B,,POT.pwmg,12.7,81.28,
+puente P6,REG.Q1.B -> REG.DZ.K,,REG.bz,63.5,50.8,
+puente P7,X.f -> ALA.Rb.1,,f,17.78,10.16,
+puente P8,X.setn -> TMP.Rh.1,,setn,40.64,10.16,
+puente P9,POT.Q3.C -> REG.Q1.E,,v5,35.56,73.66,
+puente P10,U10.14 -> POT.Q3.C,,v5,7.62,73.66,
+puente P11,X.+5V -> REG.Q1.E,,v5,55.88,10.16,
+puente P12,TMP.Ra.1 -> U2.8,,v5,40.64,142.24,
+puente P13,U10.9 -> POT.Q4.C,,0,20.32,73.66,
+puente P14,POT.Rsh.2 -> U10.5,,0,20.32,96.52,
+puente P15,ALA.Q6.E -> POT.Rsh.2,,0,25.4,116.84,
+puente P16,TMP.Rfix.2 -> ALA.Q6.E,,0,33.02,142.24,
+puente P17,U2.5 -> TMP.Rfix.2,,0,15.24,142.24,
+puente P18,TMP.Rb.2 -> TMP.Rfix.2,,0,68.58,142.24,
+puente P19,X.GND -> ENT.J1.GND,,0,10.16,10.16,

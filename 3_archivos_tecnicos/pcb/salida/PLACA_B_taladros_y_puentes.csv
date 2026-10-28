@@ -1,0 +1,207 @@
+tipo,pieza,pata,red,x_mm,y_mm,diametro_mm
+taladro,SEN.Rled,1,v5,22.86,25.4,0.9
+taladro,SEN.Rled,2,SEN.nled,33.02,25.4,0.9
+taladro,SEN.R1,1,v5,40.64,25.4,0.9
+taladro,SEN.R1,2,b,50.8,25.4,0.9
+taladro,SEN.R2,1,b,58.42,25.4,0.9
+taladro,SEN.R2,2,0,68.58,25.4,0.9
+taladro,SEN.Cac,1,tin,76.2,25.4,0.9
+taladro,SEN.Cac,2,b,81.28,25.4,0.9
+taladro,SEN.Q2,E,SEN.e,88.9,25.4,0.9
+taladro,SEN.Q2,B,b,91.44,25.4,0.9
+taladro,SEN.Q2,C,SEN.c,93.98,25.4,0.9
+taladro,SEN.RE,1,SEN.e,101.6,25.4,0.9
+taladro,SEN.RE,2,0,111.76,25.4,0.9
+taladro,SEN.Rc,1,v5,7.62,43.18,0.9
+taladro,SEN.Rc,2,SEN.c,17.78,43.18,0.9
+taladro,SEN.Ra,1,v5,25.4,43.18,0.9
+taladro,SEN.Ra,2,SEN.th1,35.56,43.18,0.9
+taladro,SEN.Rb,1,SEN.th2,43.18,43.18,0.9
+taladro,SEN.Rb,2,0,53.34,43.18,0.9
+taladro,SEN.Rpu,1,v5,60.96,43.18,0.9
+taladro,SEN.Rpu,2,p,71.12,43.18,0.9
+taladro,SEN.Rh,1,p,78.74,43.18,0.9
+taladro,SEN.Rh,2,SEN.th,88.9,43.18,0.9
+taladro,SEN.T1,1,SEN.th1,96.52,43.18,0.9
+taladro,SEN.T1,W,SEN.th,99.06,43.18,0.9
+taladro,SEN.T1,3,SEN.th2,101.6,43.18,0.9
+taladro,SEN.TCRT,A,SEN.nled,111.76,43.18,0.9
+taladro,SEN.TCRT,K,0,114.3,43.18,0.9
+taladro,SEN.TCRT,C,v5,116.84,43.18,0.9
+taladro,SEN.TCRT,E,b,119.38,43.18,0.9
+taladro,OC.Rg,1,OC.fb,38.1,63.5,0.9
+taladro,OC.Rg,2,0,48.26,63.5,0.9
+taladro,OC.Rf,1,OC.oa,55.88,63.5,0.9
+taladro,OC.Rf,2,OC.fb,66.04,63.5,0.9
+taladro,OC.D1,A,OC.oa,73.66,63.5,0.9
+taladro,OC.D1,K,OC.pk,83.82,63.5,0.9
+taladro,OC.Cpk,1,OC.pk,91.44,63.5,0.9
+taladro,OC.Cpk,2,0,96.52,63.5,0.9
+taladro,OC.Rbl,1,OC.pk,104.14,63.5,0.9
+taladro,OC.Rbl,2,0,114.3,63.5,0.9
+taladro,OC.Rd,1,OC.pk,7.62,81.28,0.9
+taladro,OC.Rd,2,OC.dl,17.78,81.28,0.9
+taladro,OC.Cd,+,OC.dl,25.4,81.28,0.9
+taladro,OC.Cd,-,0,30.48,81.28,0.9
+taladro,OC.Ra,1,v5,40.64,81.28,0.9
+taladro,OC.Ra,2,OC.rt,50.8,81.28,0.9
+taladro,OC.Rb,1,OC.rb2,58.42,81.28,0.9
+taladro,OC.Rb,2,0,68.58,81.28,0.9
+taladro,OC.T1,1,OC.rt,76.2,81.28,0.9
+taladro,OC.T1,W,OC.ref,78.74,81.28,0.9
+taladro,OC.T1,3,OC.rb2,81.28,81.28,0.9
+taladro,LOG.Rpe,1,ein,30.48,104.14,0.9
+taladro,LOG.Rpe,2,0,40.64,104.14,0.9
+taladro,LOG.Rse,1,ein,48.26,104.14,0.9
+taladro,LOG.Rse,2,LOG.ef,58.42,104.14,0.9
+taladro,LOG.Cef,1,LOG.ef,66.04,104.14,0.9
+taladro,LOG.Cef,2,0,71.12,104.14,0.9
+taladro,LOG.Rpg,1,gin,78.74,104.14,0.9
+taladro,LOG.Rpg,2,0,88.9,104.14,0.9
+taladro,LOG.Rsg,1,gin,96.52,104.14,0.9
+taladro,LOG.Rsg,2,LOG.gf,106.68,104.14,0.9
+taladro,LOG.Cgf,1,LOG.gf,114.3,104.14,0.9
+taladro,LOG.Cgf,2,0,119.38,104.14,0.9
+taladro,LOG.Rpr,1,rin,7.62,121.92,0.9
+taladro,LOG.Rpr,2,0,17.78,121.92,0.9
+taladro,LOG.Rsr,1,rin,25.4,121.92,0.9
+taladro,LOG.Rsr,2,LOG.rf,35.56,121.92,0.9
+taladro,LOG.Crf,1,LOG.rf,43.18,121.92,0.9
+taladro,LOG.Crf,2,0,48.26,121.92,0.9
+taladro,LOG.Cpor,1,v5,55.88,121.92,0.9
+taladro,LOG.Cpor,2,LOG.por,60.96,121.92,0.9
+taladro,LOG.Rpor,1,LOG.por,68.58,121.92,0.9
+taladro,LOG.Rpor,2,0,78.74,121.92,0.9
+taladro,LOG.Dpor,A,LOG.por,86.36,121.92,0.9
+taladro,LOG.Dpor,K,LOG.rf,96.52,121.92,0.9
+taladro,LOG.Rsn,1,v5,53.34,162.56,0.9
+taladro,LOG.Rsn,2,setn,63.5,162.56,0.9
+taladro,ENT.TBE,5V,v5,104.14,121.92,1.0
+taladro,ENT.TBE,E,ein,109.22,121.92,1.0
+taladro,ENT.TBG,5V,v5,7.62,139.7,1.0
+taladro,ENT.TBG,G,gin,12.7,139.7,1.0
+taladro,ENT.TBR,5V,v5,25.4,139.7,1.0
+taladro,ENT.TBR,RST,rin,30.48,139.7,1.0
+taladro,U1,1,p,7.62,33.02,0.9
+taladro,U1,2,SEN.c,10.16,33.02,0.9
+taladro,U1,3,SEN.th,12.7,33.02,0.9
+taladro,U1,4,0,15.24,33.02,0.9
+taladro,U1,5,0,15.24,25.4,0.9
+taladro,U1,6,0,12.7,25.4,0.9
+taladro,U1,7,NC,10.16,25.4,0.9
+taladro,U1,8,v5,7.62,25.4,0.9
+taladro,U14,1,setn,7.62,71.12,0.9
+taladro,U14,2,OC.dl,10.16,71.12,0.9
+taladro,U14,3,OC.ref,12.7,71.12,0.9
+taladro,U14,4,0,15.24,71.12,0.9
+taladro,U14,5,0,15.24,63.5,0.9
+taladro,U14,6,0,12.7,63.5,0.9
+taladro,U14,7,NC,10.16,63.5,0.9
+taladro,U14,8,v5,7.62,63.5,0.9
+taladro,U4,1,OC.oa,22.86,71.12,0.9
+taladro,U4,2,OC.fb,25.4,71.12,0.9
+taladro,U4,3,sh,27.94,71.12,0.9
+taladro,U4,4,0,30.48,71.12,0.9
+taladro,U4,5,0,30.48,63.5,0.9
+taladro,U4,6,0,27.94,63.5,0.9
+taladro,U4,7,NC,25.4,63.5,0.9
+taladro,U4,8,vm,22.86,63.5,0.9
+taladro,U8,1,LOG.rst,7.62,170.18,0.9
+taladro,U8,2,setn,10.16,170.18,0.9
+taladro,U8,3,LOG.reset_n,12.7,170.18,0.9
+taladro,U8,4,setn,15.24,170.18,0.9
+taladro,U8,5,fn,17.78,170.18,0.9
+taladro,U8,6,f,20.32,170.18,0.9
+taladro,U8,7,0,22.86,170.18,0.9
+taladro,U8,8,fn,22.86,162.56,0.9
+taladro,U8,9,LOG.reset_n,20.32,162.56,0.9
+taladro,U8,10,f,17.78,162.56,0.9
+taladro,U8,11,LOG.pn,15.24,162.56,0.9
+taladro,U8,12,p,12.7,162.56,0.9
+taladro,U8,13,p,10.16,162.56,0.9
+taladro,U8,14,v5,7.62,162.56,0.9
+taladro,U9,1,LOG.e,30.48,170.18,0.9
+taladro,U9,2,LOG.g,33.02,170.18,0.9
+taladro,U9,3,LOG.m1,35.56,170.18,0.9
+taladro,U9,4,LOG.m1,38.1,170.18,0.9
+taladro,U9,5,fn,40.64,170.18,0.9
+taladro,U9,6,m,43.18,170.18,0.9
+taladro,U9,7,0,45.72,170.18,0.9
+taladro,U9,8,n,45.72,162.56,0.9
+taladro,U9,9,m,43.18,162.56,0.9
+taladro,U9,10,LOG.pn,40.64,162.56,0.9
+taladro,U9,11,l,38.1,162.56,0.9
+taladro,U9,12,m,35.56,162.56,0.9
+taladro,U9,13,p,33.02,162.56,0.9
+taladro,U9,14,v5,30.48,162.56,0.9
+taladro,U11,1,LOG.ef,7.62,111.76,0.9
+taladro,U11,2,LOG.ein_n,10.16,111.76,0.9
+taladro,U11,3,LOG.ein_n,12.7,111.76,0.9
+taladro,U11,4,LOG.e,15.24,111.76,0.9
+taladro,U11,5,LOG.gf,17.78,111.76,0.9
+taladro,U11,6,LOG.gin_n,20.32,111.76,0.9
+taladro,U11,7,0,22.86,111.76,0.9
+taladro,U11,8,LOG.g,22.86,104.14,0.9
+taladro,U11,9,LOG.gin_n,20.32,104.14,0.9
+taladro,U11,10,LOG.rin_n,17.78,104.14,0.9
+taladro,U11,11,LOG.rf,15.24,104.14,0.9
+taladro,U11,12,LOG.rst,12.7,104.14,0.9
+taladro,U11,13,LOG.rin_n,10.16,104.14,0.9
+taladro,U11,14,v5,7.62,104.14,0.9
+taladro,X,GND,0,10.16,10.16,1.0
+taladro,X,f,f,17.78,10.16,1.0
+taladro,X,l,l,25.4,10.16,1.0
+taladro,X,m,m,33.02,10.16,1.0
+taladro,X,setn,setn,40.64,10.16,1.0
+taladro,X,sh,sh,48.26,10.16,1.0
+taladro,X,+5V,v5,55.88,10.16,1.0
+taladro,X,+12V,vm,63.5,10.16,1.0
+puente P1,U8.8 -> U8.5,,fn,22.86,162.56,
+puente P2,U9.5 -> U8.5,,fn,40.64,170.18,
+puente P3,U4.2 -> OC.Rg.1,,OC.fb,25.4,71.12,
+puente P4,OC.Rf.2 -> OC.Rg.1,,OC.fb,66.04,63.5,
+puente P5,U4.1 -> OC.Rf.1,,OC.oa,22.86,71.12,
+puente P6,LOG.Rsr.1 -> LOG.Rpr.1,,rin,25.4,121.92,
+puente P7,ENT.TBR.RST -> LOG.Rsr.1,,rin,30.48,139.7,
+puente P8,U11.1 -> LOG.Rse.2,,LOG.ef,7.62,111.76,
+puente P9,U11.5 -> LOG.Rsg.2,,LOG.gf,17.78,111.76,
+puente P10,ENT.TBG.G -> LOG.Rpg.1,,gin,12.7,139.7,
+puente P11,U8.10 -> U8.6,,f,17.78,162.56,
+puente P12,X.f -> U8.10,,f,17.78,10.16,
+puente P13,U1.2 -> SEN.Q2.C,,SEN.c,10.16,33.02,
+puente P14,U11.11 -> LOG.Rsr.2,,LOG.rf,15.24,104.14,
+puente P15,OC.Rbl.1 -> OC.Cpk.1,,OC.pk,104.14,63.5,
+puente P16,OC.Rd.1 -> OC.D1.K,,OC.pk,7.62,81.28,
+puente P17,U9.9 -> U9.6,,m,43.18,162.56,
+puente P18,U9.12 -> U9.9,,m,35.56,162.56,
+puente P19,X.m -> U9.12,,m,33.02,10.16,
+puente P20,U8.4 -> LOG.Rsn.2,,setn,15.24,170.18,
+puente P21,U8.2 -> U8.4,,setn,10.16,170.18,
+puente P22,X.setn -> U14.1,,setn,40.64,10.16,
+puente P23,U1.1 -> SEN.Rpu.2,,p,7.62,33.02,
+puente P24,U8.13 -> U1.1,,p,10.16,162.56,
+puente P25,U9.13 -> U8.12,,p,33.02,162.56,
+puente P26,U1.8 -> SEN.Rled.1,,v5,7.62,25.4,
+puente P27,SEN.R1.1 -> SEN.Rled.1,,v5,40.64,25.4,
+puente P28,X.+5V -> SEN.R1.1,,v5,55.88,10.16,
+puente P29,SEN.Rpu.1 -> SEN.R1.1,,v5,60.96,43.18,
+puente P30,SEN.TCRT.C -> SEN.Rpu.1,,v5,116.84,43.18,
+puente P31,U9.14 -> LOG.Rsn.1,,v5,30.48,162.56,
+puente P32,U8.14 -> U9.14,,v5,7.62,162.56,
+puente P33,ENT.TBR.5V -> ENT.TBG.5V,,v5,25.4,139.7,
+puente P34,SEN.Rb.2 -> SEN.R2.2,,0,53.34,43.18,
+puente P35,U4.5 -> OC.Rg.2,,0,30.48,63.5,
+puente P36,OC.Cd.- -> U4.4,,0,30.48,81.28,
+puente P37,U14.5 -> U4.6,,0,15.24,63.5,
+puente P38,OC.Rb.2 -> OC.Rg.2,,0,68.58,81.28,
+puente P39,LOG.Cef.2 -> OC.Rb.2,,0,71.12,104.14,
+puente P40,LOG.Rpor.2 -> LOG.Cef.2,,0,78.74,121.92,
+puente P41,U1.4 -> U14.5,,0,15.24,33.02,
+puente P42,U1.5 -> U1.4,,0,15.24,25.4,
+puente P43,LOG.Rpe.2 -> LOG.Cef.2,,0,40.64,104.14,
+puente P44,U11.7 -> LOG.Rpe.2,,0,22.86,111.76,
+puente P45,OC.Rbl.2 -> OC.Cpk.2,,0,114.3,63.5,
+puente P46,SEN.TCRT.K -> OC.Rbl.2,,0,114.3,43.18,
+puente P47,SEN.RE.2 -> SEN.TCRT.K,,0,111.76,25.4,
+puente P48,U9.7 -> LOG.Crf.2,,0,45.72,170.18,
+puente P49,U8.7 -> U9.7,,0,22.86,170.18,

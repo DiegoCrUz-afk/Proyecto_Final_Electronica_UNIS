@@ -1,0 +1,5 @@
+PLACA A: 132.1 x 167.6 mm, 93 pads, 22 redes ruteadas, 1822 segmentos de pista, 19 puentes de alambre (0 de ellos por GND aislado)
+PLACA B: 132.1 x 188.0 mm, 157 pads, 40 redes ruteadas, 3304 segmentos de pista, 49 puentes de alambre (0 de ellos por GND aislado)
+PLACA C: 132.1 x 182.9 mm, 146 pads, 30 redes ruteadas, 2616 segmentos de pista, 29 puentes de alambre (0 de ellos por GND aislado)
+VERIFICACION: cada red de cada placa queda en un solo grupo (pistas + puentes + plano de GND) y no hay redes mezcladas.
+Cruces entre placas (puntos de union): GND, f, l, m, pwm, setn, sh, +5V, +12V

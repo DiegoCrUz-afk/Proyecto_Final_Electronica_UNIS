@@ -1,0 +1,12 @@
+Version 4
+SymbolType BLOCK
+RECTANGLE Normal 0 0 200 96
+TEXT 100 48 Center 3 11 ALARMA
+WINDOW 0 100 -12 Center 2
+WINDOW 3 100 110 Center 1
+PIN 0 32 LEFT 8
+PINATTR PinName vm
+PINATTR SpiceOrder 1
+PIN 0 64 LEFT 8
+PINATTR PinName f
+PINATTR SpiceOrder 2

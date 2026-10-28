@@ -1,0 +1,176 @@
+tipo,pieza,pata,red,x_mm,y_mm,diametro_mm
+taladro,PWM.Ra5,1,v5,38.1,83.82,0.9
+taladro,PWM.Ra5,2,PWM.dis,48.26,83.82,0.9
+taladro,PWM.Rb5,1,PWM.dis,55.88,83.82,0.9
+taladro,PWM.Rb5,2,PWM.tri,66.04,83.82,0.9
+taladro,PWM.Ct,1,PWM.tri,73.66,83.82,0.9
+taladro,PWM.Ct,2,0,78.74,83.82,0.9
+taladro,PWM.Ccv,1,PWM.cv,86.36,83.82,0.9
+taladro,PWM.Ccv,2,0,91.44,83.82,0.9
+taladro,PWM.Rpu,1,v5,99.06,83.82,0.9
+taladro,PWM.Rpu,2,pwm,109.22,83.82,0.9
+taladro,ENC.Rpe,1,v5,22.86,106.68,0.9
+taladro,ENC.Rpe,2,enc,33.02,106.68,0.9
+taladro,ENC.Rled,1,v5,40.64,106.68,0.9
+taladro,ENC.Rled,2,ENC.nled,50.8,106.68,0.9
+taladro,ENC.Ru1,1,v5,58.42,106.68,0.9
+taladro,ENC.Ru1,2,ENC.eref,68.58,106.68,0.9
+taladro,ENC.Ru2,1,ENC.eref,76.2,106.68,0.9
+taladro,ENC.Ru2,2,0,86.36,106.68,0.9
+taladro,ENC.Rpq,1,v5,93.98,106.68,0.9
+taladro,ENC.Rpq,2,ENC.eq,104.14,106.68,0.9
+taladro,ENC.Rhe,1,ENC.eq,111.76,106.68,0.9
+taladro,ENC.Rhe,2,ENC.eref,121.92,106.68,0.9
+taladro,ENC.Cd,1,ENC.eq,45.72,142.24,0.9
+taladro,ENC.Cd,2,ENC.tg,50.8,142.24,0.9
+taladro,ENC.Rtg,1,v5,58.42,142.24,0.9
+taladro,ENC.Rtg,2,ENC.tg,68.58,142.24,0.9
+taladro,ENC.Dcl,A,ENC.tg,76.2,142.24,0.9
+taladro,ENC.Dcl,K,v5,86.36,142.24,0.9
+taladro,ENC.Rt7,1,v5,93.98,142.24,0.9
+taladro,ENC.Rt7,2,ENC.dis7,104.14,142.24,0.9
+taladro,ENC.Ct7,1,ENC.dis7,111.76,142.24,0.9
+taladro,ENC.Ct7,2,0,116.84,142.24,0.9
+taladro,ENC.Ccvm,1,ENC.cvm,7.62,160.02,0.9
+taladro,ENC.Ccvm,2,0,12.7,160.02,0.9
+taladro,ENC.Rfv,1,ENC.mq,20.32,160.02,0.9
+taladro,ENC.Rfv,2,ENC.vf1,30.48,160.02,0.9
+taladro,ENC.Cfv,1,ENC.vf1,38.1,160.02,0.9
+taladro,ENC.Cfv,2,0,43.18,160.02,0.9
+taladro,ENC.Rfv2,1,ENC.vf1,50.8,160.02,0.9
+taladro,ENC.Rfv2,2,vspd,60.96,160.02,0.9
+taladro,ENC.Cfv2,1,vspd,68.58,160.02,0.9
+taladro,ENC.Cfv2,2,0,73.66,160.02,0.9
+taladro,ENC.OPTO,A,ENC.nled,7.62,124.46,0.9
+taladro,ENC.OPTO,K,0,10.16,124.46,0.9
+taladro,ENC.OPTO,C,enc,12.7,124.46,0.9
+taladro,ENC.OPTO,E,0,15.24,124.46,0.9
+taladro,REF.Rt,1,v5,7.62,25.4,0.9
+taladro,REF.Rt,2,vref,17.78,25.4,0.9
+taladro,REF.T1,1,vref,25.4,25.4,0.9
+taladro,REF.T1,W,0,27.94,25.4,0.9
+taladro,REF.T1,3,NC,30.48,25.4,0.9
+taladro,REF.Rb5,1,l,40.64,25.4,0.9
+taladro,REF.Rb5,2,REF.bq,50.8,25.4,0.9
+taladro,REF.Q5,E,0,58.42,25.4,0.9
+taladro,REF.Q5,B,REF.bq,60.96,25.4,0.9
+taladro,REF.Q5,C,REF.cq,63.5,25.4,0.9
+taladro,REF.T2,1,vref,71.12,25.4,0.9
+taladro,REF.T2,W,REF.cq,73.66,25.4,0.9
+taladro,REF.T2,3,NC,76.2,25.4,0.9
+taladro,REF.Cr,1,vref,86.36,25.4,0.9
+taladro,REF.Cr,2,0,91.44,25.4,0.9
+taladro,ERR.Rv1,1,v5,30.48,45.72,0.9
+taladro,ERR.Rv1,2,ERR.voff,40.64,45.72,0.9
+taladro,ERR.Rv2,1,ERR.voff,48.26,45.72,0.9
+taladro,ERR.Rv2,2,0,58.42,45.72,0.9
+taladro,ERR.Cv,1,ERR.voff,66.04,45.72,0.9
+taladro,ERR.Cv,2,0,71.12,45.72,0.9
+taladro,ERR.R1,1,ERR.vsb,78.74,45.72,0.9
+taladro,ERR.R1,2,ERR.inn,88.9,45.72,0.9
+taladro,ERR.Rf6,1,ERR.oa,96.52,45.72,0.9
+taladro,ERR.Rf6,2,ERR.inn,106.68,45.72,0.9
+taladro,ERR.Cf6,1,ERR.oa,114.3,45.72,0.9
+taladro,ERR.Cf6,2,ERR.inn,119.38,45.72,0.9
+taladro,ERR.R3,1,ERR.vrb,7.62,63.5,0.9
+taladro,ERR.R3,2,ERR.inp,17.78,63.5,0.9
+taladro,ERR.R4,1,ERR.inp,25.4,63.5,0.9
+taladro,ERR.R4,2,ERR.vob,35.56,63.5,0.9
+taladro,ERR.Ro,1,ERR.oa,43.18,63.5,0.9
+taladro,ERR.Ro,2,vctrl,53.34,63.5,0.9
+taladro,ERR.Cvc,1,vctrl,60.96,63.5,0.9
+taladro,ERR.Cvc,2,0,66.04,63.5,0.9
+taladro,U3,1,ENC.eq,7.62,114.3,0.9
+taladro,U3,2,enc,10.16,114.3,0.9
+taladro,U3,3,ENC.eref,12.7,114.3,0.9
+taladro,U3,4,0,15.24,114.3,0.9
+taladro,U3,5,0,15.24,106.68,0.9
+taladro,U3,6,0,12.7,106.68,0.9
+taladro,U3,7,NC,10.16,106.68,0.9
+taladro,U3,8,v5,7.62,106.68,0.9
+taladro,U13,1,pwm,7.62,91.44,0.9
+taladro,U13,2,PWM.tri,10.16,91.44,0.9
+taladro,U13,3,vctrl,12.7,91.44,0.9
+taladro,U13,4,0,15.24,91.44,0.9
+taladro,U13,5,0,15.24,83.82,0.9
+taladro,U13,6,0,12.7,83.82,0.9
+taladro,U13,7,NC,10.16,83.82,0.9
+taladro,U13,8,v5,7.62,83.82,0.9
+taladro,U5,1,ERR.vrb,7.62,53.34,0.9
+taladro,U5,2,ERR.vrb,10.16,53.34,0.9
+taladro,U5,3,vref,12.7,53.34,0.9
+taladro,U5,4,vm,15.24,53.34,0.9
+taladro,U5,5,vspd,17.78,53.34,0.9
+taladro,U5,6,ERR.vsb,20.32,53.34,0.9
+taladro,U5,7,ERR.vsb,22.86,53.34,0.9
+taladro,U5,8,ERR.vob,22.86,45.72,0.9
+taladro,U5,9,ERR.vob,20.32,45.72,0.9
+taladro,U5,10,ERR.voff,17.78,45.72,0.9
+taladro,U5,11,0,15.24,45.72,0.9
+taladro,U5,12,ERR.inp,12.7,45.72,0.9
+taladro,U5,13,ERR.inn,10.16,45.72,0.9
+taladro,U5,14,ERR.oa,7.62,45.72,0.9
+taladro,U6,1,0,22.86,91.44,1.0
+taladro,U6,2,PWM.tri,25.4,91.44,1.0
+taladro,U6,3,NC,27.94,91.44,1.0
+taladro,U6,4,v5,30.48,91.44,1.0
+taladro,U6,5,PWM.cv,30.48,83.82,1.0
+taladro,U6,6,PWM.tri,27.94,83.82,1.0
+taladro,U6,7,PWM.dis,25.4,83.82,1.0
+taladro,U6,8,v5,22.86,83.82,1.0
+taladro,U7,1,0,7.62,149.86,0.9
+taladro,U7,2,ENC.tg,10.16,149.86,0.9
+taladro,U7,3,ENC.mono,12.7,149.86,0.9
+taladro,U7,4,v5,15.24,149.86,0.9
+taladro,U7,5,ENC.cvm,15.24,142.24,0.9
+taladro,U7,6,ENC.dis7,12.7,142.24,0.9
+taladro,U7,7,ENC.dis7,10.16,142.24,0.9
+taladro,U7,8,v5,7.62,142.24,0.9
+taladro,U12,1,ENC.mono,22.86,149.86,0.9
+taladro,U12,2,ENC.mono,25.4,149.86,0.9
+taladro,U12,3,ENC.mq,27.94,149.86,0.9
+taladro,U12,4,0,30.48,149.86,0.9
+taladro,U12,5,0,33.02,149.86,0.9
+taladro,U12,6,NC,35.56,149.86,0.9
+taladro,U12,7,0,38.1,149.86,0.9
+taladro,U12,8,NC,38.1,142.24,0.9
+taladro,U12,9,0,35.56,142.24,0.9
+taladro,U12,10,0,33.02,142.24,0.9
+taladro,U12,11,NC,30.48,142.24,0.9
+taladro,U12,12,0,27.94,142.24,0.9
+taladro,U12,13,0,25.4,142.24,0.9
+taladro,U12,14,v5,22.86,142.24,0.9
+taladro,X,GND,0,10.16,10.16,1.0
+taladro,X,l,l,17.78,10.16,1.0
+taladro,X,pwm,pwm,25.4,10.16,1.0
+taladro,X,+5V,v5,33.02,10.16,1.0
+taladro,X,+12V,vm,40.64,10.16,1.0
+puente P1,U5.7 -> ERR.R1.1,,ERR.vsb,22.86,53.34,
+puente P2,U5.13 -> ERR.R1.2,,ERR.inn,10.16,45.72,
+puente P3,ERR.Ro.1 -> ERR.Rf6.1,,ERR.oa,43.18,63.5,
+puente P4,ENC.Cd.1 -> ENC.Rpq.2,,ENC.eq,45.72,142.24,
+puente P5,U3.1 -> ENC.Cd.1,,ENC.eq,7.62,114.3,
+puente P6,U6.6 -> PWM.Rb5.2,,PWM.tri,27.94,83.82,
+puente P7,U13.2 -> U6.2,,PWM.tri,10.16,91.44,
+puente P8,REF.Cr.1 -> REF.T2.1,,vref,86.36,25.4,
+puente P9,U6.4 -> PWM.Ra5.1,,v5,30.48,91.44,
+puente P10,U6.8 -> PWM.Ra5.1,,v5,22.86,83.82,
+puente P11,U13.8 -> U6.8,,v5,7.62,83.82,
+puente P12,ENC.Rtg.1 -> ENC.Ru1.1,,v5,58.42,142.24,
+puente P13,REF.Rt.1 -> X.+5V,,v5,7.62,25.4,
+puente P14,PWM.Ccv.2 -> PWM.Ct.2,,0,91.44,83.82,
+puente P15,ENC.Ru2.2 -> PWM.Ccv.2,,0,86.36,106.68,
+puente P16,ERR.Rv2.2 -> ERR.Cv.2,,0,58.42,45.72,
+puente P17,REF.Q5.E -> ERR.Rv2.2,,0,58.42,25.4,
+puente P18,REF.T1.W -> REF.Q5.E,,0,27.94,25.4,
+puente P19,U5.11 -> REF.T1.W,,0,15.24,45.72,
+puente P20,REF.Cr.2 -> REF.Q5.E,,0,91.44,25.4,
+puente P21,X.GND -> REF.T1.W,,0,10.16,10.16,
+puente P22,U13.5 -> U5.11,,0,15.24,83.82,
+puente P23,U13.4 -> U13.5,,0,15.24,91.44,
+puente P24,U3.5 -> U13.4,,0,15.24,106.68,
+puente P25,U3.4 -> U3.5,,0,15.24,114.3,
+puente P26,ENC.OPTO.E -> U3.4,,0,15.24,124.46,
+puente P27,U7.1 -> ENC.OPTO.K,,0,7.62,149.86,
+puente P28,U12.4 -> U7.1,,0,30.48,149.86,
+puente P29,U12.10 -> U12.5,,0,33.02,142.24,

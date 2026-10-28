@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explicación del esquemático por bloques</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 1000px; margin: 24px auto; padding: 0 16px; color: #222; line-height: 1.5; background: #fff; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  h2 { font-size: 1.2rem; margin-top: 40px; border-bottom: 1px solid #999; padding-bottom: 4px; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #aaa; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #eee; }
+  img { max-width: 100%; border: 1px solid #ccc; margin: 8px 0; }
+  code { background: #eee; padding: 0 3px; }
+  .nota { background: #f4f4f4; border-left: 4px solid #888; padding: 8px 12px; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<h1>Miniestación industrial automatizada: el esquemático explicado por bloques</h1>
+<p>Este documento recorre el circuito completo bloque por bloque: qué hace, qué valores tiene cada componente, cómo se calculó y qué resultó en la simulación. Los números marcados como <b>simulación</b> salen de LTspice con el motor supuesto descrito al final; no son mediciones de la máquina armada.</p>
+
+<h2>0. Cómo se conectan los bloques</h2>
+<p>Hay once bloques. Cada uno es una hoja (<code>BLOQUE_*.asc</code>) y el esquemático <code>SISTEMA_COMPLETO.asc</code> los une por nombre de nodo. Los nodos que se repiten en todo el circuito son:</p>
+<table>
+<tr><th>Nodo</th><th>Qué es</th></tr>
+<tr><td><code>vm</code></td><td>12 V después del diodo de protección (alimenta motor, op-amps y buzzer)</td></tr>
+<tr><td><code>v5</code></td><td>5 V regulados (lógica, comparadores, sensores)</td></tr>
+<tr><td><code>0</code></td><td>tierra</td></tr>
+</table>
+<table>
+<tr><th>Bloque</th><th>Entradas</th><th>Salidas</th></tr>
+<tr><td>1 Regulador 5 V</td><td>vm</td><td>v5</td></tr>
+<tr><td>2 Sensor IR</td><td>v5, b (fototransistor)</td><td>p (objeto), tin (punto de prueba)</td></tr>
+<tr><td>3 Sobrecorriente</td><td>vm, v5, sh (shunt)</td><td>setn (falla, activa en bajo)</td></tr>
+<tr><td>4 Temperatura</td><td>v5, tnode (NTC)</td><td>setn</td></tr>
+<tr><td>5 Lógica</td><td>v5, ein, gin, rin, p, setn</td><td>m, n, l, f, fn</td></tr>
+<tr><td>6 Generador PWM</td><td>v5, vctrl</td><td>pwm</td></tr>
+<tr><td>7 Potencia</td><td>v5, vm, pwm, m</td><td>dm (motor), sh (shunt)</td></tr>
+<tr><td>8 Encoder y F-V</td><td>v5, enc</td><td>vspd</td></tr>
+<tr><td>9 Referencia de velocidad</td><td>v5, l</td><td>vref</td></tr>
+<tr><td>10 Amplificador de error</td><td>vm, v5, vref, vspd</td><td>vctrl</td></tr>
+<tr><td>11 Alarma</td><td>vm, f</td><td>buzzer</td></tr>
+</table>
+<img src="img/SISTEMA_COMPLETO.png" alt="Esquemático jerárquico del sistema completo">
+<p>Las variables del enunciado son E (habilitar), G (cubierta cerrada), P (objeto) y F (falla). Las salidas son M (permiso de motor), N (velocidad normal), L (velocidad reducida) y A (alarma).</p>
+
+<h2>1. Regulador de 5 V</h2>
+<img src="img/BLOQUE_REG5V.png" alt="Bloque 1">
+<p><b>Qué hace.</b> Convierte los 12 V en 5 V. El Zener de 5.6 V fija la base del BD139 y la salida queda un poco menos de 0.7 V por debajo: unos 4.9 V. El BD139 entrega la corriente porque el Zener solo no aguanta.</p>
+<table>
+<tr><th>Componente</th><th>Valor</th><th>Para qué</th></tr>
+<tr><td>Rz</td><td>510 Ω</td><td>Polariza el Zener: (11 − 5.6) / 510 ≈ 10 mA</td></tr>
+<tr><td>DZ</td><td>1N4734A (5.6 V)</td><td>Referencia</td></tr>
+<tr><td>Rtr</td><td>trimpot 100 Ω (se ajusta cerca de 10 Ω)</td><td>Sube la salida unas decenas de mV para llegar a 5.0 V</td></tr>
+<tr><td>Q1</td><td>BD139 con disipador</td><td>Transistor de paso</td></tr>
+<tr><td>Cout, C2</td><td>100 µF, 100 nF</td><td>Filtro de la salida (el + del electrolítico va a v5)</td></tr>
+</table>
+<p><b>Simulación.</b> Con Vin de 11 a 13 V, carga de 30 a 120 mA y hFE de 40 a 250: 4.84 a 4.95 V con el Zener exacto (cumple 5 V ± 5 %). Con un Zener 5 % bajo y sin ajuste da 4.56 a 4.68 V (no cumple); con el trimpot entre 38 y 45 Ω da 4.79 a 5.23 V. Peor caso del BD139 (13 V, 120 mA): 0.85 a 0.92 W, por eso lleva disipador. En el sistema completo con motor: v5 = 5.012 a 5.018 V.</p>
+
+<h2>2. Sensor IR (señal P)</h2>
+<img src="img/BLOQUE_SENSOR_IR.png" alt="Bloque 2">
+<p><b>Qué hace.</b> Un LED infrarrojo ilumina y un fototransistor (TCRT5000) recibe el reflejo del objeto. Su corriente entra a la base del 2N3904 en emisor común, que la amplifica; un LM393 con histéresis la convierte en 0 o 1.</p>
+<table>
+<tr><th>Componente</th><th>Valor</th><th>Para qué</th></tr>
+<tr><td>Rled</td><td>270 Ω</td><td>(5 − 1.2) / 270 ≈ 14 mA en el LED IR</td></tr>
+<tr><td>R1, R2</td><td>47 kΩ, 10 kΩ</td><td>Polarización de la base (Vb ≈ 0.82 V)</td></tr>
+<tr><td>Q2</td><td>2N3904</td><td>Emisor común</td></tr>
+<tr><td>Rc, RE</td><td>680 Ω, 150 Ω</td><td>Colector y emisor (sin puentear): ganancia ≈ Rc / RE</td></tr>
+<tr><td>Umbral</td><td>Ra 10 kΩ + trimpot 10 kΩ + Rb 26.8 kΩ</td><td>Ajuste del punto de decisión</td></tr>
+<tr><td>Rpu, Rh</td><td>10 kΩ, 220 kΩ</td><td>Pull-up del comparador e histéresis</td></tr>
+<tr><td>Cac</td><td>1 µF</td><td>Acople para el punto de prueba tin</td></tr>
+</table>
+<p><b>Simulación</b> (hFE 100 / 200 / 400; el fototransistor se modela como fuente de corriente: 2 µA sin objeto y 50 µA con objeto):</p>
+<table>
+<tr><th>Caso</th><th>Voltaje de colector</th><th>p</th></tr>
+<tr><td>Sin objeto</td><td>4.30 / 4.17 / 4.08 V</td><td>0.03 V</td></tr>
+<tr><td>Con objeto</td><td>3.22 / 2.86 / 2.61 V</td><td>4.93 V</td></tr>
+</table>
+<p>Los umbrales del comparador son 3.30 V (baja) y 3.52 V (sube). Ganancia de pequeña señal −3.95 (11.9 dB), Zin ≈ 6.7 kΩ y Zout ≈ 680 Ω. El bloque consume unos 15.5 mA de 5 V.</p>
+
+<h2>3. Sobrecorriente</h2>
+<img src="img/BLOQUE_SOBRECORRIENTE.png" alt="Bloque 3">
+<p><b>Qué hace.</b> La corriente del motor pasa por un shunt de 0.5 Ω (5 W) (en el bloque de potencia). Un LM358 amplifica la caída con ganancia 1 + 6.8k/1k = 7.8. Un diodo con capacitor guarda el pico, un RC de unos 0.1 s retrasa la decisión para que el arranque no dispare la falla, y un LM393 compara con una referencia ajustable.</p>
+<table>
+<tr><th>Componente</th><th>Valor</th></tr>
+<tr><td>Rg, Rf</td><td>1 kΩ, 6.8 kΩ</td></tr>
+<tr><td>D1, Cpk, Rbl</td><td>1N4148, 100 nF, 22 kΩ (detector de picos)</td></tr>
+<tr><td>Rd, Cd</td><td>10 kΩ, 10 µF (retardo ≈ 0.1 s; + de Cd hacia dl)</td></tr>
+<tr><td>Referencia</td><td>Ra 10 kΩ + trimpot 10 kΩ + Rb 10 kΩ → Vref ≈ 2 V</td></tr>
+</table>
+<p>Corriente de disparo ≈ (Vref + 0.6 V) / (0.5 Ω × 7.8) ≈ 0.67 A.</p>
+<p><b>Simulación.</b> Dispara a ≈ 0.71 A. Un arranque de 1.5 A durante 30 ms deja el nodo dl en 1.11 V como máximo (no dispara). 0.55 A sostenidos no disparan (1.47 V). 0.9 A sostenidos disparan a los 56 ms. En el sistema completo, con carga extra desde 1.9 s, dispara en t = 2.098 s.</p>
+
+<h2>4. Temperatura</h2>
+<img src="img/BLOQUE_TEMPERATURA.png" alt="Bloque 4">
+<p><b>Qué hace.</b> El NTC de 10 kΩ (B = 3950) va de v5 a tnode y una resistencia fija de 10 kΩ lo completa a tierra. Al calentarse el NTC baja de resistencia y tnode sube. Un LM393 compara con un umbral ajustable.</p>
+<p>Cálculo a 50 °C: R(NTC) = 10 kΩ · e<sup>3950 (1/323.15 − 1/298.15)</sup> ≈ 3.6 kΩ, entonces tnode = 5 · 10 / (10 + 3.6) ≈ 3.7 V.</p>
+<table>
+<tr><th>Componente</th><th>Valor</th></tr>
+<tr><td>Rfix</td><td>10 kΩ</td></tr>
+<tr><td>Umbral</td><td>Ra 22 kΩ + trimpot 10 kΩ + Rb 68 kΩ</td></tr>
+<tr><td>Rh</td><td>1 MΩ (histéresis)</td></tr>
+</table>
+<p><b>Simulación.</b> El umbral se ajusta de 44.0 a 56.8 °C con el trimpot (centro 49.9 °C); histéresis de 2.5 a 2.7 °C. En el sistema completo disparó a 49.9 °C.</p>
+
+<h2>5. Lógica combinacional</h2>
+<img src="img/BLOQUE_LOGICA.png" alt="Bloque 5">
+<p><b>Ecuaciones.</b> <code>M = E · G · F'</code>, <code>N = M · P'</code>, <code>L = M · P</code>, <code>A = F</code>. F sale de un pestillo hecho con compuertas NAND (74HC00): cuando setn baja (falla de corriente o temperatura), F se pone en 1 y se queda hasta pulsar reset. El reset solo limpia si la falla ya desapareció. Al encender hay un reset automático (Cpor 1 µF + Rpor 47 kΩ + Dpor).</p>
+<table>
+<tr><th>Parte</th><th>Detalle</th></tr>
+<tr><td>Entradas E, G, reset</td><td>Rp 10 kΩ a tierra (un cable roto cuenta como 0), Rs 10 kΩ + 100 nF (antirrebote ≈ 1 ms) y dos inversores Schmitt 74HC14</td></tr>
+<tr><td>Pestillo</td><td>74HC00: reset_n = NAND(rst, setn); P' = NAND(P, P)</td></tr>
+<tr><td>Salidas</td><td>74HC08: M1 = E·G, M = M1·F', N = M·P', L = M·P</td></tr>
+<tr><td>setn</td><td>Pull-up de 10 kΩ; es un AND cableado de los comparadores de corriente y temperatura (colector abierto)</td></tr>
+</table>
+<p><b>Simulación.</b> Las 16 combinaciones de E, G, P y F se probaron con el circuito real (pestillo, reset y Schmitt incluidos): todas correctas. El reset solo limpia cuando ya no hay falla.</p>
+
+<h2>6. Generador de PWM</h2>
+<img src="img/BLOQUE_PWM_GEN.png" alt="Bloque 6">
+<p><b>Qué hace.</b> Un NE555 astable hace una rampa en su capacitor (entre 1.7 y 3.3 V). Un LM393 compara vctrl con la rampa: a mayor vctrl, pulsos más anchos.</p>
+<p>f = 1.44 / ((Ra + 2 Rb) · Ct) = 1.44 / (21 kΩ · 10 nF) ≈ 6.9 kHz. Ciclo de trabajo = (vctrl − 1.7 V) / 1.7 V.</p>
+<p><b>Simulación.</b> Con vctrl = 2.4 V el ciclo fue 0.44 (teórico (2.4 − 1.67) / 1.67 = 0.44).</p>
+
+<h2>7. Potencia</h2>
+<img src="img/BLOQUE_POTENCIA.png" alt="Bloque 7">
+<p><b>Qué hace.</b> Una AND 74HC08 deja pasar el PWM solo si M = 1. Un seguidor complementario (2N3904 / 2N3906) alimentado con 5 V mueve la compuerta del MOSFET IRFZ44N (con 4.4 V en la compuerta ya conduce con poca resistencia). El diodo 1N5819 absorbe los picos del motor al apagar. El shunt de 0.5 Ω (5 W) va entre la fuente del MOSFET y tierra.</p>
+<p>Se eligió un MOSFET de nivel lógico y un excitador de 5 V a propósito: si falla el 5 V, el MOSFET queda apagado. Con un IRF540N o IRFZ44N se necesitaría un excitador de 12 V.</p>
+<p><b>Simulación.</b> Compuerta de 0 a 4.36 V, Vds máximo 11.5 V.</p>
+
+<h2>8. Encoder y convertidor frecuencia-voltaje</h2>
+<img src="img/BLOQUE_ENCODER_FV.png" alt="Bloque 8">
+<p><b>Qué hace.</b> El optointerruptor da pulsos al pasar las 20 ranuras del disco. Un LM393 limpia la señal, un derivador (1 nF + 10 kΩ) crea un pulso corto en cada flanco y un 555 monoestable lo convierte en un pulso fijo. Un filtro RC doble (10 kΩ + 1 µF, dos veces) lo vuelve voltaje.</p>
+<p>Ancho del pulso: tw = 1.1 · Rt7 · Ct7 = 1.1 · 20 kΩ · 10 nF = 220 µs. Vspd = 5 V · 220 µs · f = 1.1 mV por Hz. A 500 Hz: 0.55 V.</p>
+<p><b>Simulación.</b> 100 Hz → 0.119 V; 500 Hz → 0.557 V; 1 kHz → 1.106 V. Rizado de 14 a 26 mV pico a pico.</p>
+
+<h2>9. Referencia de velocidad</h2>
+<img src="img/BLOQUE_REFVEL.png" alt="Bloque 9">
+<p><b>Qué hace.</b> Rt (68 kΩ) y un trimpot de 10 kΩ dan la referencia normal, unos 0.53 V. Cuando L = 1, el 2N3904 pone un segundo trimpot en paralelo y la referencia baja a cerca de la mitad (el enunciado pide entre 40 % y 60 %).</p>
+<p><b>Simulación.</b> Referencia normal 0.526 V; velocidad reducida = 56 % de la normal.</p>
+
+<h2>10. Amplificador de error</h2>
+<img src="img/BLOQUE_ERROR_AMP.png" alt="Bloque 10">
+<p><b>Qué hace.</b> Tres seguidores aíslan vref, vspd y un nivel de partida; el cuarto amplificador del LM324 resta y multiplica: <code>vctrl = Kerr · (vref − vspd) + Voff</code> con Kerr = 10 (100 kΩ / 10 kΩ) y Voff = 5 · 5.1 / (4.7 + 5.1) ≈ 2.6 V. Si la velocidad baja, vctrl sube y el PWM da más potencia. No tiene integrador, así que no hay acumulación de error (windup).</p>
+<p><b>Simulación</b> (motor supuesto): normal 147 rad/s (1403 rpm) con error de 2 % respecto a la referencia; reducida 82.4 rad/s (786 rpm). Con carga extra la velocidad baja 6.5 % en lazo cerrado contra 25.9 % en lazo abierto. Arranque al 95 % en 0.08 s con sobreimpulso de 18 % y corriente de arranque de 0.88 A.</p>
+
+<h2>11. Alarma</h2>
+<img src="img/BLOQUE_ALARMA.png" alt="Bloque 11">
+<p><b>Qué hace.</b> Cuando f = 1, el 2N3904 conduce como interruptor y enciende el buzzer de 12 V. Ib = (4.9 − 0.7) / 1 kΩ ≈ 4 mA; Ic ≈ 30 mA; Ic/Ib = 7.5, menor que hFE, así que el transistor satura. En la simulación el buzzer se representa con 400 Ω. La señal luminosa es un LED rojo con 470 Ω desde f (≈ 8 mA); las simulaciones largas del sistema se corrieron antes de agregarlo.</p>
+
+<h2>12. Sistema completo (simulación de 4.6 s)</h2>
+<table>
+<tr><th>Situación</th><th>Resultado simulado</th></tr>
+<tr><td>Normal</td><td>1394 rpm, corriente del motor 0.150 A</td></tr>
+<tr><td>Objeto presente</td><td>L = 1, N = 0, 789 rpm</td></tr>
+<tr><td>Objeto retirado</td><td>1415 rpm</td></tr>
+<tr><td>Cubierta abierta (t = 1.40 s)</td><td>M cae en 1.4010 s, motor a 0 A</td></tr>
+<tr><td>Cubierta cerrada</td><td>Reanuda a 1392 rpm</td></tr>
+<tr><td>Falla de corriente</td><td>f = 1 (alarma 4.8 V), M = 0, motor parado; la falla sigue después de quitar la carga</td></tr>
+<tr><td>Reset a 2.6 s</td><td>Limpia la falla, 1409 rpm</td></tr>
+<tr><td>Falla de temperatura</td><td>Dispara a 49.9 °C</td></tr>
+<tr><td>Reset con calor (pulsado de 3.40 a 3.55 s)</td><td>No limpia: el NTC estaba a 53 a 54 °C, setn seguía en bajo y f se mantuvo en 1 (4.82 V). La falla sigue enclavada aunque después se enfríe (f = 1 a los 3.75 y 4.15 s). Un nuevo reset a 4.20 s, con 25 °C, limpia (f = 0, 1411 rpm a 4.50 s)</td></tr>
+</table>
+<p>Fuente y regulador en todo el recorrido: v5 entre 5.012 y 5.018 V, vm mínimo 11.13 V y corriente máxima por el diodo de entrada 0.95 A.</p>
+
+<h2>13. Supuestos de la simulación</h2>
+<ul>
+  <li>El motor es un modelo supuesto: Ra 12 Ω, La 3 mH, Ke = Kt = 0.035 V·s/rad, J = 1e-5, carga 0.004 N·m. Cuando se elija el motor real hay que recalibrar el trimpot de sobrecorriente y la referencia.</li>
+  <li>El fototransistor se modela como fuente de corriente (2 µA sin objeto, 50 µA con objeto).</li>
+  <li>Las compuertas 74HC y varios circuitos integrados usan modelos de comportamiento propios (<code>modelos.inc</code>); no son los modelos del fabricante.</li>
+  <li>La simulación del sistema completo se repitió armando el circuito a partir de los netlists de los esquemáticos dibujados (no de las descripciones de texto) y dio los mismos resultados: 1394 rpm normal, 789 rpm con objeto, disparo por corriente en 2.098 s, disparo térmico a 49.9 °C y la cubierta corta M en 1 ms.</li>
+  <li>Todo lo de este documento es cálculo o simulación. Las mediciones de la máquina real se agregan cuando se hagan.</li>
+</ul>
+
+</body>
+</html>

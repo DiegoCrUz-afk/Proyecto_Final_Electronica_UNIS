@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.raw
+*.log
+*.net
+*.op
+*.db
+*Security copy*
+CONTEXTO_SESION.md
+Enunciado_del_profesor.docx

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitectura de bloques</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; color: #222; line-height: 1.5; background: #fff; }
+  h1 { font-size: 1.5rem; margin-bottom: 4px; }
+  h2 { font-size: 1.15rem; margin-top: 32px; border-bottom: 1px solid #999; padding-bottom: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #aaa; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eee; }
+  .svgwrap { overflow-x: auto; border: 1px solid #ccc; }
+  svg text { font-family: Arial, sans-serif; font-size: 12px; fill: #222; }
+  svg .box { fill: #f6f6f6; stroke: #444; stroke-width: 1.2; }
+  svg .logic { fill: #eef3fb; stroke: #345; stroke-width: 1.6; }
+  svg .power { fill: #fbf3e6; stroke: #654; stroke-width: 1.4; }
+  svg .line { stroke: #222; stroke-width: 1.4; fill: none; marker-end: url(#a); }
+  svg .dash { stroke: #777; stroke-width: 1.2; fill: none; stroke-dasharray: 5 4; }
+  svg .title { font-weight: bold; font-size: 13px; }
+  svg .small { font-size: 11px; fill: #444; }
+  .nota { background: #f4f4f4; border-left: 4px solid #888; padding: 8px 12px; margin: 12px 0; }
+  code { background: #eee; padding: 0 3px; }
+</style>
+</head>
+<body>
+
+<h1>Miniestación industrial automatizada: arquitectura de bloques</h1>
+<p>Hito 1. Esta página explica qué bloques tiene la máquina, cómo se pasan señales entre ellos y qué componentes se piensa usar. Los valores de resistencias y capacitores se calculan en los hitos siguientes; aquí solo se define qué hace cada parte.</p>
+
+<h2>1. Diagrama general</h2>
+<p>Se lee de izquierda a derecha: los sensores miden, el acondicionamiento los convierte en señales limpias, la lógica decide y la parte de control mueve el motor. Líneas continuas = señal. Líneas punteadas = conexión física, no es señal.</p>
+
+<div class="svgwrap">
+<svg viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-label="Diagrama de bloques de la miniestación">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#222"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="22" class="title">SENSORES</text>
+  <text x="250" y="22" class="title">ACONDICIONAMIENTO</text>
+  <text x="480" y="22" class="title">LÓGICA 74HC</text>
+  <text x="730" y="22" class="title">CONTROL Y SALIDAS</text>
+  <text x="960" y="22" class="title">POTENCIA</text>
+
+  <!-- Sensores -->
+  <rect class="box" x="20" y="40" width="170" height="50"/><text x="30" y="60">Sensor óptico IR</text><text x="30" y="77" class="small">detecta objeto</text>
+  <rect class="box" x="20" y="120" width="170" height="50"/><text x="30" y="140">Interruptor de cubierta</text><text x="30" y="157" class="small">seguridad</text>
+  <rect class="box" x="20" y="200" width="170" height="50"/><text x="30" y="220">Resistor shunt</text><text x="30" y="237" class="small">mide corriente del motor</text>
+  <rect class="box" x="20" y="280" width="170" height="50"/><text x="30" y="300">Termistor NTC</text><text x="30" y="317" class="small">mide temperatura</text>
+  <rect class="box" x="20" y="400" width="170" height="50"/><text x="30" y="420">Encoder óptico</text><text x="30" y="437" class="small">pulsos = giro del motor</text>
+
+  <!-- Acondicionamiento -->
+  <rect class="box" x="250" y="40" width="170" height="50"/><text x="260" y="60">BJT emisor común</text><text x="260" y="77" class="small">+ comparador (histéresis)</text>
+  <rect class="box" x="250" y="120" width="170" height="50"/><text x="260" y="140">Resistencia pull-up</text><text x="260" y="157" class="small">+ filtro anti-rebote</text>
+  <rect class="box" x="250" y="200" width="170" height="50"/><text x="260" y="220">Op-amp (ganancia)</text><text x="260" y="237" class="small">+ filtro + comparador</text>
+  <rect class="box" x="250" y="280" width="170" height="50"/><text x="260" y="300">Divisor + comparador</text><text x="260" y="317" class="small">umbral ajustable 45-55 °C</text>
+  <rect class="box" x="250" y="400" width="170" height="50"/><text x="260" y="420">Convertidor F-V</text><text x="260" y="437" class="small">555 monoestable + filtro RC</text>
+
+  <path class="line" d="M190,65 H250"/>
+  <path class="line" d="M190,145 H250"/>
+  <path class="line" d="M190,225 H250"/>
+  <path class="line" d="M190,305 H250"/>
+  <path class="line" d="M190,425 H250"/>
+
+  <!-- Logica -->
+  <rect class="logic" x="480" y="40" width="190" height="280"/>
+  <text x="490" y="62" class="title">Decisión</text>
+  <text x="490" y="84" class="small">Entradas: E, G, P, F</text>
+  <text x="490" y="104" class="small">Salidas: M, N, L, A</text>
+  <text x="490" y="134" class="small">M = permiso de motor</text>
+  <text x="490" y="152" class="small">N = velocidad normal</text>
+  <text x="490" y="170" class="small">L = velocidad reducida</text>
+  <text x="490" y="188" class="small">A = alarma</text>
+  <text x="490" y="224" class="small">Dentro: compuertas 74HC y un</text>
+  <text x="490" y="240" class="small">latch que recuerda la falla</text>
+  <text x="490" y="256" class="small">hasta que se pulse Reset</text>
+
+  <path class="line" d="M420,65 H450 V95 H480"/>
+  <text x="446" y="58" class="small">P</text>
+  <path class="line" d="M420,145 H450 V125 H480"/>
+  <text x="446" y="140" class="small">G</text>
+  <path class="line" d="M420,225 H480"/>
+  <text x="440" y="219" class="small">F (corriente)</text>
+  <path class="line" d="M420,305 H450 V250 H480"/>
+  <text x="426" y="299" class="small">F (temp.)</text>
+
+  <rect class="box" x="480" y="345" width="90" height="45"/><text x="488" y="365">E: switch</text><text x="488" y="381" class="small">habilitar</text>
+  <rect class="box" x="580" y="345" width="90" height="45"/><text x="588" y="365">Reset</text><text x="588" y="381" class="small">pulsador</text>
+  <path class="line" d="M525,345 V320"/>
+  <path class="line" d="M625,345 V320"/>
+
+  <!-- Salidas de la logica -->
+  <path class="line" d="M670,65 H730"/><text x="690" y="59" class="small">A</text>
+  <path class="line" d="M670,150 H730"/><text x="685" y="144" class="small">N, L</text>
+  <path class="line" d="M670,300 H710 V385 H730"/><text x="676" y="294" class="small">M</text>
+
+  <!-- Control -->
+  <rect class="box" x="730" y="40" width="170" height="50"/><text x="740" y="60">Alarma</text><text x="740" y="77" class="small">BJT + LED + buzzer</text>
+  <rect class="box" x="730" y="120" width="170" height="50"/><text x="740" y="140">Referencia de velocidad</text><text x="740" y="157" class="small">normal o reducida (40-60 %)</text>
+  <rect class="box" x="730" y="200" width="170" height="50"/><text x="740" y="220">Amplificador de error</text><text x="740" y="237" class="small">referencia menos velocidad</text>
+  <rect class="box" x="730" y="280" width="170" height="50"/><text x="740" y="300">Generador de PWM</text><text x="740" y="317" class="small">555 + comparador</text>
+  <rect class="box" x="730" y="360" width="170" height="50"/><text x="740" y="380">AND con M</text><text x="740" y="397" class="small">sin M no pasa el PWM</text>
+
+  <path class="line" d="M815,170 V200"/>
+  <path class="line" d="M815,250 V280"/>
+  <path class="line" d="M815,330 V360"/>
+  <path class="line" d="M420,425 H690 V225 H730"/>
+  <text x="520" y="418" class="small">velocidad medida (voltaje)</text>
+
+  <!-- Potencia -->
+  <rect class="box" x="960" y="360" width="190" height="50"/><text x="970" y="380">Driver de compuerta + MOSFET N</text><text x="970" y="397" class="small">diodo de protección al motor</text>
+  <rect class="box" x="960" y="280" width="190" height="50"/><text x="970" y="300">Motor DC 12 V</text><text x="970" y="317" class="small">con disco del encoder</text>
+  <path class="line" d="M900,385 H960"/>
+  <path class="line" d="M1055,360 V330"/>
+  <path class="dash" d="M1055,280 V200 H1180 V425 H190"/>
+  <text x="1070" y="194" class="small">el disco gira con el motor</text>
+  <text x="1070" y="215" class="small">y pasa por el encoder</text>
+  <path class="dash" d="M1010,410 V470 H205 V240 H190"/>
+  <text x="400" y="486" class="small">el shunt va entre la fuente del MOSFET y tierra</text>
+
+  <!-- Alimentacion -->
+  <rect class="power" x="20" y="510" width="1130" height="70"/>
+  <text x="32" y="532" class="title">ALIMENTACIÓN</text>
+  <text x="32" y="552">Fuente 12 V → diodo contra polaridad inversa → dos ramas:</text>
+  <text x="32" y="570" class="small">+12 V: motor, MOSFET, amplificadores operacionales, buzzer.</text>
+  <text x="520" y="570" class="small">+5 V (Zener + BJT de paso): compuertas 74HC, comparadores y sensores.</text>
+</svg>
+</div>
+
+<h2>2. Qué hace cada bloque (en palabras simples)</h2>
+<table>
+<tr><th>Bloque</th><th>Qué entra</th><th>Qué sale</th><th>Idea del circuito</th></tr>
+<tr><td>Alimentación y regulador</td><td>12 V de la fuente</td><td>12 V protegido y 5 V regulado</td><td>El diodo en serie evita daños si se conecta al revés. El Zener fija un voltaje de referencia y el BJT de paso entrega la corriente (el Zener solo no aguanta 120 mA).</td></tr>
+<tr><td>Sensor IR + BJT</td><td>Luz IR reflejada por el objeto</td><td>Señal lógica P</td><td>Un LED IR y un fototransistor dan una señal pequeña. El BJT en emisor común la amplifica y un comparador con histéresis la vuelve limpia (0 o 1).</td></tr>
+<tr><td>Cubierta</td><td>Contacto abierto o cerrado</td><td>Señal lógica G</td><td>Contacto con resistencia a 5 V. G = 1 si la cubierta está cerrada. Se recomienda que un cable roto cuente como "abierta" (más seguro).</td></tr>
+<tr><td>Shunt + op-amp</td><td>Caída de unas decenas de mV en una resistencia pequeña</td><td>Falla de corriente</td><td>La corriente del motor pasa por el shunt y produce un voltaje pequeño. El op-amp lo multiplica y un comparador dispara la falla. Un filtro evita que el arranque la dispare por error.</td></tr>
+<tr><td>NTC</td><td>Temperatura</td><td>Falla de temperatura</td><td>La resistencia del NTC baja al calentarse. En un divisor eso sube o baja un voltaje que se compara con un umbral ajustable (45 a 55 °C).</td></tr>
+<tr><td>Lógica 74HC</td><td>E, G, P, F</td><td>M, N, L, A</td><td>Compuertas reales. Si E=0, G=0 o F=1, el motor se detiene. La falla queda guardada en un latch hasta pulsar Reset.</td></tr>
+<tr><td>Referencia y error</td><td>N o L, y velocidad medida</td><td>Voltaje de control</td><td>Dos voltajes de referencia (normal y reducida). El amplificador de error compara referencia con velocidad real y ordena más o menos PWM.</td></tr>
+<tr><td>Encoder + F-V</td><td>Pulsos del disco</td><td>Voltaje proporcional a la velocidad</td><td>Más pulsos por segundo = más voltaje. Un 555 monoestable da un pulso fijo de 220 µs por cada ranura y un filtro RC doble lo convierte en voltaje (1.1 mV por Hz).</td></tr>
+<tr><td>PWM</td><td>Voltaje de control</td><td>Pulsos de ancho variable</td><td>Un oscilador crea una rampa y un comparador la corta según el voltaje de control. Más ancho = más velocidad.</td></tr>
+<tr><td>AND con M + driver + MOSFET</td><td>PWM y M</td><td>Corriente al motor</td><td>La AND hace que la lógica de seguridad mande sobre el PWM. El MOSFET conecta y desconecta el motor muy rápido; el diodo en paralelo con el motor absorbe los picos al apagar.</td></tr>
+<tr><td>Alarma</td><td>A</td><td>LED y buzzer</td><td>Un BJT como interruptor enciende el buzzer y el LED mientras A=1.</td></tr>
+</table>
+
+<h2>3. Cómo leer un esquemático (guía rápida)</h2>
+<table>
+<tr><th>Lo que ves</th><th>Qué significa</th></tr>
+<tr><td>Una línea</td><td>Un cable. Todo lo que esté unido por líneas tiene el mismo voltaje.</td></tr>
+<tr><td>Un punto negro donde se cruzan líneas</td><td>Los cables sí están conectados. Si se cruzan sin punto, no se tocan.</td></tr>
+<tr><td>Símbolo de tierra (GND)</td><td>El punto de referencia, 0 V. Todos los GND del dibujo son el mismo punto.</td></tr>
+<tr><td>Nombres como +12V, +5V, vf</td><td>Etiquetas de nodo: dos cables con el mismo nombre están unidos aunque no haya línea entre ellos.</td></tr>
+<tr><td>R1, C1, Q1, D1, U1</td><td>Resistencia, capacitor, transistor, diodo y circuito integrado. El número los distingue.</td></tr>
+<tr><td>Flecha del transistor</td><td>Marca el emisor (BJT) y el sentido de la corriente. NPN: sale del emisor. PNP: entra.</td></tr>
+<tr><td>Triángulo con + y −</td><td>Amplificador operacional (o comparador). La salida va a la punta del triángulo.</td></tr>
+</table>
+<div class="nota">Al dibujar el esquemático final: señales de izquierda a derecha, alimentación arriba, tierra abajo, y cada bloque en su zona. Así se parece a este diagrama y es fácil de defender.</div>
+
+<h2>4. Lógica: adelanto de las ecuaciones</h2>
+<p>Con las reglas del enunciado, la primera propuesta (se verifica con la tabla de verdad y Karnaugh en el hito 3):</p>
+<table>
+<tr><th>Salida</th><th>Ecuación</th><th>Se lee</th></tr>
+<tr><td>M</td><td><code>M = E · G · F'</code></td><td>Motor permitido si está habilitado, la cubierta está cerrada y no hay falla.</td></tr>
+<tr><td>N</td><td><code>N = M · P'</code></td><td>Velocidad normal si el motor está permitido y no hay objeto.</td></tr>
+<tr><td>L</td><td><code>L = M · P</code></td><td>Velocidad reducida si el motor está permitido y hay objeto.</td></tr>
+<tr><td>A</td><td><code>A = F</code></td><td>La alarma sigue a la falla (que ya incluye el latch).</td></tr>
+</table>
+<p>Las cuatro entradas dan 16 combinaciones; esa tabla la hacemos completa en el hito 3. Nota: abrir la cubierta (G=0) detiene el motor, pero la regla 3 del enunciado pide enclavar solo fallas críticas (corriente y temperatura), así que G no pasa por el latch. Esto se confirma con el docente.</p>
+
+<h2>5. Lista preliminar de componentes</h2>
+<p>Pensada con piezas comunes en tiendas de electrónica de Guatemala. No se ha verificado existencia ni se han puesto precios; eso se hace al armar la lista de compras.</p>
+<table>
+<tr><th>Bloque</th><th>Componentes propuestos</th><th>Comentario</th></tr>
+<tr><td>Protección de entrada</td><td>Diodo 1N4007; fusible de 1 A (opcional)</td><td>Corriente total prevista menor a 1 A.</td></tr>
+<tr><td>Regulador 5 V</td><td>Zener 1N4734A (5.6 V, 1 W), BJT BD139 (o TIP31C), capacitores 100 µF y 100 nF, disipador TO-126/TO-220</td><td>Salida ≈ 5.6 − 0.65 ≈ 4.95 V. Se calcula la potencia del BD139 para el peor caso en el hito 2.</td></tr>
+<tr><td>Amplificador BJT</td><td>2N3904 o BC547, resistencias para polarización</td><td>Emisor común para el sensor óptico.</td></tr>
+<tr><td>Sensor IR</td><td>TCRT5000 (emisor y receptor en un encapsulado) o LED IR + fototransistor</td><td>Se prueba distancia y tipo de objeto (9 de 10 aciertos).</td></tr>
+<tr><td>Op-amp y comparadores</td><td>LM358 (op-amp doble), LM393 (comparador doble)</td><td>Son muy comunes. LM393 tiene salida de colector abierto: se alimenta con pull-up a 5 V.</td></tr>
+<tr><td>Shunt</td><td>Resistencia de 0.47 Ω a 1 W (o 0.22 Ω)</td><td>Se define con la corriente del motor elegido.</td></tr>
+<tr><td>Temperatura</td><td>NTC de 10 kΩ, trimpot multivuelta 10 kΩ</td><td>Calibración con termómetro de referencia.</td></tr>
+<tr><td>Cubierta y reset</td><td>Microswitch o interruptor de lengüeta, pulsador, interruptor de habilitar</td><td></td></tr>
+<tr><td>Lógica</td><td>74HC00, 74HC02, 74HC04, 74HC08, 74HC32 (según salga el diseño)</td><td>Entradas no usadas a 0 o 1 (no flotantes).</td></tr>
+<tr><td>Encoder y F-V</td><td>Disco de 20 ranuras + optointerruptor ranurado, NE555, LM393, 74HC (buffer)</td><td>Monoestable con 555 y filtro RC doble en lugar de un convertidor especializado.</td></tr>
+<tr><td>PWM</td><td>NE555, LM393 o LM358, capacitores y resistencias</td><td>Astable de unos 6.9 kHz (Ra 1 kΩ, Rb 10 kΩ, Ct 10 nF).</td></tr>
+<tr><td>Potencia</td><td>MOSFET IRLZ44N (nivel lógico) o IRF540N con driver BJT; diodo 1N5819 o 1N5822 en paralelo al motor; resistencia de compuerta 100 Ω y pull-down 10 kΩ</td><td>Se elige según corriente de arranque del motor.</td></tr>
+<tr><td>Alarma</td><td>BJT 2N2222/2N3904, LED, buzzer activo</td><td>El BJT trabaja como interruptor.</td></tr>
+<tr><td>Motor y mecánica</td><td>Motor DC 12 V con caja reductora (≤ 500 mA), banda, estructura, cubierta</td><td>La banda y el motor se deciden pronto porque define corriente y velocidad.</td></tr>
+<tr><td>Montaje</td><td>Placa perforada, conectores, borneras, carcasa, jack para la fuente de 12 V</td><td>No se entrega en protoboard.</td></tr>
+</table>
+
+<h2>6. Reglas de diseño que se aplican en todo el proyecto</h2>
+<ul>
+  <li>La seguridad manda: la AND con M quita el PWM aunque el lazo pida más potencia.</li>
+  <li>Una sola unión entre tierra de control y tierra de potencia, cerca de la entrada de 12 V. La corriente del motor no debe pasar por la tierra de los sensores.</li>
+  <li>Cada sensor tiene punto de prueba marcado para el osciloscopio y el multímetro.</li>
+  <li>Todo lo que se mida se compara con cálculo y simulación.</li>
+</ul>
+
+<h2>7. Siguiente paso</h2>
+<p>Los valores finales de cada bloque están en el documento <code>Explicacion_por_bloques.html</code> y en los esquemáticos de la carpeta <code>2_LTspice</code>.</p>
+
+</body>
+</html>
