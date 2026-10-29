@@ -45,16 +45,8 @@ for (k, v), n in cnt.items():
 ic = Counter(d["val"] for d in datos if d["kind"] == "IC")
 q = Counter(d["val"] for d in datos if d["kind"] in ("Q92", "Q126", "MOS"))
 dd = Counter(d["val"] for d in datos if d["kind"] == "D")
-n_tb = sum(1 for d in datos if d["kind"] == "TB" and d["val"] != "Entrada 12 V (jack)")
 n_trim10 = sum(1 for d in datos if d["kind"] == "TRIM" and d["val"] == "10k")
 n_trim100 = sum(1 for d in datos if d["kind"] == "TRIM" and d["val"].startswith("100"))
-try:
-    D = json.load(open(os.path.join(T, "pcb", "salida", "pcb_datos.json")))
-    n_placas = len(D["boards_list"])
-    n_postes = sum(1 for b in D["boards"].values() for p in b["pads"] if p["ref"] == "X")
-    n_puentes = sum(len(b["jumpers"]) for b in D["boards"].values())
-except Exception:
-    n_placas, n_postes, n_puentes = 10, 70, 70
 
 # ---------------- listas
 def p(clave):
@@ -85,7 +77,7 @@ COMPRAR = [
         fila_compra(ic["LM324"], "LM324", ""),
         fila_compra(ic["NE555"], "NE555", ""),
         fila_compra(ic["74HC00"], "74HC00", ""),
-        fila_compra(ic["74HC08"], "74HC08", "6 compuertas AND en 3 chips"),
+        fila_compra(ic["74HC08"], "74HC08", "5 compuertas AND y 1 buffer repartidas en 3 chips (uno por bloque)"),
         fila_compra(ic["74HC14"], "74HC14", ""),
         (ic["LM393"] + ic["LM358"] + ic["NE555"], "Base para IC de 8 pines", 1.00, "uno por cada chip de 8 patas"),
         (ic["LM324"] + ic["74HC00"] + ic["74HC08"] + ic["74HC14"], "Base para IC de 16 pines (para los de 14 patas)", 1.50, "la tienda no muestra de 14; la de 16 sirve"),
@@ -104,6 +96,7 @@ COMPRAR = [
         fila_compra(n_trim10, "TRIM10K", "ajustes de umbral y referencias"),
         fila_compra(n_trim100, "TRIM100", "ajuste del regulador; si ya lo compraste para el amplificador, no lo repitas"),
         fila_compra(1, "BUZZER12", "alarma sonora"),
+        fila_compra(1, "ESTANO", "para soldar cables al jack, interruptor, final de carrera y portafusible"),
         (1, "Resistencia 0.5 Ω a 5 W (shunt)", 4.00, "reemplaza a la de 0.47 Ω 1 W; la tienda la tiene"),
     ]),
     ("Capacitores", [
@@ -114,14 +107,14 @@ COMPRAR = [
         fila_compra(PIEZAS_ABSOLUTAS["CE"].get("1000 µF", 0), "CE1000", "idem"),
     ]),
     ("Conexion y mecanica", [
-        fila_compra(1, "JACK", "entrada de la fuente de 12 V"),
-        fila_compra(1, "SW", "interruptor E"),
-        fila_compra(1, "PULSADOR", "reset"),
-        fila_compra(1, "FINAL", "micro-switch de la cubierta"),
+        fila_compra(1, "JACK", "entrada de la fuente de 12 V; se le sueldan 2 cables hacia la protoboard"),
+        fila_compra(1, "SW", "interruptor E; se le sueldan cables"),
+        fila_compra(1, "PULSADOR", "reset; sus 4 patas entran en la protoboard"),
+        fila_compra(1, "FINAL", "micro-switch de la cubierta; se le sueldan cables"),
         fila_compra(2, "DISIP", "BD139 y IRFZ44N"),
         fila_compra(1, "MOTOR", "OJO: la tienda no publica la corriente; debe ser menor a 500 mA (ver notas)"),
         fila_compra(1, "FUENTE", "12 V, 2 A"),
-        fila_compra(1, "FUSIBLE", "portafusible 5 x 20 mm (el fusible de 1 A no lo encontre)"),
+        fila_compra(1, "FUSIBLE", "portafusible con cables; el fusible de 1 A de 5x20 no lo encontre"),
     ]),
     ("Protoboards", [
         (5, "Protoboard de 1 galleta (confirma que sea de 830 puntos)", 39.00, "5 protoboards segun el 3D; hay uno de 4 galletas a Q242"),
@@ -179,7 +172,8 @@ NOTAS = [
     "Si pasa de 500 mA hay que buscar otro. Las 60 RPM del eje de salida no son las rpm de la simulación: la simulación usa un motor supuesto.",
     "<b>Zócalos.</b> Para los chips de 14 patas la tienda solo muestra bases de 8, 16 y 40 patas: se usa la de 16 (sobran 2 agujeros) o se corta una de 40.",
     "<b>Otra tienda.</b> Todo lo de arriba aparece en La Electrónica. Todo se arma en protoboard.",
-    "<b>No encontré en la tienda:</b> fusible de 1 A, cable de calibre 22–24 y estaño. Si no tienes, búscalos.",
+    "<b>No encontré en la tienda:</b> fusible de 1 A de 5x20 mm (hay de 0.5 A en 6x30 y de 10 A en 5x20). Si no tienes, búscalo.",
+    "<b>Piezas con cables.</b> El jack, el interruptor, el final de carrera, el portafusible, el buzzer, el motor y la fuente no entran en la protoboard: se les sueldan cables (o se usan jumpers) y esos cables van a la protoboard.",
     "<b>Disco del encoder.</b> Se hace a mano: 20 ranuras. Cualquier disco opaco de unos 30 mm con 20 ranuras de 2 mm sirve.",
 ]
 for n in NOTAS:
