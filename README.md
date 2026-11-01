@@ -8,4 +8,4 @@ Minibanda transportadora con motor DC de 12 V (máx. 500 mA), hecha con electró
 - `4_Documentacion`: guía de componentes, explicación por bloques y dos guías del esquemático por bloques con imágenes: una de Multisim (`Guia_del_esquematico_por_bloques.html`) y una de LTspice (`Guia_del_esquematico_LTspice.html`).
 - `5_Compras_y_Pruebas`: lista de compras (PDF) y guía de pruebas.
 - `6_Montaje_3D`: páginas 3D de las protoboards (abrir el `.html` en el navegador).
-- `7_Multisim`: esquemáticos de Multisim (11 bloques, `SISTEMA_COMPLETO.ms14` con su imagen y `SISTEMA_SOLO_CIRCUITO.ms14`, el circuito sin fuentes de prueba) y los scripts que los generan; ver `LEEME_MULTISIM.md`.
+- `7_Multisim`: esquemáticos de Multisim (11 bloques, `SISTEMA_COMPLETO.ms14` con su imagen y `SISTEMA_SOLO_CIRCUITO.ms14`, el circuito sin fuentes de prueba, con su imagen) y los scripts que los generan; ver `LEEME_MULTISIM.md`.
