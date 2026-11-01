@@ -28,5 +28,8 @@ print('I(D1) maxima %.3f A'%d['I(D1)'][m].max())
 print('arranque: Im max entre 0.1 y 0.4 s = %.3f A'%d['I(Lm)'][(tm>0.1)&(tm<0.4)].max())
 # compuerta y MOSFET en regimen normal
 mm=(tm>0.30)&(tm<0.31)
-print('compuerta: min %.2f max %.2f V ; Vds max %.1f V'%(d['V(xpot:gate)'][mm].min(),d['V(xpot:gate)'][mm].max(),d['V(dm)'][mm].max()))
+if 'V(xpot:gate)' in d:
+    print('compuerta: min %.2f max %.2f V ; Vds max %.1f V'%(d['V(xpot:gate)'][mm].min(),d['V(xpot:gate)'][mm].max(),d['V(dm)'][mm].max()))
+else:
+    print('compuerta: la senal V(xpot:gate) no esta guardada en este .raw; Vds max %.1f V'%d['V(dm)'][mm].max())
 np.savez_compressed('sistema_desde_asc_resumen.npz',**{k:d[k][::50] for k in ['time','V(v5)','V(vm)','V(p)','V(setn)','V(m)','V(n)','V(l)','V(f)','V(vref)','V(vspd)','V(vctrl)','V(w)','I(Lm)','V(tc)','V(tnode)','V(xoc:dl)']})
