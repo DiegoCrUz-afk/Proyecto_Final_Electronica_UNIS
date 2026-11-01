@@ -33,7 +33,7 @@
 <table>
 <tr><th>Bloque</th><th>Entradas</th><th>Salidas</th></tr>
 <tr><td>1 Regulador 5 V</td><td>vm</td><td>v5</td></tr>
-<tr><td>2 Sensor IR</td><td>v5, b (fototransistor)</td><td>p (objeto), tin (punto de prueba)</td></tr>
+<tr><td>2 Sensor IR</td><td>v5, b (fototransistor)</td><td>p (objeto)</td></tr>
 <tr><td>3 Sobrecorriente</td><td>vm, v5, sh (shunt)</td><td>setn (falla, activa en bajo)</td></tr>
 <tr><td>4 Temperatura</td><td>v5, tnode (NTC)</td><td>setn</td></tr>
 <tr><td>5 Lógica</td><td>v5, ein, gin, rin, p, setn</td><td>m, n, l, f, fn</td></tr>
@@ -71,7 +71,6 @@
 <tr><td>Rc, RE</td><td>680 Ω, 150 Ω</td><td>Colector y emisor (sin puentear): ganancia ≈ Rc / RE</td></tr>
 <tr><td>Umbral</td><td>Ra 10 kΩ + trimpot 10 kΩ + Rb 26.8 kΩ</td><td>Ajuste del punto de decisión</td></tr>
 <tr><td>Rpu, Rh</td><td>10 kΩ, 220 kΩ</td><td>Pull-up del comparador e histéresis</td></tr>
-<tr><td>Cac</td><td>1 µF</td><td>Acople para el punto de prueba tin</td></tr>
 </table>
 <p><b>Simulación</b> (hFE 100 / 200 / 400; el fototransistor se modela como fuente de corriente: 2 µA sin objeto y 50 µA con objeto):</p>
 <table>

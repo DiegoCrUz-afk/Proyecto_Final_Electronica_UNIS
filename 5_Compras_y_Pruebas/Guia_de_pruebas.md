@@ -2,7 +2,7 @@
 
 Las pruebas siguen la sección 9 del enunciado (10 pruebas en vivo) y los criterios de la sección 6. La columna "Esperado" sale de cálculo o de simulación en LTspice con un motor supuesto; la columna "Medido" se llena en el laboratorio. No se anota nada en "Medido" que no se haya medido.
 
-Puntos de prueba que conviene dejar con pin o terminal en la protoboard: `v5`, `vm`, `tin`, `p`, `sh`, `setn`, `f`, `vspd`, `vref`, `vctrl`, `pwm`, `gate` (compuerta del MOSFET), `enc`.
+Puntos de prueba que conviene dejar con pin o terminal en la protoboard: `v5`, `vm`, `b`, `p`, `sh`, `setn`, `f`, `vspd`, `vref`, `vctrl`, `pwm`, `gate` (compuerta del MOSFET), `enc`.
 
 Equipo disponible: Rigol DP832 (fuente variable para Vin de 11 a 13 V), Analog Discovery 3, NI ELVIS II, multímetro.
 
@@ -43,7 +43,7 @@ Condición: E = 1, cubierta cerrada, sin objeto.
 | Vb (base de Q2) | ≈ 0.82 V | |
 | Vc sin objeto / con objeto | 4.2 V / 2.9 V (hFE 200) | |
 | Ganancia de pequeña señal | ≈ −3.95 (11.9 dB), fase 180° | |
-| Entrada y salida en el osciloscopio (inyectar senoidal en `tin`) | Salida invertida | |
+| Entrada y salida en el osciloscopio (inyectar una senoidal en `b` a través de un capacitor de 1 µF suelto, que no queda en la placa) | Salida invertida | |
 
 ## Prueba 04 - Etapa operacional (shunt)
 - Medir en `sh` (antes) y en la salida del LM358 (después).

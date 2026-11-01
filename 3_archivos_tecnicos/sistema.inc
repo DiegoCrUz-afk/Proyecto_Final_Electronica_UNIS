@@ -41,12 +41,11 @@ C2 v5 0 100n
 .ends
 
 * ---- Bloque 2: sensor IR (LED, emisor comun, comparador con histeresis). b = nodo donde entra la corriente del fototransistor ----
-.subckt SENSOR_IR v5 b tin p
+.subckt SENSOR_IR v5 b p
 Rled v5 nled 270
 Dled nled 0 DIR
 R1 v5 b 47k
 R2 b 0 10k
-Cac tin b 1u
 Q2 c b e Q2N3904
 RE e 0 150
 Rc v5 c 680

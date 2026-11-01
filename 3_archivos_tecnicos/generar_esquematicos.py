@@ -147,10 +147,8 @@ def b_sensor():
     vd(s, "Dled", "DIR", -120, 320, sym="LED")
     fl(s, -120, 384, "0")
     s.text(-190, 410, "LED infrarrojo (~14 mA)", size=2)
-    # entrada: capacitor de prueba y polarizacion de Q2
-    hc(s, "Cac", "1u", 0, 80)                          # tin (0,80) -> b (64,80)
-    fl(s, 0, 80, "tin*")
-    s.wire((64, 80), (160, 80))
+    # polarizacion de Q2 (el fototransistor entra directo al nodo b)
+    s.wire((96, 80), (160, 80))
     vr(s, "R1", "47k", 96, 0)                          # (96,0)-(96,80)
     fl(s, 96, 0, "v5")
     vr(s, "R2", "10k", 96, 80)                         # (96,80)-(96,160)

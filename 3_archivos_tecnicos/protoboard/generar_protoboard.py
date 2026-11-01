@@ -10,7 +10,8 @@ import sys
 from collections import defaultdict
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(AQUI, "..", "montaje3d"))
+PROY = os.path.abspath(os.path.join(AQUI, ".."))
+sys.path.insert(0, os.path.join(PROY, "montaje3d"))
 import generar_montaje3d as g3
 
 ROWS = 63
@@ -179,6 +180,50 @@ def colocar():
 
 
 colocar()
+
+
+def espaciar():
+    """Reparte filas vacias entre las piezas (sin separar las patas de una pieza ni de un CI) para usar toda la protoboard."""
+    for b in boards:
+        por_pieza = defaultdict(list)
+        for (ref, pin), (bn, side, col, row) in pos.items():
+            if bn == b.name:
+                por_pieza[ref].append(row)
+        tramos = [(min(r), max(r)) for r in por_pieza.values()]
+        maxr = max(row for (_, row) in b.strip)
+        libres = ROWS - (maxr + 1)
+        if libres <= 0:
+            continue
+        cortes = [r for r in range(maxr) if not any(lo <= r < hi for lo, hi in tramos)]
+        cel = defaultdict(set)
+        for (side, col, row) in b.cells:
+            cel[(side, col)].add(row)
+        cortes = [r for r in cortes if not any((r in v and (r + 1) in v) for v in cel.values())]
+        if not cortes:
+            continue
+        k = len(cortes)
+        base, extra = divmod(libres, k)
+        add = {}
+        for i, r in enumerate(cortes):
+            add[r] = base + (1 if (i + 1) * extra // k != i * extra // k else 0)
+        sh, acc = [], 0
+        for r in range(ROWS):
+            sh.append(acc)
+            acc += add.get(r, 0)
+        f = lambda r: r + sh[r]
+        b.strip = {(s_, f(r)): n for (s_, r), n in b.strip.items()}
+        b.cols = defaultdict(set, {(s_, f(r)): v for (s_, r), v in b.cols.items()})
+        b.cells = {(s_, c, f(r)) for (s_, c, r) in b.cells}
+        for key, (bn, side, col, row) in list(pos.items()):
+            if bn == b.name:
+                pos[key] = (bn, side, col, f(row))
+        for net, lst in nstr.items():
+            for i, (bn, side, row) in enumerate(lst):
+                if bn == b.name:
+                    lst[i] = (bn, side, f(row))
+
+
+espaciar()
 BN = {b.name: b for b in boards}
 
 # ---------------- cables
@@ -199,6 +244,19 @@ def rail_x(bn, net, side):
     return RAIL[side][net] if net in RAIL[side] else None
 
 
+RAIL_USED = set()
+
+
+def rail_y(bn, x, y):
+    """Agujero libre del riel mas cercano a la fila y (en un agujero cabe un solo cable)."""
+    for d in range(0, ROWS):
+        for yy in (y + d, y - d):
+            if 0 <= yy < ROWS and (bn, x, yy) not in RAIL_USED:
+                RAIL_USED.add((bn, x, yy))
+                return yy
+    raise AssertionError("riel lleno")
+
+
 for net, strips in nstr.items():
     if net == "NC":
         continue
@@ -207,7 +265,7 @@ for net, strips in nstr.items():
             # al riel del mismo lado cuando existe; si no, al riel del otro lado
             rs = side if net in RAIL[side] else ("R" if side == "L" else "L")
             c = hole_for(bn, side, row, net)
-            wires.append(dict(net=net, a=dict(board=bn, x=c, y=row, hole=""), b=dict(board=bn, x=RAIL[rs][net], y=row, hole="", rail=True), kind="power"))
+            wires.append(dict(net=net, a=dict(board=bn, x=c, y=row, hole=""), b=dict(board=bn, x=RAIL[rs][net], y=rail_y(bn, RAIL[rs][net], row), hole="", rail=True), kind="power"))
         continue
     # MST entre tiras de la red
     pts = list(strips)
@@ -218,7 +276,11 @@ for net, strips in nstr.items():
     while todo:
         best = None
         for a in done:
+            if BN[a[0]].free_col(a[1], a[2]) is None:      # esa tira ya no tiene agujeros libres para otro cable
+                continue
             for t in todo:
+                if BN[t[0]].free_col(t[1], t[2]) is None and len(todo) > 0 and False:
+                    continue
                 dist = (0 if a[0] == t[0] else 1000) + abs(a[2] - t[2]) + (3 if a[1] != t[1] else 0)
                 if best is None or dist < best[0]:
                     best = (dist, a, t)
@@ -229,6 +291,10 @@ for net, strips in nstr.items():
         ct = hole_for(t[0], t[1], t[2], net)
         wires.append(dict(net=net, a=dict(board=a[0], x=ca, y=a[2], hole=""), b=dict(board=t[0], x=ct, y=t[2], hole=""), kind="signal"))
 
+
+# el riel de GND izquierdo y el derecho de cada protoboard son rieles distintos: se unen con un cable
+for b in boards:
+    wires.append(dict(net="0", a=dict(board=b.name, x=RAIL["L"]["0"], y=rail_y(b.name, RAIL["L"]["0"], ROWS - 1), hole="", rail=True), b=dict(board=b.name, x=RAIL["R"]["0"], y=rail_y(b.name, RAIL["R"]["0"], ROWS - 1), hole="", rail=True), kind="power"))
 
 # ---------------- verificacion
 def verificar():

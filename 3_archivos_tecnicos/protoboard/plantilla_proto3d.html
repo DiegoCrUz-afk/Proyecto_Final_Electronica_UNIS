@@ -50,7 +50,6 @@ select{width:100%}
 </head>
 <body>
 <canvas id="c"></canvas>
-<a id="modeSwitch" href="Placas_de_cobre_3D_miniestacion.html" style="position:fixed;top:10px;left:340px;z-index:9;background:#4da3ff;color:#06121f;font:600 13px system-ui;padding:7px 12px;border-radius:8px;text-decoration:none">↔ Ver las placas de cobre (PCB)</a>
 
 <button id="toggle">☰ Panel</button>
 <div id="tip"></div>
@@ -65,7 +64,7 @@ select{width:100%}
 <div id="nogl">Tu navegador no pudo abrir WebGL. Prueba con Chrome o Edge actualizado.</div>
 <div id="panel">
   <h1>Protoboards 3D · miniestación industrial</h1>
-  <div class="sub">Guía para armar el circuito en <b>protoboards de 830 puntos</b> junto al esquemático: cada pata va en una tira de 5 agujeros (A-E izquierda, F-J derecha); los CI van sobre el canal; GND, 5 V y 12 V van a los rieles con cables cortos; los cables de colores unen las tiras de la misma red (numerados). Verificado: ninguna tira mezcla redes. Es para probar; la versión definitiva va en placa de cobre (botón de arriba).</div>
+  <div class="sub">Guía para armar el circuito en <b>protoboards de 830 puntos</b> junto al esquemático: cada pata va en una tira de 5 agujeros (A-E izquierda, F-J derecha); los CI van sobre el canal; GND, 5 V y 12 V van a los rieles con cables cortos; los cables de colores unen las tiras de la misma red (numerados). Verificado: ninguna tira mezcla redes. Versión con piezas repartidas por toda la protoboard y cables ordenados (suben recto, giran en ángulo recto y bajan recto).</div>
 
   <div class="sec"><h2>Vistas</h2><div class="row" id="views"></div></div>
 
@@ -440,11 +439,25 @@ const DEV = {}, devLabels = [];
 const wireObjs = [];
 function holePos(e){ return V3(X(e.board, e.x), 0, Z(e.y)); }
 function busStart(e){ return V3(X(e.board, e.x), 0, Z(e.y)); }
-function curveFor(a, b, i, big){
-  const dist = a.distanceTo(b), h = (big ? 24 : 5) + Math.min(dist * (big ? .12 : .1), 26) + (i % 7) * 1.1;
-  const pts = [V3(a.x, a.y - 2.5, a.z), V3(a.x, a.y + 2, a.z), new THREE.Vector3().lerpVectors(a, b, .22).setY(h * .8), new THREE.Vector3().lerpVectors(a, b, .5).setY(h),
-    new THREE.Vector3().lerpVectors(a, b, .78).setY(h * .8), V3(b.x, b.y + 2, b.z), V3(b.x, b.y - 2.5, b.z)];
-  return new THREE.CatmullRomCurve3(pts, false, 'catmullrom', .35);
+function curveFor(a, b, i, big, w){
+  // cable ordenado: sube recto, avanza en filas, avanza en columnas, baja recto; esquinas redondeadas
+  const H = (w && w.h) || (big ? 24 : 12), r = (w && w.pts) ? 1.1 : (big ? 2.2 : 1.6);
+  let pts = (w && w.pts) ? w.pts.map(q => V3(q[0] * P, q[1], q[2] * P)) : [V3(a.x, a.y - 2.5, a.z), V3(a.x, H, a.z), V3(a.x, H, b.z), V3(b.x, H, b.z), V3(b.x, b.y - 2.5, b.z)];
+  pts = pts.filter((p, k) => k === 0 || p.distanceTo(pts[k - 1]) > 1e-6);
+  const path = new THREE.CurvePath();
+  let cur = pts[0].clone();
+  for (let k = 1; k < pts.length; k++){
+    const c = pts[k], nx = pts[k + 1];
+    if (nx){
+      const din = c.clone().sub(pts[k - 1]), dout = nx.clone().sub(c);
+      const rr = Math.min(r, din.length() / 2, dout.length() / 2);
+      const p1 = c.clone().sub(din.normalize().multiplyScalar(rr)), p2 = c.clone().add(dout.normalize().multiplyScalar(rr));
+      if (cur.distanceTo(p1) > 1e-6) path.add(new THREE.LineCurve3(cur.clone(), p1.clone()));
+      path.add(new THREE.QuadraticBezierCurve3(p1.clone(), c.clone(), p2.clone()));
+      cur = p2;
+    } else { path.add(new THREE.LineCurve3(cur.clone(), c.clone())); }
+  }
+  return path;
 }
 DATA.wires.forEach((w, i) => {
   const g = new THREE.Group(); g.userData = {type: 'wire', n: w.i};
@@ -452,8 +465,8 @@ DATA.wires.forEach((w, i) => {
   if (w.kind === 'bus'){ a = busStart(w.a); b = busStart(w.b); a.y = b.y = 1; a.z += (w.net === '0' ? 0 : w.net === 'v5' ? 6 : 12); b.z = a.z; }
   else if (w.kind === 'ext'){ a = holePos(w.a); const d = DEV[w.b.ext + '|' + w.b.term]; b = d ? d.clone() : a.clone().add(V3(40, 0, 0)); }
   else { a = holePos(w.a); b = holePos(w.b); }
-  const big = w.kind !== 'signal', cur = curveFor(a, b, i, big), col = new THREE.Color(w.color);
-  const tube = new THREE.Mesh(new THREE.TubeGeometry(cur, 64, big ? .8 : .5, 8, false), mat(col, {roughness: .45}));
+  const big = w.kind !== 'signal', cur = curveFor(a, b, i, big, w), col = new THREE.Color(w.color);
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(cur, 260, big ? .8 : .5, 8, false), mat(col, {roughness: .45}));
   tube.userData.owner = g; g.add(tube);
   [a, b].forEach(p => { const pin = seg(V3(p.x, p.y - 2.5, p.z), V3(p.x, p.y + 2, p.z), big ? .55 : .38, mat(col)); pin.userData.owner = g; g.add(pin); });
   const mid = cur.getPoint(.5);
@@ -557,6 +570,51 @@ function clearFx(){
   glowedWires.forEach(g => glowObj(g, 0x000000)); glowedWires.length = 0;
   applyFocus();
 }
+// ---------- conectividad: que toca cada pata (tira de 5 agujeros -> cables -> otras tiras), sin pasar por los rieles ----------
+const RAILX = new Set([-3, -2, 12, 13]);
+const skey = (b, x, y) => RAILX.has(x) ? 'R|' + b + '|' + x : b + '|' + (x <= 4 ? 'L' : 'R') + '|' + y;
+const stripPins = {}, stripWires = {};
+DATA.parts.forEach(p => p.pins.forEach(q => (stripPins[skey(p.board, q.x, q.y)] = stripPins[skey(p.board, q.x, q.y)] || []).push({p, q})));
+DATA.wires.forEach(w => { if (w.kind === 'ext') return; [w.a, w.b].forEach(e => (stripWires[skey(e.board, e.x, e.y)] = stripWires[skey(e.board, e.x, e.y)] || []).push(w)); });
+function conectaDesde(keys){
+  const seen = new Set(keys), queue = [...keys], pins = [], wires = new Set(), rails = new Set();
+  while (queue.length){
+    const k = queue.shift();
+    (stripPins[k] || []).forEach(o => pins.push(o));
+    (stripWires[k] || []).forEach(w => {
+      wires.add(w.i);
+      const e = skey(w.a.board, w.a.x, w.a.y) === k ? w.b : w.a, k2 = skey(e.board, e.x, e.y);
+      if (RAILX.has(e.x)){ rails.add(w.net); return; }
+      if (!seen.has(k2)){ seen.add(k2); queue.push(k2); }
+    });
+  }
+  return {pins, wires, rails};
+}
+function conectaCable(w){
+  const ks = [w.a, w.b].filter(e => e.board).map(e => skey(e.board, e.x, e.y));
+  const extra = new Set();
+  if (w.kind === 'ext'){ const r = conectaDesde(ks); r.wires.add(w.i); return r; }
+  // los extremos en riel no se expanden: se anota el riel
+  const rails = new Set(), inicio = [];
+  [w.a, w.b].forEach(e => { if (RAILX.has(e.x)) rails.add(w.net); else inicio.push(skey(e.board, e.x, e.y)); });
+  const r = conectaDesde(inicio);
+  r.wires.add(w.i); rails.forEach(n => r.rails.add(n));
+  return r;
+}
+function conecta(p, q){
+  const start = skey(p.board, q.x, q.y), seen = new Set([start]), queue = [start], pins = [], wires = new Set(), rails = new Set();
+  while (queue.length){
+    const k = queue.shift();
+    (stripPins[k] || []).forEach(o => { if (!(o.p === p && o.q === q)) pins.push(o); });
+    (stripWires[k] || []).forEach(w => {
+      wires.add(w.i);
+      const e = skey(w.a.board, w.a.x, w.a.y) === k ? w.b : w.a, k2 = skey(e.board, e.x, e.y);
+      if (RAILX.has(e.x)){ rails.add(w.net); return; }
+      if (!seen.has(k2)){ seen.add(k2); queue.push(k2); }
+    });
+  }
+  return {pins, wires, rails};
+}
 function fxPart(po){
   const p = po.data; po.group.userData.liftTo = 9;
   const rp = new Set([p.ref]), rw = new Set(); let hasExt = false, slot = 3;
@@ -565,19 +623,30 @@ function fxPart(po){
     fx.add(seg(V3(pt.x, -1.2, pt.z), V3(pt.x, 6.6, pt.z), .32, new THREE.MeshBasicMaterial({color: 0xffe14a})));
     tagAt((q.name || q.n) + ' · ' + netLabel(q.net), pt, i);
   });
-  DATA.wires.forEach(w => {
-    const m = [w.a, w.b].find(e => e.part === p.ref); if (!m) return;
-    rw.add(w.i); glowObj(wireObjs[w.i].group, 0x8a6a00); glowedWires.push(wireObjs[w.i].group);
-    const far = w.a === m ? w.b : w.a;
-    if (far.part){ rp.add(far.part); const fo = partObjs[far.part]; if (fo){ const pt = pw(fo.data, fo.data.pins.find(q => q.n === far.pin)); ringAt(pt, 0x4fd1c5, 1.3); tagAt('[' + w.i + '] ' + far.part.split('.').pop() + ' · ' + far.pin, pt, slot++, '#4fd1c5'); } }
-    else hasExt = true;
+  let ntag = 0;
+  p.pins.forEach(q => {
+    const c = conecta(p, q);
+    c.wires.forEach(i => { rw.add(i); glowObj(wireObjs[i].group, 0x8a6a00); glowedWires.push(wireObjs[i].group); });
+    c.pins.forEach(o => {
+      rp.add(o.p.ref); const fo = partObjs[o.p.ref]; if (!fo) return;
+      const pt = pw(fo.data, o.q); ringAt(pt, 0x4fd1c5, 1.3);
+      if (ntag < 14) tagAt(o.p.short + ' · ' + o.q.n, pt, 3 + ntag++, '#4fd1c5');
+    });
   });
+  DATA.wires.forEach(w => { const m = [w.a, w.b].find(e => e.part === p.ref); if (m && w.kind === 'ext'){ rw.add(w.i); hasExt = true; glowObj(wireObjs[w.i].group, 0x8a6a00); glowedWires.push(wireObjs[w.i].group); } });
   focus = {parts: rp, wires: rw, hasExt}; applyFocus();
 }
 function fxWire(wo){
-  const w = wo.data, rp = new Set();
-  [w.a, w.b].forEach((e, i) => { if (e.part){ rp.add(e.part); const po = partObjs[e.part], q = po.data.pins.find(r => r.n === e.pin), pt = pw(po.data, q); ringAt(pt, 0xffe14a, 1.7); tagAt(e.hole + ' · ' + e.part.split('.').pop() + ' ' + e.pin, pt, i); } });
-  focus = {parts: rp, wires: new Set([w.i]), hasExt: w.kind === 'ext'}; applyFocus();
+  const w = wo.data, rp = new Set(), rw = new Set([w.i]);
+  const c = conectaCable(w); let ntag = 0;
+  c.wires.forEach(i => { rw.add(i); glowObj(wireObjs[i].group, 0x8a6a00); glowedWires.push(wireObjs[i].group); });
+  c.pins.forEach(o => {
+    rp.add(o.p.ref); const po = partObjs[o.p.ref]; if (!po) return;
+    const pt = pw(po.data, o.q); ringAt(pt, 0x4fd1c5, 1.5);
+    if (ntag < 16) tagAt(o.p.short + ' · ' + o.q.n, pt, ntag++, '#4fd1c5');
+  });
+  [w.a, w.b].forEach(e => { if (e.part){ rp.add(e.part); } });
+  focus = {parts: rp, wires: rw, hasExt: w.kind === 'ext'}; applyFocus();
 }
 function select(type, id, fly){
   clearFx(); selected = null;
@@ -585,6 +654,7 @@ function select(type, id, fly){
   else if (type === 'wire'){ const wo = wireObjs[id]; selected = {type, id, group: wo.group}; glowObj(wo.group, 0x2b66ff); showWire(wo); fxWire(wo); if (fly) flyToObj(wo.pos, 95); }
   else { $('info').innerHTML = '<span class="hint">Haz clic en una pieza o en un cable.</span>'; $('partSel').value = ''; }
 }
+function partLink(ref, txt){ return '<a onclick="__sel(&quot;part&quot;,&quot;' + ref + '&quot;)">' + txt + '</a>'; }
 function netChip(n){ return '<a onclick="window.__net(\'' + n + '\')">' + netLabel(n) + '</a>'; }
 window.__net = n => applyNet(n);
 window.__sel = (t, id) => select(t, id, true);
@@ -592,17 +662,24 @@ function holeName(p, q){ return p.board + '-' + colName(q.x) + (q.y + 1); }
 function endTxt(e){ return e.part ? '<b>' + e.hole + '</b> (' + e.part.split('.').pop() + ' ' + e.pin + ')' : '<b>' + e.hole + '</b>'; }
 function showPart(po){
   const p = po.data, b = DATA.blocks[p.blk];
-  let h = '<b>' + p.short + '</b> — ' + p.val + '<div class="hint">Placa ' + p.board + ' · ' + (b ? b.title : 'Entrada y dispositivos') + ' · ' + (HINT[p.kind] || '') + '</div>' + (p.note ? '<div class="warn" style="margin:4px 0">' + p.note + '</div>' : '') + (p.spare && p.spare.length ? '<div class="hint">Entradas libres atadas a GND: ' + p.spare.join(', ') + '. Salidas libres sin conectar.</div>' : '') + '<table><tr><th>pata</th><th>función</th><th>agujero</th><th>red</th></tr>';
-  p.pins.forEach(q => h += '<tr><td>' + q.n + '</td><td>' + (q.name || '') + '</td><td><b>' + holeName(p, q) + '</b></td><td>' + netChip(q.net) + '</td></tr>');
+  let h = '<b>' + p.short + '</b> — ' + p.val + '<div class="hint">Placa ' + p.board + ' · ' + (b ? b.title : 'Entrada y dispositivos') + ' · ' + (HINT[p.kind] || '') + '</div>' + (p.note ? '<div class="warn" style="margin:4px 0">' + p.note + '</div>' : '') + (p.spare && p.spare.length ? '<div class="hint">Entradas libres atadas a GND: ' + p.spare.join(', ') + '. Salidas libres sin conectar.</div>' : '') + '<table><tr><th>pata</th><th>función</th><th>agujero</th><th>red</th><th>conectada con</th></tr>';
+  p.pins.forEach(q => { const c = conecta(p, q); const lst = c.pins.map(o => partLink(o.p.ref, o.p.short + '.' + o.q.n)).join(', '); const rl = [...c.rails].map(n => 'riel ' + netLabel(n)).join(', '); h += '<tr><td>' + q.n + '</td><td>' + (q.name || '') + '</td><td><b>' + holeName(p, q) + '</b></td><td>' + netChip(q.net) + '</td><td>' + [lst, rl].filter(Boolean).join(' · ') + '</td></tr>'; });
   h += '</table><div class="hint" style="margin-top:5px">En el 3D la pieza se levanta y cada pata lleva su anillo <b style="color:#ffe14a">amarillo</b>; en <b style="color:#4fd1c5">celeste</b> el otro extremo de sus cables.</div>';
-  const ws = DATA.wires.filter(w => w.a.part === p.ref || w.b.part === p.ref);
+  const ws = DATA.wires.filter(w => w.a.part === p.ref || w.b.part === p.ref || p.pins.some(q => conecta(p, q).wires.has(w.i)));
   if (ws.length){ h += '<div style="margin-top:6px"><b>Cables de esta pieza:</b></div>'; ws.forEach(w => h += '<div>[' + w.i + '] <a onclick="__sel(\'wire\',' + w.i + ')">' + netLabel(w.net) + '</a>: ' + endTxt(w.a) + ' → ' + endTxt(w.b) + '</div>'); }
   
   $('info').innerHTML = h;
 }
 function showWire(wo){
-  const w = wo.data;
-  $('info').innerHTML = '<b>Cable [' + w.i + ']</b> · red ' + netChip(w.net) + '<div class="hint">' + (w.kind === 'bus' ? 'Cable grueso de alimentación entre placas.' : w.kind === 'ext' ? 'Cable a un dispositivo externo (bornera o conector).' : 'Cable de señal soldado por arriba.') + '</div><table><tr><th>extremo</th><th>agujero</th></tr><tr><td>A</td><td>' + endTxt(w.a) + '</td></tr><tr><td>B</td><td>' + endTxt(w.b) + '</td></tr></table>';
+  const w = wo.data, c = conectaCable(w);
+  const lst = c.pins.map(o => partLink(o.p.ref, o.p.short + '.' + o.q.n)).join(', ');
+  const rl = [...c.rails].map(n => 'riel ' + netLabel(n)).join(', ');
+  const otros = [...c.wires].filter(i => i !== w.i).map(i => '<a onclick="__sel(&quot;wire&quot;,' + i + ')">[' + i + ']</a>').join(' ');
+  $('info').innerHTML = '<b>Cable [' + w.i + ']</b> · red ' + netChip(w.net) + '<div class="hint">' + (w.kind === 'bus' ? 'Cable grueso de alimentación entre placas.' : w.kind === 'ext' ? 'Cable a un dispositivo externo (bornera o conector).' : 'Cable de señal.') + '</div>' +
+    '<table><tr><th>extremo</th><th>agujero</th></tr><tr><td>A</td><td>' + endTxt(w.a) + '</td></tr><tr><td>B</td><td>' + endTxt(w.b) + '</td></tr></table>' +
+    '<div style="margin-top:6px"><b>Este cable une estas patas:</b></div><div>' + (lst || '<span class="hint">ninguna pata</span>') + (rl ? ' · ' + rl : '') + '</div>' +
+    (otros ? '<div style="margin-top:4px" class="hint">Otros cables de la misma red conectada: ' + otros + '</div>' : '') +
+    '<div class="hint" style="margin-top:5px">Anillos <b style="color:#4fd1c5">celestes</b> = patas que quedan conectadas por este cable.</div>';
 }
 // ---------- mediciones guiadas ----------
 const measById = {};

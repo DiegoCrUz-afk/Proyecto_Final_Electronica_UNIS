@@ -87,6 +87,8 @@ def rot_pt(x, y, rot):
 class Comp:
     def __init__(self, s, ref, value, x, y, rot):
         self.s, self.ref, self.value, self.x, self.y, self.rot = s, ref, value, x, y, rot
+        self.win = {}                # posicion/tamano propios de nombre (0) y valor (3): n -> (x, y, just, size), en la orientacion en que se ve
+        self.hidden = set()          # atributos ocultos (WINDOW n 0 0 Left 0): 0 = nombre, 3 = valor
 
     def pin(self, i):
         """Coordenadas absolutas del pin numero i (orden SPICE, desde 1)."""
@@ -164,6 +166,11 @@ class Schematic:
             out.append("IOPIN %d %d %s" % io)
         for c in self.comps:
             out.append("SYMBOL %s %d %d %s" % (c.s.name.replace("/", "\\"), c.x, c.y, c.rot))
+            for n in sorted(set(c.hidden) | set(c.win)):
+                if n in c.hidden:
+                    out.append("WINDOW %d 0 0 Left 0" % n)
+                else:
+                    out.append("WINDOW %d %d %d %s %d" % ((n,) + tuple(c.win[n])))
             out.append("SYMATTR InstName %s" % c.ref)
             if c.value is not None:
                 out.append("SYMATTR Value %s" % c.value)
@@ -258,7 +265,17 @@ def render_asc_svg(sch, path, margin=40):
             el.append('<text x="%g" y="%g" font-size="%d" fill="%s" text-anchor="%s">%s</text>' % (p[0], p[1] + 5, _font(sz) - 3, col, _anchor(al), _esc(txt)))
         # nombre y valor
         for wn, txt in ((0, c.ref), (3, c.value)):
-            if txt is None or txt == "":
+            if txt is None or txt == "" or wn in c.hidden:
+                continue
+            if wn in c.win:
+                wx, wy, al, sz = c.win[wn]
+                p = (c.x + wx, c.y + wy)
+                fs = {1: 8}.get(sz, 12)
+                if al in ("VBottom", "VTop"):
+                    el.append('<text x="%g" y="%g" font-size="%d" fill="#333" text-anchor="%s" transform="rotate(-90 %g %g)">%s</text>' % (p[0], p[1], fs, "start" if al == "VBottom" else "end", p[0], p[1], _esc(txt)))
+                else:
+                    el.append('<text x="%g" y="%g" font-size="%d" fill="#333" text-anchor="%s">%s</text>' % (p[0], p[1] + 4, fs, "start" if al == "Left" else _anchor(al), _esc(txt)))
+                track(*p)
                 continue
             wx, wy, al, sz = s.windows.get(wn, (36, 40 + 24 * (wn // 3), "Left", 2))
             p = T(wx, wy)
@@ -306,6 +323,11 @@ def parse_asc(path):
             sch.iopins.append((int(t[1]), int(t[2]), t[3]))
         elif k == "SYMBOL":
             cur = sch.add(t[1].replace("\\", "/"), "", None, int(t[2]), int(t[3]), t[4])
+        elif k == "WINDOW" and cur is not None:
+            if len(t) > 5 and t[5] == "0":
+                cur.hidden.add(int(t[1]))
+            elif len(t) > 5 and int(t[1]) in (0, 3):
+                cur.win[int(t[1])] = (int(t[2]), int(t[3]), t[4], int(t[5]))
         elif k == "SYMATTR" and cur is not None:
             if t[1] == "InstName":
                 cur.ref = t[2]

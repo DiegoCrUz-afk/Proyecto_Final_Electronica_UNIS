@@ -15,7 +15,7 @@ from generar_esquematicos import vr, vc, hd, fl, titulo, nota, DEST
 # nombre, titulo del simbolo, pines a la izquierda, pines a la derecha, columna, fila
 BLOQUES = [
     ("BLOQUE_REG5V", "1 REGULADOR 5 V", ["vm"], ["v5"], 0, 0),
-    ("BLOQUE_SENSOR_IR", "2 SENSOR IR", ["v5", "b"], ["tin", "p"], 0, 1),
+    ("BLOQUE_SENSOR_IR", "2 SENSOR IR", ["v5", "b"], ["p"], 0, 1),
     ("BLOQUE_SOBRECORRIENTE", "3 SOBRECORRIENTE", ["vm", "v5", "sh"], ["setn"], 0, 2),
     ("BLOQUE_TEMPERATURA", "4 TEMPERATURA", ["v5", "tnode"], ["setn"], 0, 3),
     ("BLOQUE_LOGICA", "5 LOGICA", ["v5", "ein", "gin", "rin", "p", "setn"], ["m", "n", "l", "f", "fn"], 1, 0),

@@ -29,10 +29,9 @@ Q1 vm bz v5 0 QBD139
 Cout v5 0 100u
 C2 v5 0 100n
 .ends
-.subckt SENSOR_IR v5 b tin p
+.subckt SENSOR_IR v5 b p
 Rled v5 P001 270
 Dled P001 0 DIR
-Cac b tin 1u
 R1 v5 b 47k
 R2 b 0 10k
 Q2 c b P002 0 Q2N3904

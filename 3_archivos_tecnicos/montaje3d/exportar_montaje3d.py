@@ -1,6 +1,6 @@
-"""Genera el HTML 3D interactivo del montaje de la miniestacion (3 placas perforadas).
-Uso: python exportar_montaje3d.py <salida.html>
-Verifica antes de escribir: cada red del netlist queda en un solo grupo electrico (cables + buses) y no se mezclan redes.
+"""Modulo auxiliar: arma las redes, las mediciones y los datos de simulacion del montaje a partir de generar_montaje3d.py.
+Lo importa protoboard/exportar_protoboard3d.py. (Ya no genera su propio HTML: el 3D vigente es 6_Montaje_3D/Protoboards_3D_miniestacion.html.)
+Verifica que cada red del netlist quede en un solo grupo electrico (cables + buses) y que no se mezclen redes.
 """
 import json
 import math
@@ -265,18 +265,3 @@ def datos_sim():
           (1.4, "Cubierta abierta", "M cae en 1 ms"), (1.6, "Cubierta cerrada", "reanuda"), (1.9, "Carga extra", "sube la corriente"), (2.1, "Falla de corriente", "F = 1: alarma, motor parado"),
           (2.6, "Reset", "limpia la falla"), (3.2, "Se calienta", "NTC sube"), (3.36, "Falla de temperatura", "dispara a 49.9 C"), (4.2, "Reset final", "todo normal")]
     return dict(dt=dt, n=n, t_end=float(t[-1]), s=s, events=ev, cover=[[1.40, 1.60]], load=[[1.9, 2.3]], object=[[0.6, 1.1]], reset=[[2.6, 2.75], [3.55, 3.70], [4.2, 4.35]])
-
-
-if __name__ == "__main__":
-    data = dict(parts=parts, wires=W, drops=drops, zones=zones, nets=nets, meas=MEAS, offs=OFFS, dims=board_dims, busx=BUS_X, power=POWER,
-                sim=datos_sim(), titles=g.PLACAS, blocks={k: dict(abbr=v[0], title=v[1], board=v[2]) for k, v in g.BLOQUES.items()})
-    tpl = open(os.path.join(HERE, "plantilla_montaje3d.html"), encoding="utf-8").read()
-    LIB = os.path.join("C:\\Users\\Diego Cruz\\Documents\\electronica-1-amp\\claude\\3_archivos_tecnicos\\lib3d")
-    three = open(os.path.join(HERE, "lib3d", "three.min.js"), encoding="utf-8").read()
-    orbit = open(os.path.join(HERE, "lib3d", "OrbitControls.js"), encoding="utf-8").read()
-    html = tpl.replace("/*__THREE__*/", three).replace("/*__ORBIT__*/", orbit).replace("/*__DATA__*/", "const DATA = " + json.dumps(data, ensure_ascii=False) + ";")
-    os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
-    open(OUT, "w", encoding="utf-8").write(html)
-    nsig = sum(1 for w in W if w["kind"] == "signal")
-    print("ok:", len(parts), "piezas,", len(W), "cables (%d de senal)," % nsig, len(drops), "conexiones de potencia,", round(len(html) / 1e6, 2), "MB")
-    print("verificacion electrica: todas las redes completas y sin mezclas")

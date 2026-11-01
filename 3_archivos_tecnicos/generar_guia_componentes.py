@@ -37,7 +37,6 @@ BLOQUES = [
         ("Rled + Dled", "270 Ω + LED infrarrojo", "El LED del sensor TCRT5000 ilumina el objeto; Rled limita su corriente (~14 mA)."),
         ("(fototransistor)", "Parte del TCRT5000, externo", "Recibe el reflejo. Su corriente entra a la base de Q2 (nodo b)."),
         ("R1, R2", "47 kΩ y 10 kΩ", "Polarizan la base de Q2."),
-        ("Cac", "Condensador 1 µF", "Deja pasar los cambios de la señal y bloquea la luz ambiente constante."),
         ("Q2", "Transistor 2N3904", "Amplifica la señal del fototransistor (emisor común, ganancia ≈ 4)."),
         ("RE, Rc", "150 Ω y 680 Ω", "Fijan la ganancia de Q2."),
         ("Ra, Rp1, Rp2, Rb", "10 k, trimpot 10 k, 26.8 k", "Divisor que crea el umbral del comparador; el trimpot lo ajusta."),
