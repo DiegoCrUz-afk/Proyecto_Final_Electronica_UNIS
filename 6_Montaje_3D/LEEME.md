@@ -11,3 +11,9 @@ Abrir con Chrome o Edge (un solo archivo cada uno, sin internet). Cada pagina ti
 
 Regenerar: `3_archivos_tecnicos\protoboard\exportar_protoboard3d.py` (usa `generar_protoboard.py`, `ruteo_bajo.py` y la plantilla).
 La posicion de cada pieza la decide un acomodo automatico: es una referencia, no un montaje probado.
+
+## v2 (menos cables)
+- `Protoboards_3D_miniestacion_v2.html`: mismo circuito (mismas 118 piezas, 373 patas y 81 redes) con **225 cables en vez de 278**. Las piezas se cuelgan de las tiras que ya tienen su red (tambien GND, 5 V y 12 V) y se deja un agujero libre por tira para los cables. La v1 se conserva tal cual.
+- Cables v2: 193 de senal y alimentacion, 12 puentes entre rieles, 20 a dispositivos externos.
+- Verificacion: `3_archivos_tecnicos\protoboard_v2\verificar_3d.py` da OK (redes completas, sin mezclas, sin agujeros repetidos). La pata->red es identica a la v1. La pagina carga en Chrome sin errores de JavaScript; no se reviso a ojo el acomodo de cables.
+- Regenerar: `3_archivos_tecnicos\protoboard_v2\exportar_protoboard3d.py`.
