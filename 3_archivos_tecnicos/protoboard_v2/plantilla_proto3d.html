@@ -318,9 +318,10 @@ function partGroup(p){
     else { const d = new THREE.Mesh(new THREE.CylinderGeometry(2.7, 2.7, 1.6, 24), mat(0xe87b2f, {roughness: .55})); d.rotation.x = Math.PI / 2; d.position.set(cx, 5.6, cz); g.add(d); }
     top = 9;
   } else if (k === 'LED'){
+    const lcol = /verde/i.test(p.val) ? 0x2e9d4a : 0xd32f2f;
     pts.forEach(v => legTo(g, v.x, v.z, 3));
-    body(new THREE.CylinderGeometry(2.5, 2.5, 6, 24), 0xd32f2f, {roughness: .3, transparent: true, opacity: .9}, cx, 5, cz);
-    const dm = new THREE.Mesh(new THREE.SphereGeometry(2.5, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xd32f2f, {roughness: .3, transparent: true, opacity: .9})); dm.position.set(cx, 8, cz); g.add(dm);
+    body(new THREE.CylinderGeometry(2.5, 2.5, 6, 24), lcol, {roughness: .3, transparent: true, opacity: .9}, cx, 5, cz);
+    const dm = new THREE.Mesh(new THREE.SphereGeometry(2.5, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat(lcol, {roughness: .3, transparent: true, opacity: .9})); dm.position.set(cx, 8, cz); g.add(dm);
     top = 11.5;
   } else if (k === 'Q92'){
     const r = 2.45, h = 5, y0 = 2.6, bg = new THREE.Group(); bg.position.set(cx, 0, cz); g.add(bg);
@@ -356,11 +357,17 @@ function partGroup(p){
     decal('+  12V', 7, 2, 44, '#ddd', cx, 10.7, cz, true);
     pts.forEach(v => legTo(g, v.x, v.z, 1.5));
     top = 12;
-  } else if (k === 'TB'){
+  } else if (k === 'TB' || k === 'OPTO'){
     // extremo pelado del cable que va al dispositivo: entra directo al agujero (sin bornera)
-    pts.forEach(v => { legTo(g, v.x, v.z, 5); body(new THREE.CylinderGeometry(1.0, 1.0, 3.2, 14), 0xe8e8e8, {roughness: .5}, v.x, 6.2, v.z); });
-    top = 9;
-  } else if (k === 'TCRT' || k === 'OPTO'){
+    if (k === 'OPTO'){
+      // el cable sale del opto (junto al motor) y entra directo al agujero: aqui solo una marca plana de color, sin pata ni cable propio
+      pts.forEach((v, i) => body(new THREE.CylinderGeometry(1.3, 1.3, .5, 16), i < 2 ? 0xffb454 : 0x4da3ff, {roughness: .5}, v.x, .5, v.z));
+      top = 3;
+    } else {
+      pts.forEach(v => { legTo(g, v.x, v.z, 5); body(new THREE.CylinderGeometry(1.0, 1.0, 3.2, 14), 0xe8e8e8, {roughness: .5}, v.x, 6.2, v.z); });
+      top = 9;
+    }
+  } else if (k === 'TCRT'){
     const w = P * 4 + 1;
     body(new THREE.BoxGeometry(w, 5, 4.4), 0x151515, {roughness: .55}, cx, 4, cz);
     pts.forEach(v => legTo(g, v.x, v.z, 2));
@@ -380,16 +387,16 @@ function partGroup(p){
     p.pins.forEach((q, i) => { const v = wpts[i], o = flatText(q.n, v.x + (v.x > cxw ? 1 : -1) * 1.1 * P, v.z, 2, 1.1, '#222'); o.userData.pinNum = true; o.userData.board = p.board; G.legs.add(o); });
     top = y0 + 5.2;
   }
-  if (k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM' || k === 'D' || k === 'DZ' || k === 'LED' || k === 'CE'){
+  if (k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM' || k === 'D' || k === 'DZ' || k === 'LED' || k === 'CE' || k === 'OPTO'){
     p.pins.forEach((q, i) => {
       if ((k === 'CE' || k === 'D' || k === 'DZ' || k === 'LED') && !['+', '-', 'K', 'A'].includes(q.n)) return;
       const col = PINCOL[q.n] || '#aab4be', key = q.n + col;
       if (!pinTexCache[key]) pinTexCache[key] = pinTex(q.n, col);
       const s = new THREE.Sprite(new THREE.SpriteMaterial({map: pinTexCache[key], depthTest: false, transparent: true})); s.renderOrder = 12;
-      legSprites.push({s, ref: p.ref, x: wpts[i].x, z: wpts[i].z, act: k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM'}); G.legs.add(s);
+      legSprites.push({s, ref: p.ref, x: wpts[i].x, z: wpts[i].z, act: k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM' || k === 'OPTO'}); G.legs.add(s);
     });
   }
-  const lb = sprite(k === 'TB' ? ['cable →', p.val] : [p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
+  const lb = sprite(k === 'TB' ? ['cable →', p.val] : k === 'OPTO' ? ['cables del opto', 'A K | C E'] : [p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
   lb.position.set(cxw, top + 4, czw); g.userData.label = lb; G.labels.add(lb);
   g.traverse(o => { if (o.isMesh) o.userData.owner = g; });
   partObjs[p.ref] = {group: g, data: p, top, pos: V3(cxw, top / 2, czw), px: cxw, zm: czw};
@@ -424,9 +431,15 @@ const DEV = {}, devLabels = [];
   for (let i = 0; i < 20; i++){ const a = i / 20 * Math.PI * 2, sl = new THREE.Mesh(new THREE.BoxGeometry(2.2, 5, 1.6), mat(0x8dbbe6)); sl.position.set(Math.cos(a) * 10.5, Math.sin(a) * 10.5, 0); sl.rotation.z = a - Math.PI / 2; discG.add(sl); }
   term('MOTOR', 'M+', V3(mx + 32, 28, bz - 8), 0xd32020); term('MOTOR', 'M-', V3(mx + 32, 28, bz + 8), 0x222222);
   label(['MOTOR DC 12 V', 'caja reductora + disco de 20 ranuras'], V3(mx + 6, 62, bz), 62);
-  const oo = new THREE.Mesh(new THREE.BoxGeometry(14, 22, 8), mat(0x151515)); oo.position.set(mx - 18, 31, bz + 52); g.add(oo);
-  ['A', 'K', 'C', 'E'].forEach((t, i) => term('OPTO', t, V3(mx - 4 + (i - 1.5) * 4, 44, bz + 52), i < 2 ? 0xffb454 : 0x4da3ff));
-  label(['OPTOINTERRUPTOR', 'A K = LED · C E = fototransistor'], V3(mx - 18, 62, bz + 52), 56);
+  const ox = mx - 18, oz = bz + 52, bk = mat(0x151515, {roughness: .55});
+  [-1, 1].forEach(sg => { const am = new THREE.Mesh(new THREE.BoxGeometry(12, 13, 3.6), bk); am.position.set(ox, 29.5, oz + sg * 5); g.add(am); });
+  const ob = new THREE.Mesh(new THREE.BoxGeometry(12, 5, 13.6), bk); ob.position.set(ox, 38.5, oz); g.add(ob);
+  ['A', 'K', 'C', 'E'].forEach((t, i) => { const tx = ox + (i % 2 ? 2.2 : -2.2), tz = oz + (i < 2 ? -5 : 5);
+    const lg = new THREE.Mesh(new THREE.CylinderGeometry(.45, .45, 5.4, 8), METAL()); lg.position.set(tx, 43.7, tz); g.add(lg);
+    term('OPTO', t, V3(tx, 46.4, tz), i < 2 ? 0xffb454 : 0x4da3ff);
+    const nm = {A: 'ánodo +', K: 'cátodo −', C: 'colector', E: 'emisor'}[t];
+    label([t + ' · ' + nm, i < 2 ? 'brazo LED' : 'brazo fototransistor'], V3(tx + (i % 2 ? 15 : -15), i < 2 ? 56 : 68, tz), 26); });
+  label(['OPTOINTERRUPTOR (en U)', 'brazo 1: A K (LED) · brazo 2: C E (foto)'], V3(mx - 18, 84, bz + 52), 60);
   const sx = bx - 70;
   const brk = new THREE.Mesh(new THREE.BoxGeometry(6, 50, 6), mat(0x6a7480)); brk.position.set(sx, 36, bz - 40); g.add(brk);
   const arm = new THREE.Mesh(new THREE.BoxGeometry(6, 5, 48), mat(0x6a7480)); arm.position.set(sx, 60, bz - 18); g.add(arm);
@@ -463,6 +476,13 @@ function curveFor(a, b, i, big, w){
   // cable ordenado: sube recto, avanza en filas, avanza en columnas, baja recto; esquinas redondeadas
   const H = (w && w.h) || (big ? 24 : 12), r = (w && w.pts) ? 1.1 : (big ? 2.2 : 1.6);
   let pts = (w && w.pts) ? w.pts.map(q => V3(q[0] * P, q[1], q[2] * P)) : [V3(a.x, a.y - 2.5, a.z), V3(a.x, H, a.z), V3(a.x, H, b.z), V3(b.x, H, b.z), V3(b.x, b.y - 2.5, b.z)];
+  if (w && w.kind === 'ext' && w.b && w.b.ext === 'OPTO' && !w.pts){
+    // cables del opto: cada uno sube a su propia altura y se aparta de las patas vecinas (no pasa por encima de ellas)
+    const idx = ['A', 'K', 'C', 'E'].indexOf(w.b.term), Hh = 16 + 2.6 * idx, dz = Math.sign(b.z - a.z) || 1, left = w.a.x < 5;
+    const behind = DATA.wires.some(o => o !== w && o.kind === 'ext' && o.b.ext === 'OPTO' && o.a.board === w.a.board && (o.a.x < 5) === left && (Z(o.a.y) - a.z) * dz > 0);
+    const sx = behind ? a.x + (left ? -2 : 2) * P : a.x;
+    pts = [V3(a.x, a.y - 2.5, a.z), V3(a.x, Hh, a.z), V3(sx, Hh, a.z), V3(sx, Hh, b.z), V3(b.x, Hh, b.z), V3(b.x, b.y - 2.5, b.z)];
+  }
   pts = pts.filter((p, k) => k === 0 || p.distanceTo(pts[k - 1]) > 1e-6);
   const path = new THREE.CurvePath();
   let cur = pts[0].clone();
@@ -563,7 +583,7 @@ DATA.parts.slice().sort((a, b) => a.ref.localeCompare(b.ref, undefined, {numeric
 $('partSel').onchange = e => { if (e.target.value){ const pb = partObjs[e.target.value].data.board; if (boardView && !partShown(pb)) applyBoardView(pb); select('part', e.target.value, true); } };
 const HINT = {R: 'resistencia (bandas de color según el valor)', RW: 'resistencia de potencia (shunt de corriente)', CE: 'electrolítico: la franja clara marca la pata −; el + va al nodo de más voltaje', CC: 'capacitor sin polaridad', D: 'diodo: banda clara = cátodo (K)', DZ: 'Zener: la banda es el cátodo (K) y va al lado de más voltaje', LED: 'LED: pata larga = ánodo (A)',
   Q92: 'transistor TO-92: cara plana hacia ti, patas E-B-C de izquierda a derecha', Q126: 'TO-126: cara con texto hacia ti, patas E-C-B de izquierda a derecha', MOS: 'MOSFET TO-220 de nivel lógico con disipador: patas G-D-S de izquierda a derecha, cara con texto hacia ti',
-  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'extremo del cable que va al dispositivo (sensor, motor, interruptor…): entra directo a estos agujeros, sin bornera', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'conector de 4 patas del TCRT5000 (A K = LED IR, C E = fototransistor)', OPTO: 'conector de 4 patas del optointerruptor (A K = LED, C E = fototransistor)', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
+  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'extremo del cable que va al dispositivo (sensor, motor, interruptor…): entra directo a estos agujeros, sin bornera', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'conector de 4 patas del TCRT5000 (A K = LED IR, C E = fototransistor)', OPTO: 'agujeros donde entran los 4 cables que salen del optointerruptor: A = ánodo (+) y K = cátodo (−) del LED (amarillo); C = colector y E = emisor del fototransistor (azul). Entran directo a estos agujeros', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
 const fx = new THREE.Group(); scene.add(fx);
 const fxTags = [], fxRings = [], glowedWires = []; let tagsOn = true;
 function ringAt(pt, color, r){
@@ -843,7 +863,7 @@ steps = buildSteps('');
 let stepMode = false, stepK = 0, playT = null;
 function stepText(s){
   const pre = s.ph ? '[' + s.ph + '] ' : '';
-  if (s.t === 'part'){ const p = partObjs[s.id].data; return pre + (p.kind === 'TB' ? 'Mete los cables de ' + p.val + ' (van al dispositivo) en la placa ' + p.board + ': ' : 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ') + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
+  if (s.t === 'part'){ const p = partObjs[s.id].data; return pre + ((p.kind === 'TB' || p.kind === 'OPTO') ? 'Mete los cables de ' + p.val + ' (van al dispositivo) en la placa ' + p.board + ': ' : 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ') + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
   const w = DATA.wires[s.id - 1]; return pre + 'Cable [' + w.i + '] (' + netLabel(w.net) + '): ' + w.a.hole + ' → ' + w.b.hole;
 }
 function applySteps(){
@@ -972,6 +992,7 @@ const RANGE = {vref: 1, vspd: 1.2, vctrl: 8, tnode: 5};
 const SO = window.__SIMOBJ || {};
 let simT = 0, simPlay = false, simRate = .2, simOn = false, simColor = true, simAcc = 0, lastSimDraw = -1;
 const ledParts = ['ALA.Dl'].map(r => partObjs[r]).filter(Boolean);
+const objLed = partObjs['LOG.Dlo'];
 const bzPart = partObjs['ALA.BZ'];
 if (bzPart){ const wv = sprite(['♪ ALARMA ♪'], 22, 7, {w: 384, h: 112, bg: '#7a0d0dee', border: '#ff5a4d', size: [54]}); wv.position.set(bzPart.px, bzPart.top + 16, bzPart.zm); wv.visible = false; scene.add(wv); SO.wave = wv; }
 function setEmis(grp, hex, k){ grp.traverse(o => { if (o.material && o.material.emissive){ o.material.emissive.setHex(hex); o.material.emissiveIntensity = k; } }); }
@@ -1017,7 +1038,7 @@ SIMD.events.forEach(e => { const b = document.createElement('button'); b.textCon
 function simOnSet(v){ simOn = v; $('simOn').classList.toggle('on', v); $('simOn').textContent = v ? 'Salir del modo funcionamiento' : '▶ Activar modo funcionamiento'; if (!v){ simPlay = false; $('simPlay').textContent = '▶'; resetSimObjects(); colorWires(0); } else { simUpdate(true); } }
 function resetSimObjects(){
   if (SO.cover) SO.cover.rotation.x = 0; if (SO.obj) SO.obj.visible = true; if (SO.brake) SO.brake.visible = false; if (SO.btn) SO.btn.position.y = SO.btnY; if (SO.lever) SO.lever.rotation.z = .35;
-  if (SO.ntc) SO.ntc.material.color.set(0x2d6cdf); if (SO.tc) SO.tc.material.emissive.setHex(0); if (SO.beltTex) SO.beltTex.offset.x = 0;
+  if (SO.ntc) SO.ntc.material.color.set(0x2d6cdf); if (SO.tc) SO.tc.material.emissive.setHex(0); if (typeof objLed !== 'undefined' && objLed) setEmis(objLed.group, 0, 0); if (SO.beltTex) SO.beltTex.offset.x = 0;
   if (SO.obj){ SO.obj.position.x = SO.bx - 10; }
   ledParts.forEach(p => setEmis(p.group, 0, 0)); if (SO.wave) SO.wave.visible = false; if (SO.shaftG) SO.shaftG.rotation.z = 0;
 }
@@ -1042,6 +1063,7 @@ function simUpdate(force){
   if (SO.lever) SO.lever.rotation.z = t > .05 ? -.35 : .35;
   if (SO.ntc){ const k = Math.max(0, Math.min(1, (T - 25) / 40)); SO.ntc.material.color.setRGB(.18 + .8 * k, .42 - .3 * k, .87 - .8 * k); }
   if (SO.tc) SO.tc.material.emissive.setHex(simAt('V(p)', t) > 2.5 ? 0xff2200 : 0);
+  if (objLed){ const det = simAt('V(p)', t) > 2.5; setEmis(objLed.group, det ? 0x22ff66 : 0, det ? 1.6 : 0); }
   ledParts.forEach(p => setEmis(p.group, f ? 0xff1a1a : 0, f ? 1.4 : 0));
   if (SO.wave){ SO.wave.visible = f; }
   colorWires(t);

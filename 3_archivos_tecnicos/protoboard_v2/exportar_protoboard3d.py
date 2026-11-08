@@ -89,6 +89,16 @@ def hole(b, x, y):
     return "%s-riel %s fila %d" % (b, {-3: "GND izq", -2: "+5 V izq", 12: "GND der", 13: "+12 V der"}.get(x, "?"), row_lbl(y))
 
 
+def valor(v):
+    """Valores como {Kerr*10k} salen calculados (100k), no como formula."""
+    m = re.fullmatch(r"\{(\w+)\*(\d+(?:\.\d+)?)k\}", str(v))
+    if not m:
+        return v
+    par = re.search(r"\.param.*\b" + m.group(1) + r"=([0-9.]+)", open(os.path.join(PROY, "sistema.inc"), encoding="utf-8").read())
+    n = float(par.group(1)) * float(m.group(2))
+    return ("%g" % n) + "k" if n < 1000 else ("%g" % (n / 1000)) + "M"
+
+
 parts = []
 for d in P.parts:
     pins = []
@@ -96,10 +106,11 @@ for d in P.parts:
         bn, side, col, row = P.pos[(d["ref"], q["n"])]
         pins.append(dict(n=q["n"], net=q["net"], x=col, y=row, **({"name": q["name"]} if "name" in q else {})))
     bn = P.pos[(d["ref"], d["pins"][0]["n"])][0]
-    p = dict(d, board=bn, pins=pins, short=d["ref"].split(".")[-1], x=min(q["x"] for q in pins), y=min(q["y"] for q in pins), blk=d["blk"])
+    p = dict(d, val=valor(d["val"]), board=bn, pins=pins, short=d["ref"].split(".")[-1], x=min(q["x"] for q in pins), y=min(q["y"] for q in pins), blk=d["blk"])
     parts.append(p)
 by_ref = {p["ref"]: p for p in parts}
 nets = E.nets
+nets.setdefault("LOG.lo", dict(color="#ff9f43", label="LOG.lo"))
 W = []
 for w in P.wires:
     a, b = dict(w["a"]), dict(w["b"])

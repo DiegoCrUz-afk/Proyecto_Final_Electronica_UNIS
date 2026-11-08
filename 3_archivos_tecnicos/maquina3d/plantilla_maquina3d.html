@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Máquina 3D</title>
+<style>
+  :root { --bg:#1b232b; --panel:#222c36; --ink:#e8edf2; --mut:#9aa7b4; --line:#37444f; --acc:#5aa7ff; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink); font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif; overflow:hidden; }
+  #c { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  #ui { position:fixed; top:0; left:0; bottom:0; width:300px; background:var(--panel); border-right:1px solid var(--line); padding:12px; overflow:auto; z-index:2; }
+  #ui h1 { font-size:16px; margin:0 0 2px; }
+  #ui p { color:var(--mut); margin:0 0 10px; font-size:13px; }
+  #ui h2 { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); margin:14px 0 6px; }
+  button { background:#2e3b47; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:6px 10px; margin:0 4px 6px 0; cursor:pointer; font:inherit; }
+  button:hover { border-color:var(--acc); }
+  label.t { display:flex; gap:8px; align-items:center; margin:4px 0; cursor:pointer; }
+  #info { position:fixed; right:12px; top:12px; width:min(340px, calc(100% - 330px)); background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px; z-index:2; }
+  #info h3 { margin:0 0 4px; font-size:15px; }
+  #info table { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+  #info td { padding:3px 4px; border-top:1px solid var(--line); }
+  #info .w { color:var(--mut); font-size:12.5px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+  #hint { position:fixed; left:312px; bottom:10px; color:var(--mut); font-size:12px; z-index:2; background:#0008; padding:3px 8px; border-radius:8px; }
+  .row { cursor:pointer; padding:3px 6px; border-radius:6px; font-size:12.5px; }
+  .row:hover { background:#2e3b47; }
+  @media (max-width:760px) { #ui { width:100%; bottom:auto; max-height:42%; border-right:0; border-bottom:1px solid var(--line); } #info { top:auto; bottom:8px; width:calc(100% - 16px); right:8px; max-height:40%; overflow:auto; } #hint { left:8px; bottom:auto; top:44%; } }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <h1>Máquina 3D</h1>
+  <p>La banda con el motor, el disco, el opto y cada cable hacia su placa. Arrastra para girar, rueda para acercar, WASD para moverte (Q/E bajan y suben).</p>
+  <h2>Vistas</h2>
+  <div id="views"></div>
+  <h2>Desarmar</h2>
+  <p style="margin:0 0 6px">Separa cada pieza a lo largo de su eje, como una vista explosionada. Al desarmar se ocultan los cables para verla clara; puedes volver a mostrarlos abajo.</p>
+  <input type="range" id="exp" min="0" max="100" value="0" style="width:100%">
+  <div><button id="bDes">Desarmar todo</button><button id="bArm">Armar</button></div>
+  <h2>Mostrar</h2>
+  <label class="t"><input type="checkbox" id="tCab" checked> Cables (con su número)</label>
+  <label class="t"><input type="checkbox" id="tCov" checked> Cubierta transparente</label>
+  <label class="t"><input type="checkbox" id="tGear" checked> Engranes extra (propuesta)</label>
+  <label class="t"><input type="checkbox" id="tBrd" checked> Protoboards</label>
+  <label class="t"><input type="checkbox" id="tRun" checked> Banda y disco girando</label>
+  <h2>Cables por aparato</h2>
+  <div id="list"></div>
+</div>
+<div id="info"><h3>Toca una pieza o un cable</h3><div class="w">Te muestro qué es y a dónde va cada cable.</div></div>
+<div id="hint">WASD / flechas = moverte · Q/E = bajar/subir · Shift = más rápido · Clic en una pieza o cable = datos</div>
+<script>/*__THREE__*/</script>
+<script>/*__ORBIT__*/</script>
+<script>
+const DATA = /*__DATA__*/;
+const P = 2.54, ZB = 105;
+const $ = id => document.getElementById(id);
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+
+const renderer = new THREE.WebGLRenderer({canvas: $('c'), antialias: true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x2b3640);
+const camera = new THREE.PerspectiveCamera(45, 1, 1, 4000);
+const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableDamping = true; controls.dampingFactor = .12;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, .95));
+const sun = new THREE.DirectionalLight(0xffffff, .7); sun.position.set(200, 400, 300); scene.add(sun);
+
+const mat = (c, o) => new THREE.MeshStandardMaterial(Object.assign({color: c, roughness: .6, metalness: .1}, o || {}));
+const GR = {cab: new THREE.Group(), cov: new THREE.Group(), gear: new THREE.Group(), brd: new THREE.Group(), main: new THREE.Group()};
+Object.values(GR).forEach(g => scene.add(g));
+const pick = [];
+let CUR = null;   // grupo (subconjunto) donde se agregan las piezas de la maquina
+function add(parent, geo, c, x, y, z, o, key) {
+  const m = new THREE.Mesh(geo, mat(c, o)); m.position.set(x, y, z); (parent === GR.main && CUR ? CUR : parent).add(m);
+  if (key) { m.userData.key = key; pick.push(m); }
+  return m;
+}
+const box = (p, w, h, d, c, x, y, z, o, key) => add(p, new THREE.BoxGeometry(w, h, d), c, x, y, z, o, key);
+// cilindro con el eje a lo largo de z
+function cylZ(p, r, len, c, x, y, z, o, key) { const m = add(p, new THREE.CylinderGeometry(r, r, len, 28), c, x, y, z, o, key); m.rotation.x = Math.PI / 2; return m; }
+function gear(p, r, teeth, th, c, x, y, z, key) {
+  const g = new THREE.Group(); g.position.set(x, y, z); p.add(g);
+  const body = add(g, new THREE.CylinderGeometry(r, r, th, 36), c, 0, 0, 0, null, key); body.rotation.x = Math.PI / 2;
+  const tw = 2 * Math.PI * r / teeth * .5;
+  for (let i = 0; i < teeth; i++) {
+    const a = i / teeth * Math.PI * 2, t = box(g, tw, 2.2, th, c, Math.cos(a) * (r + .9), Math.sin(a) * (r + .9), 0, null, key);
+    t.rotation.z = a + Math.PI / 2;
+  }
+  return g;
+}
+function sprite(txt, w, h, bg, col) {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = Math.round(256 * h / w); const g = cv.getContext('2d');
+  g.fillStyle = bg || '#10151add'; g.beginPath(); g.roundRect ? g.roundRect(2, 2, cv.width - 4, cv.height - 4, 18) : g.rect(2, 2, cv.width - 4, cv.height - 4); g.fill();
+  g.fillStyle = col || '#fff'; g.font = 'bold ' + Math.round(cv.height * .5) + 'px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, cv.width / 2, cv.height / 2 + 2);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true})); s.scale.set(w, h, 1); s.renderOrder = 20; return s;
+}
+
+// ---------- maquina (cada subconjunto en su grupo, para poder desarmarla) ----------
+const M = GR.main, MX = 150;
+const ASM = {};
+function asm(name, ox, oy, oz, parent) { const g = new THREE.Group(); (parent || M).add(g); g.userData.off = V3(ox, oy, oz); ASM[name] = g; CUR = g; return g; }
+const MOTX = 279, MOTY = 18, FRONT = 41;
+
+asm('base', 0, -45, 0);
+box(M, 330, 8, 140, 0x39434d, MX, -4, 0);
+asm('marcoA', 0, 0, -55); box(M, 240, 30, 4, 0x6a7480, MX, 15, -34, null, 'banda');
+asm('marcoB', 0, 0, 55); box(M, 240, 30, 4, 0x6a7480, MX, 15, 34, null, 'banda');
+asm('banda', 0, 55, 0);
+[MX - 105, MX + 105].forEach(x => cylZ(M, 12, 64, 0x6a7480, x, 18, 0, {metalness: .5, roughness: .4}, 'banda'));
+const stc = document.createElement('canvas'); stc.width = 64; stc.height = 16; const sg = stc.getContext('2d');
+sg.fillStyle = '#1d2227'; sg.fillRect(0, 0, 64, 16); sg.fillStyle = '#46525e'; sg.fillRect(0, 0, 20, 16);
+const btex = new THREE.CanvasTexture(stc); btex.wrapS = THREE.RepeatWrapping; btex.repeat.set(210 / 20, 1);
+const belt = new THREE.Mesh(new THREE.BoxGeometry(210, 1.5, 58), new THREE.MeshBasicMaterial({map: btex})); belt.position.set(MX, 30.5, 0); CUR.add(belt); belt.userData.key = 'banda'; pick.push(belt);
+box(M, 210, 1, 58, 0x15181b, MX, 6, 0);
+cylZ(M, 1.5, 16, 0xc9ced4, MX + 105, 18, 38, {metalness: .6}, 'banda');
+asm('objeto', 0, 105, 0); box(M, 22, 18, 22, 0xc8832e, 120, 40.3, 0, null, 'objeto');
+
+// motorreductor
+asm('motor', 0, 0, -32);
+box(M, 14, 13, 34, 0x39434d, MOTX, 6.5, FRONT - 17.7, null, 'motor');
+box(M, 12, 10, 35.5, 0x9aa5b1, MOTX, MOTY, FRONT - 17.75, {metalness: .6, roughness: .35}, 'motor');
+box(M, 12.4, 10.4, 12, 0x5d6874, MOTX, MOTY, FRONT - 6, {metalness: .5}, 'motor');
+cylZ(M, 1.5, 10, 0xc9ced4, MOTX, MOTY, FRONT + 5, {metalness: .7}, 'motor');
+asm('ntc', 0, 38, -32); add(M, new THREE.SphereGeometry(2.6, 16, 12), 0xe58a1f, MOTX, MOTY + 7.4, FRONT - 20, null, 'ntc');
+// engranes extra (propuesta): pinon de 12 dientes en el eje del motor, engrane de 36 dientes en el eje del rodillo
+asm('pinon', 0, 0, 30, GR.gear);   const gp = gear(CUR, 6, 12, 3, 0xd6b24a, MOTX, MOTY, FRONT + 1.5, 'engr');
+asm('engrg', 0, 0, 30, GR.gear);   const gb = gear(CUR, 18, 36, 4, 0xd6b24a, MX + 105, 18, FRONT + 2, 'engr');
+// disco de 20 ranuras
+asm('disco', 0, 0, 64);
+const discG = new THREE.Group(); discG.position.set(MOTX, MOTY, 48); CUR.add(discG);
+const disc = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 1.2, 40), mat(0x1c1c1c)); disc.rotation.x = Math.PI / 2; discG.add(disc); disc.userData.key = 'disco'; pick.push(disc);
+for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2, sl = new THREE.Mesh(new THREE.BoxGeometry(1.6, 4, 1.4), mat(0x8dbbe6)); sl.position.set(Math.cos(a) * 10, Math.sin(a) * 10, 0); sl.rotation.z = a - Math.PI / 2; discG.add(sl); sl.userData.key = 'disco'; pick.push(sl); }
+// opto en U fijo, con el borde del disco dentro de la ranura
+asm('opto', 0, -34, 64);
+box(M, 12, 3, 8.4, 0x151515, MOTX, 1.5, 48, {roughness: .5}, 'opto');
+[45.8, 50.2].forEach((z, i) => { box(M, 10, 11, 2, 0x151515, MOTX, 8.5, z, {roughness: .5}, 'opto'); box(M, .4, 4, 4, i ? 0x4da3ff : 0xffb454, MOTX, 9, z + (i ? -1.1 : 1.1), null, 'opto'); });
+// sensor IR TCRT5000 sobre la banda
+asm('tcrt', -25, 100, -35);
+box(M, 5, 24, 5, 0x6a7480, 90, 43, -37, null, 'tcrt');
+box(M, 5, 5, 34, 0x6a7480, 90, 55, -20, null, 'tcrt');
+box(M, 12, 8, 12, 0x151515, 90, 50, -6, {roughness: .5}, 'tcrt');
+// micro-switch de la cubierta
+asm('swg', 0, 85, -45); box(M, 16, 8, 10, 0xd4b44a, 235, 34, -31.5, null, 'swg');
+// cubierta transparente (su propio grupo)
+GR.cov.userData.off = V3(0, 170, 0); ASM.cover = GR.cov;
+box(GR.cov, 240, 46, 70, 0x9fd3ff, MX, 54, 0, {transparent: true, opacity: .12, roughness: .2, depthWrite: false});
+// fuente, interruptor y pulsador (no se desarman)
+asm('panel', 0, 0, 0);
+box(M, 60, 36, 44, 0x1b1b1b, -50, 18, 150, null, 'fuente');
+box(M, 26, 16, 18, 0x39434d, 345, 8, 120, null, 'swe'); box(M, 3, 12, 3, 0xe8e8e8, 345, 20, 120, null, 'swe');
+box(M, 26, 14, 18, 0x39434d, 345, 7, 160, null, 'swr'); add(M, new THREE.CylinderGeometry(6, 6, 6, 24), 0xc62828, 345, 17, 160, null, 'swr');
+CUR = null;
+// lineas guia de los ejes (se ven al desarmar)
+const guide = new THREE.Group(); scene.add(guide);
+[[MOTX, MOTY], [MX + 105, 18]].forEach(([gx, gy]) => {
+  const gm = new THREE.LineDashedMaterial({color: 0xffffff, dashSize: 3, gapSize: 3, transparent: true, opacity: .55});
+  const ge = new THREE.BufferGeometry().setFromPoints([V3(gx, gy, -40), V3(gx, gy, 130)]); const ln = new THREE.Line(ge, gm); ln.computeLineDistances(); guide.add(ln);
+});
+guide.visible = false;
+let EXP = 0, EXPT = 0;
+
+// ---------- protoboards ----------
+const B = GR.brd, offs = DATA.offs, brdNames = DATA.boards;
+const dc = document.createElement('canvas'); dc.width = dc.height = 16; const dg = dc.getContext('2d'); dg.fillStyle = '#5a5a52'; dg.fillRect(5, 5, 6, 6);
+const dotTex = new THREE.CanvasTexture(dc); dotTex.wrapS = dotTex.wrapT = THREE.RepeatWrapping; dotTex.repeat.set(20, 64); dotTex.magFilter = THREE.NearestFilter;
+brdNames.forEach(b => {
+  const cx = (offs[b] + 5) * P, w = 20 * P, len = 64 * P;
+  box(B, w, 5, len, 0xf0efe6, cx, -2.5, ZB + 31.5 * P, {roughness: .8});
+  const dots = new THREE.Mesh(new THREE.PlaneGeometry(20 * P, 64 * P), new THREE.MeshBasicMaterial({map: dotTex, transparent: true}));
+  dots.rotation.x = -Math.PI / 2; dots.position.set((offs[b] + 5.5) * P, .15, ZB + 31.5 * P); B.add(dots);
+  box(B, 4, .4, len - 6, 0xd5d3c6, cx, .3, ZB + 31.5 * P, {roughness: .9});
+  const s = sprite('PLACA ' + b, 26, 8, '#10151add'); s.position.set(cx, 12, ZB - 8); B.add(s);
+});
+const hole = e => V3((offs[e.board] + e.x) * P, 0, ZB + e.y * P);
+
+// ---------- terminales de cada aparato y cables ----------
+const T = {
+  MOTOR: {'M+': V3(MOTX - 2.5, MOTY, FRONT - 36), 'M-': V3(MOTX + 2.5, MOTY, FRONT - 36)},
+  NTC: {'5V': V3(MOTX - 1.2, MOTY + 9.8, FRONT - 20), 'NTC': V3(MOTX + 1.2, MOTY + 9.8, FRONT - 20)},
+  OPTO: {'A': V3(MOTX - 3, 3, 44), 'K': V3(MOTX + 3, 3, 44), 'C': V3(MOTX - 3, 3, 52), 'E': V3(MOTX + 3, 3, 52)},
+  TCRT: {'A': V3(90 - 4.5, 50, -12.4), 'K': V3(90 - 1.5, 50, -12.4), 'C': V3(90 + 1.5, 50, -12.4), 'E': V3(90 + 4.5, 50, -12.4)},
+  SW_G: {'5V': V3(231, 38.2, -31.5), 'G': V3(239, 38.2, -31.5)},
+  SW_E: {'5V': V3(341, 16, 120), 'E': V3(349, 16, 120)},
+  SW_R: {'5V': V3(341, 14, 160), 'RST': V3(349, 14, 160)},
+  FUENTE: {'+12V': V3(-58, 36, 150), 'GND': V3(-42, 36, 150)},
+};
+const NOMBRE = {MOTOR: 'Motor', NTC: 'NTC 10 k', OPTO: 'Opto del encoder', TCRT: 'Sensor IR TCRT5000', SW_G: 'Micro-switch de la cubierta', SW_E: 'Interruptor E', SW_R: 'Pulsador de reset', FUENTE: 'Fuente 12 V'};
+const KEYDEV = {MOTOR: 'motor', NTC: 'ntc', OPTO: 'opto', TCRT: 'tcrt', SW_G: 'swg', SW_E: 'swe', SW_R: 'swr', FUENTE: 'fuente'};
+const wiresOf = {};
+const ext = DATA.wires.filter(w => w.kind === 'ext');
+const DEVASM = {MOTOR: 'motor', NTC: 'ntc', OPTO: 'opto', TCRT: 'tcrt', SW_G: 'swg', SW_E: 'panel', SW_R: 'panel', FUENTE: 'panel'};
+let cabMeshes = [];
+ext.forEach(w => { if ((T[w.b.ext] || {})[w.b.term]) (wiresOf[w.b.ext] = wiresOf[w.b.ext] || []).push(w); });
+function rounded(pts, r) {
+  const path = new THREE.CurvePath(); let cur = pts[0].clone();
+  for (let k = 1; k < pts.length; k++) {
+    const c = pts[k], nx = pts[k + 1];
+    if (nx) {
+      const din = c.clone().sub(pts[k - 1]), dout = nx.clone().sub(c), rr = Math.min(r, din.length() / 2, dout.length() / 2);
+      const p1 = c.clone().sub(din.normalize().multiplyScalar(rr)), p2 = c.clone().add(dout.normalize().multiplyScalar(rr));
+      if (cur.distanceTo(p1) > 1e-6) path.add(new THREE.LineCurve3(cur.clone(), p1.clone()));
+      path.add(new THREE.QuadraticBezierCurve3(p1.clone(), c.clone(), p2.clone())); cur = p2;
+    } else path.add(new THREE.LineCurve3(cur.clone(), c.clone()));
+  }
+  return path;
+}
+let hiDev = null;
+const camposFijos = [];
+function buildCables() {
+  cabMeshes.forEach(m => { GR.cab.remove(m); m.geometry.dispose(); const k = pick.indexOf(m); if (k >= 0) pick.splice(k, 1); });
+  cabMeshes = [];
+  GR.cab.children.filter(o => o.userData.dyn).forEach(o => GR.cab.remove(o));
+  ext.forEach((w, i) => {
+    const dev = w.b.ext, tpos = (T[dev] || {})[w.b.term]; if (!tpos) return;
+    const off = ASM[DEVASM[dev]] ? ASM[DEVASM[dev]].position : V3(0, 0, 0);
+    const a = tpos.clone().add(off), b = hole(w.a), h = 96 + 2.4 * i + 140 * EXP;
+    const pts = [a.clone().add(V3(0, -1, 0)), V3(a.x, h, a.z), V3(b.x, h, a.z), V3(b.x, h, b.z), V3(b.x, 1, b.z)];
+    const faded = hiDev && dev !== hiDev;
+    const m = new THREE.Mesh(new THREE.TubeGeometry(rounded(pts, 5), 200, .7, 8, false), mat(new THREE.Color(w.color), {roughness: .45, transparent: !!faded, opacity: faded ? .18 : 1, emissive: hiDev && !faded ? 0x333333 : 0x000000}));
+    m.userData.wire = w; GR.cab.add(m); cabMeshes.push(m); pick.push(m);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(1.5, 12, 8), mat(new THREE.Color(w.color))); dot.position.copy(a); dot.userData.dyn = 1; GR.cab.add(dot);
+    if (!camposFijos[i]) {
+      const num = sprite(String(w.i), 11, 11, '#ffffff', '#000'); num.position.set(b.x, 16 + 9 * (i % 4), b.z); GR.cab.add(num);
+      const mk = new THREE.Mesh(new THREE.TorusGeometry(2.4, .5, 8, 20), mat(0x18d1c7, {emissive: 0x0a6b66})); mk.rotation.x = Math.PI / 2; mk.position.set(b.x, .8, b.z); GR.cab.add(mk);
+      camposFijos[i] = 1;
+    }
+  });
+}
+buildCables();
+const LBL = [];
+function lbl(txt, x, y, z, w, an) { const s = sprite(txt, w || 36, 8, '#10151add'); const base = V3(x, y, z); s.position.copy(base); (an === 'engrg' ? GR.gear : M).add(s); LBL.push([s, w || 36, base, an]); return s; }
+lbl('Motorreductor', MOTX + 4, 40, FRONT - 14, 34, 'motor'); lbl('Disco 20 ranuras', MOTX + 6, 42, 52, 38, 'disco'); lbl('Opto', MOTX, -9, 48, 16, 'opto');
+lbl('Sensor IR', 90, 70, -6, 26, 'tcrt'); lbl('Banda', MX, 76, 0, 22, 'banda'); lbl('Fuente 12 V', -50, 46, 150, 34, 'panel');
+lbl('Interruptor E', 345, 30, 120, 34, 'panel'); lbl('Reset', 345, 28, 160, 20, 'panel');
+const sGl = lbl('Engranes extra (propuesta)', MX + 95, 56, FRONT + 8, 56, 'engrg');
+lbl('Micro-switch', 235, 48, -31.5, 30, 'swg'); lbl('NTC', MOTX + 12, 36, FRONT - 20, 14, 'ntc');
+
+// ---------- informacion ----------
+const INFO = {
+  motor: ['Motorreductor', 'Motor con caja de engranes ya incluida (100:1). El eje de salida es de tipo D, 3 mm de diámetro y 10 mm de largo. El modelo que viste en Steren (MOT-125) es de 6 V; el circuito del proyecto le entrega hasta 12 V, así que hay que cambiar algo antes de usarlo. Tiene 2 cables: M+ y M−.'],
+  ntc: ['NTC 10 k', 'Sensor de temperatura pegado a la carcasa del motor. Si se calienta demasiado, el circuito corta el motor. 2 cables.'],
+  disco: ['Disco de 20 ranuras', 'Va en el eje D de salida del motor y gira con él. Lo fabricas tú (no se compra). Cada ranura que pasa por el opto da un pulso.'],
+  opto: ['Opto del encoder (en U)', 'Queda fijo. El borde del disco pasa por su ranura. Brazo del LED: A ánodo (+), K cátodo (−). Brazo del fototransistor: C colector, E emisor. 4 cables a la placa D.'],
+  tcrt: ['Sensor IR TCRT5000', 'Mira hacia la banda y detecta cuándo pasa un objeto. 4 cables a la placa B.'],
+  swg: ['Micro-switch de la cubierta', 'Si se abre la cubierta, el motor se detiene. 2 cables a la placa C.'],
+  swe: ['Interruptor E', 'Habilita el sistema. 2 cables a la placa C.'],
+  swr: ['Pulsador de reset', 'Limpia la falla cuando ya no hay causa. 2 cables a la placa C.'],
+  fuente: ['Fuente externa 12 V', 'Alimenta todo el circuito. 2 cables a la placa A.'],
+  engr: ['Engranes extra (propuesta)', 'Idea para ganar fuerza: piñón de 12 dientes en el eje del motor y engrane de 36 dientes en el eje del rodillo. Relación 3:1: el rodillo gira unas 3 veces más lento con unas 3 veces más fuerza, sin contar pérdidas. No está en el diseño del proyecto; se puede ocultar con la casilla.'],
+  banda: ['Banda transportadora', 'Rodillo motriz a la derecha (lo mueve el motor) y rodillo libre a la izquierda.'],
+  objeto: ['Objeto de prueba', 'Cuando pasa frente al sensor IR, el circuito baja la velocidad.'],
+};
+const devOfKey = {}; Object.keys(KEYDEV).forEach(d => devOfKey[KEYDEV[d]] = d);
+function wireRow(w) { return '<tr><td><span class="dot" style="background:' + w.color + '"></span><b>' + w.i + '</b></td><td>' + w.b.term + '</td><td>' + w.a.hole.replace('riel ', 'riel ') + '</td><td class="w">' + w.net + '</td></tr>'; }
+function showInfo(key) {
+  const it = INFO[key]; if (!it) return; const dev = devOfKey[key], ws = dev ? (wiresOf[dev] || []) : [];
+  $('info').innerHTML = '<h3>' + it[0] + '</h3><div class="w">' + it[1] + '</div>' + (ws.length ? '<table><tr class="w"><td>Cable</td><td>Pata</td><td>Placa-agujero</td><td>Red</td></tr>' + ws.map(wireRow).join('') + '</table>' : '');
+}
+function showWire(w) {
+  $('info').innerHTML = '<h3><span class="dot" style="background:' + w.color + '"></span>Cable ' + w.i + '</h3><div class="w">' + NOMBRE[w.b.ext] + ' · pata <b>' + w.b.term + '</b> → ' + w.a.hole + '<br>Red: ' + w.net + '</div>';
+}
+function highlight(dev) { hiDev = dev || null; buildCables(); }
+// lista lateral
+const list = $('list');
+Object.keys(NOMBRE).forEach(d => {
+  const ws = wiresOf[d] || []; if (!ws.length) return;
+  const r = document.createElement('div'); r.className = 'row';
+  r.innerHTML = '<b>' + NOMBRE[d] + '</b> · ' + ws.length + ' cables<br><span style="color:var(--mut)">' + ws.map(w => w.i).join(', ') + '</span>';
+  r.onclick = () => { showInfo(KEYDEV[d]); highlight(d); const t = T[d][Object.keys(T[d])[0]]; fly(t.clone().add(V3(60, 50, 90)), t); };
+  list.appendChild(r);
+});
+// vistas
+let anim = null;
+function fly(pos, tgt) { anim = {p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: tgt, t: performance.now()}; }
+const VIEWS = {
+  'Todo': [V3(160, 330, 420), V3(160, 10, 90)],
+  'Motor y opto': [V3(350, 80, 150), V3(279, 12, 38)],
+  'Sensor IR': [V3(40, 90, 50), V3(90, 46, -6)],
+  'Placas': [V3(150, 380, 400), V3(150, 0, 190)],
+  'Arriba': [V3(160, 520, 150), V3(160, 0, 110)],
+  'Desarmado': [V3(330, 190, 380), V3(190, 30, 40)],
+};
+Object.keys(VIEWS).forEach(n => { const b = document.createElement('button'); b.textContent = n; b.onclick = () => { highlight(null); if (n === 'Desarmado') { EXPT = 1; $('exp').value = 100; $('tCab').checked = false; GR.cab.visible = false; } fly(VIEWS[n][0], VIEWS[n][1]); }; $('views').appendChild(b); });
+const bq = document.createElement('button'); bq.textContent = 'Quitar resaltado'; bq.onclick = () => highlight(null); $('views').appendChild(bq);
+camera.position.copy(VIEWS['Todo'][0]); controls.target.copy(VIEWS['Todo'][1]);
+$('exp').oninput = e => { EXPT = +e.target.value / 100; };
+$('bDes').onclick = () => { EXPT = 1; $('exp').value = 100; $('tCab').checked = false; GR.cab.visible = false; fly(VIEWS['Desarmado'][0], VIEWS['Desarmado'][1]); };
+$('bArm').onclick = () => { EXPT = 0; $('exp').value = 0; $('tCab').checked = true; GR.cab.visible = true; fly(VIEWS['Todo'][0], VIEWS['Todo'][1]); };
+$('tCab').onchange = e => GR.cab.visible = e.target.checked;
+$('tCov').onchange = e => GR.cov.visible = e.target.checked;
+$('tGear').onchange = e => GR.gear.visible = e.target.checked;
+$('tBrd').onchange = e => GR.brd.visible = e.target.checked;
+
+// seleccionar con clic
+const ray = new THREE.Raycaster(), mp = new THREE.Vector2(); let down = null;
+renderer.domElement.addEventListener('pointerdown', e => down = [e.clientX, e.clientY]);
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
+  mp.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(mp, camera);
+  const hit = ray.intersectObjects(pick.filter(m => m.visible && (m.parent === null || (function v(o) { while (o) { if (!o.visible) return false; o = o.parent; } return true; })(m))), false)[0];
+  if (!hit) return; const u = hit.object.userData;
+  if (u.wire) { showWire(u.wire); highlight(u.wire.b.ext); } else if (u.key) { showInfo(u.key); highlight(devOfKey[u.key] || null); }
+});
+
+// mover con WASD / flechas (Q baja, E sube, Shift = mas rapido)
+const keys = {};
+addEventListener('keydown', e => { if (/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return; const k = e.key.toLowerCase(); if ('wasdqe'.includes(k) || k.startsWith('arrow')) { keys[k] = true; anim = null; e.preventDefault(); } });
+addEventListener('keyup', e => { delete keys[e.key.toLowerCase()]; });
+addEventListener('blur', () => { for (const k in keys) delete keys[k]; });
+const fwd = V3(0, 0, 0), rgt = V3(0, 0, 0), mv = V3(0, 0, 0);
+function moveStep(dt) {
+  const f = (keys['w'] || keys['arrowup'] ? 1 : 0) - (keys['s'] || keys['arrowdown'] ? 1 : 0);
+  const r = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['a'] || keys['arrowleft'] ? 1 : 0);
+  const u = (keys['e'] ? 1 : 0) - (keys['q'] ? 1 : 0);
+  if (!f && !r && !u) return;
+  camera.getWorldDirection(fwd); fwd.y = 0; if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, -1); fwd.normalize();
+  rgt.crossVectors(fwd, V3(0, 1, 0)).normalize();
+  const sp = (keys['shift'] ? 420 : 170) * dt;
+  mv.set(0, 0, 0).addScaledVector(fwd, f * sp).addScaledVector(rgt, r * sp).add(V3(0, u * sp, 0));
+  camera.position.add(mv); controls.target.add(mv);
+}
+function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+let last = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if ($('tRun').checked) { btex.offset.x -= dt * .06; discG.rotation.z -= dt * 2.4; gp.rotation.z -= dt * 2.4; gb.rotation.z += dt * 0.8; }
+  moveStep(dt);
+  if (anim) { const k = Math.min(1, (now - anim.t) / 900), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; camera.position.lerpVectors(anim.p0, anim.p1, e); controls.target.lerpVectors(anim.t0, anim.t1, e); if (k >= 1) anim = null; }
+  if (Math.abs(EXPT - EXP) > 1e-4) {
+    EXP += (EXPT - EXP) * Math.min(1, dt * 5); if (Math.abs(EXPT - EXP) < 1e-3) EXP = EXPT;
+    Object.values(ASM).forEach(g => g.position.copy(g.userData.off).multiplyScalar(EXP)); buildCables(); guide.visible = EXP > .03;
+  }
+  LBL.forEach(([s, w, base, an]) => { const o = ASM[an] ? ASM[an].position : null; s.position.copy(base); if (o) s.position.add(o); const k = Math.min(1.3, Math.max(.3, camera.position.distanceTo(s.position) / 330)); s.scale.set(w * k, 8 * k, 1); });
+  controls.update(); renderer.render(scene, camera);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

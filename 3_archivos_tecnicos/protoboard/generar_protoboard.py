@@ -117,7 +117,32 @@ def try_attach(b, d):
     return False
 
 
+def place_opto(b, d, row_from):
+    """Optointerruptor ranurado: 2 patas por brazo. A K a un lado del canal y C E al otro (a horcajadas, como la pieza real)."""
+    pa = {q["n"]: q for q in d["pins"]}
+    lc = [c for c in (4, 3, 2, 1, 0)]
+    rc = [c for c in (6, 7, 8, 9, 10)]
+    for r in list(range(row_from, ROWS - 1)) + list(range(0, min(row_from, ROWS - 1))):
+        want = [("L", r, "A"), ("L", r + 1, "K"), ("R", r, "C"), ("R", r + 1, "E")]
+        if any(not b.free_strip(s, rr, pa[n]["net"]) for s, rr, n in want):
+            continue
+        if any(len(b.cols[(s, rr)]) >= 4 for s, rr, n in want):
+            continue
+        cols = []
+        for s, rr, n in want:
+            c = next((c for c in (lc if s == "L" else rc) if c not in b.cols[(s, rr)] and (s, c, rr) not in b.cells), None)
+            cols.append(c)
+        if None in cols:
+            continue
+        for (s, rr, n), c in zip(want, cols):
+            put(b, d["ref"], n, pa[n]["net"], s, c, rr)
+        return True
+    return False
+
+
 def place_free(b, d, row_from):
+    if d["kind"] == "OPTO":
+        return place_opto(b, d, row_from)
     pins = d["pins"]
     n = len(pins)
     k = {"R": 4, "D": 4, "DZ": 4, "RW": 5, "CC": 2, "CE": 3 if d.get("big") else 2, "LED": 2, "BUZZER": 3, "TB": 2, "TCRT": 1, "OPTO": 1, "Q92": 1, "Q126": 1, "MOS": 1, "TRIM": 1}.get(d["kind"], 2)
@@ -279,7 +304,7 @@ for net, strips in nstr.items():
             if BN[a[0]].free_col(a[1], a[2]) is None:      # esa tira ya no tiene agujeros libres para otro cable
                 continue
             for t in todo:
-                if BN[t[0]].free_col(t[1], t[2]) is None and len(todo) > 0 and False:
+                if BN[t[0]].free_col(t[1], t[2]) is None and len(todo) > 0:
                     continue
                 dist = (0 if a[0] == t[0] else 1000) + abs(a[2] - t[2]) + (3 if a[1] != t[1] else 0)
                 if best is None or dist < best[0]:

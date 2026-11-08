@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor, disco y opto</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --ink:#1d2730; --mut:#5b6773; --line:#d5dbe1; --acc:#0b6bcb; --warn:#b45309; --warnbg:#fff4e0; --ok:#0f7b4a; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12171c; --card:#1b232b; --ink:#e8edf2; --mut:#9aa7b4; --line:#33404c; --acc:#5aa7ff; --warn:#f3b562; --warnbg:#2c2417; --ok:#4cd694; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,Segoe UI,Arial,sans-serif; }
+  main { max-width:980px; margin:0 auto; padding:24px 16px 56px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  h2 { font-size:1.2rem; margin:32px 0 10px; }
+  p.sub { color:var(--mut); margin:0 0 8px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .steps .card { text-align:center; }
+  .steps svg { width:100%; height:120px; }
+  .steps b { display:block; margin:6px 0 2px; }
+  .steps span { color:var(--mut); font-size:.9rem; }
+  svg text { fill:var(--ink); font:12px system-ui,Arial,sans-serif; }
+  svg .m { fill:var(--mut); }
+  table { width:100%; border-collapse:collapse; font-size:.95rem; }
+  th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mut); font-weight:600; }
+  tr.hl td { background:rgba(11,107,203,.08); }
+  .tag { display:inline-block; padding:1px 8px; border-radius:99px; font-size:.8rem; border:1px solid var(--line); color:var(--mut); }
+  .tag.mot { color:var(--acc); border-color:var(--acc); }
+  .warn { background:var(--warnbg); border:1px solid var(--warn); color:var(--ink); border-radius:12px; padding:12px 16px; margin-top:12px; }
+  .warn b { color:var(--warn); }
+  ul { margin:6px 0 0; padding-left:20px; }
+  code { background:rgba(127,127,127,.15); padding:0 5px; border-radius:4px; }
+  .wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Motor, disco y opto: cómo va todo</h1>
+  <p class="sub">Vista desmontada de la parte del motor y lista de a dónde va cada cable. Los números de agujero son los de las protoboards del 3D (versión v2).</p>
+
+  <h2>1. Las piezas, de una en una</h2>
+  <div class="steps">
+    <div class="card">
+      <svg viewBox="0 0 200 120" role="img" aria-label="Motorreductor con eje D">
+        <rect x="14" y="40" width="70" height="40" rx="4" fill="#8f9ba7"/>
+        <rect x="84" y="44" width="44" height="32" rx="3" fill="#5d6874"/>
+        <rect x="128" y="56" width="58" height="8" fill="#c9ced4"/>
+        <rect x="128" y="56" width="58" height="3" fill="#e6e9ec"/>
+        <text x="30" y="64" fill="#fff" style="fill:#fff">motor</text>
+        <text x="88" y="64" style="fill:#fff">100:1</text>
+        <text x="132" y="50" class="m" style="fill:var(--mut)">eje D</text>
+        <path d="M14 52 H2 M14 68 H2" stroke="#d33" stroke-width="2"/>
+        <text x="2" y="98" class="m" style="fill:var(--mut)">2 cables: M+ y M−</text>
+      </svg>
+      <b>1. Motorreductor</b>
+      <span>El motor y su caja de engranes ya vienen juntos (100:1). Los engranes están adentro.</span>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 200 120" role="img" aria-label="Disco con 20 ranuras">
+        <circle cx="100" cy="60" r="46" fill="#222"/>
+        <g id="ran"></g>
+        <circle cx="100" cy="60" r="7" fill="#c9ced4"/>
+        <text x="100" y="116" text-anchor="middle" class="m" style="fill:var(--mut)">20 ranuras</text>
+      </svg>
+      <b>2. Disco</b>
+      <span>Se encaja en el eje D del motor y gira con él. Lo haces tú (no se compra).</span>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 200 120" role="img" aria-label="Opto en U">
+        <rect x="60" y="70" width="80" height="14" fill="#151515"/>
+        <rect x="60" y="30" width="22" height="42" fill="#151515"/>
+        <rect x="118" y="30" width="22" height="42" fill="#151515"/>
+        <rect x="75" y="38" width="7" height="12" fill="#ffb454"/>
+        <rect x="118" y="38" width="7" height="12" fill="#4da3ff"/>
+        <path d="M68 84v22M78 84v22M122 84v22M132 84v22" stroke="#c9ced4" stroke-width="2"/>
+        <text x="70" y="22" class="m" style="fill:#c98a1c">LED</text>
+        <text x="108" y="22" style="fill:#2b7fd3">foto</text>
+        <text x="100" y="118" text-anchor="middle" class="m" style="fill:var(--mut)">4 patas</text>
+      </svg>
+      <b>3. Opto en U</b>
+      <span>Queda fijo junto al disco, sin girar. El borde del disco pasa por su ranura.</span>
+    </div>
+    <div class="card">
+      <svg viewBox="0 0 200 120" role="img" aria-label="Cuatro cables">
+        <rect x="8" y="48" width="44" height="24" rx="3" fill="#151515"/>
+        <path d="M52 52 H120 M52 60 H120 M52 68 H120" stroke="#aaa" stroke-width="2"/>
+        <path d="M52 56 H120" stroke="#ffb454" stroke-width="2"/>
+        <path d="M52 64 H120" stroke="#4da3ff" stroke-width="2"/>
+        <rect x="120" y="30" width="72" height="62" rx="3" fill="#e8e6dc" stroke="#999"/>
+        <text x="156" y="66" text-anchor="middle" style="fill:#222">placa D</text>
+      </svg>
+      <b>4. Cuatro cables</b>
+      <span>Salen de las 4 patas del opto y entran a la protoboard D.</span>
+    </div>
+  </div>
+
+  <h2>2. Así queda armado (vista de frente)</h2>
+  <div class="card wrap">
+    <svg viewBox="0 0 860 330" style="min-width:640px;width:100%;height:auto" role="img" aria-label="Disco, opto y cables">
+      <rect x="20" y="30" width="170" height="270" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="105" y="56" text-anchor="middle" style="font-weight:700">Protoboard D</text>
+      <g font-size="12">
+        <text x="34" y="120">A  → F33</text>
+        <text x="34" y="150">K  → F32</text>
+        <text x="34" y="180">C  → E33</text>
+        <text x="34" y="210">E  → E32</text>
+      </g>
+      <path d="M130 114 C 300 114, 350 190, 450 238" stroke="#ffb454" stroke-width="3" fill="none"/>
+      <path d="M130 144 C 300 144, 350 200, 462 246" stroke="#8a8f94" stroke-width="3" fill="none"/>
+      <path d="M130 174 C 300 174, 360 210, 474 238" stroke="#4da3ff" stroke-width="3" fill="none"/>
+      <path d="M130 204 C 300 204, 370 220, 486 246" stroke="#8a8f94" stroke-width="3" fill="none"/>
+      <text x="300" y="104" class="m" style="fill:var(--mut)">4 cables</text>
+      <circle cx="660" cy="150" r="105" fill="#222"/>
+      <g id="ran2"></g>
+      <circle cx="660" cy="150" r="30" fill="#8f9ba7"/>
+      <circle cx="660" cy="150" r="9" fill="#c9ced4"/>
+      <text x="660" y="154" text-anchor="middle" style="fill:#fff;font-size:11px">eje D</text>
+      <g transform="translate(626,238)">
+        <rect x="0" y="22" width="68" height="14" fill="#151515"/>
+        <rect x="0" y="0" width="16" height="24" fill="#151515"/>
+        <rect x="52" y="0" width="16" height="24" fill="#151515"/>
+        <rect x="9" y="6" width="5" height="10" fill="#ffb454"/>
+        <rect x="52" y="6" width="5" height="10" fill="#4da3ff"/>
+      </g>
+      <text x="660" y="304" text-anchor="middle">opto fijo: el borde del disco pasa por su ranura</text>
+      <text x="660" y="28" text-anchor="middle" class="m" style="fill:var(--mut)">disco de 20 ranuras (gira con el motor)</text>
+    </svg>
+  </div>
+  <div class="warn"><b>Falta definir:</b> cómo se acopla el motor con la banda (directo al rodillo o con engranes aparte) y dónde queda el disco: en el eje D de salida o en otro eje. Eso depende de tu montaje y de lo que confirme el profesor.</div>
+
+  <h2>3. A dónde va cada cable</h2>
+  <p class="sub">No son 20 cables al motor: solo 2 van al motor. Los demás van a distintos aparatos, y en el 3D se dibujan todos hacia el mismo lado por orden.</p>
+  <div class="card wrap">
+    <table>
+      <thead><tr><th>Aparato</th><th>Cables</th><th>Placa y agujeros</th><th>Dónde está</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td><b>Motor</b></td><td>2 (M+, M−)</td><td>A: H58, H56</td><td><span class="tag mot">en el motor</span></td></tr>
+        <tr class="hl"><td><b>NTC 10 k</b></td><td>2</td><td>B: B56, B54</td><td><span class="tag mot">pegado a la carcasa del motor</span></td></tr>
+        <tr class="hl"><td><b>Opto del encoder</b></td><td>4 (A, K, C, E)</td><td>D: F33, F32, E33, E32</td><td><span class="tag mot">junto al disco del motor</span></td></tr>
+        <tr><td>Sensor IR TCRT5000</td><td>4 (A, K, C, E)</td><td>B: E48, E47, E46, E45</td><td>sobre la banda, donde se detecta el objeto</td></tr>
+        <tr><td>Micro-switch de la cubierta</td><td>2</td><td>C: G39, G37</td><td>en la cubierta</td></tr>
+        <tr><td>Interruptor E</td><td>2</td><td>C: D29, D27</td><td>en el panel</td></tr>
+        <tr><td>Pulsador de reset</td><td>2</td><td>C: D38, D36</td><td>en el panel</td></tr>
+        <tr><td>Fuente 12 V (jack)</td><td>2</td><td>A: J62, J60</td><td>fuente externa</td></tr>
+      </tbody>
+    </table>
+    <p class="sub" style="margin-top:10px">Total: 20 cables. Junto al motor van 8: 2 del motor, 2 del NTC y 4 del opto.</p>
+  </div>
+
+  <h2>4. Lo que hay que revisar antes de comprar o armar</h2>
+  <div class="warn">
+    <b>Motor Steren MOT-125 (6 Vcc):</b> el diseño y la lista de compras están hechos para un motor de 12 V (y la lista habla de 60 RPM, Q34). Este es de 6 V.
+    <ul>
+      <li>La página dice: 6 Vcc, 0.014 A sin carga, 100:1, torque 0.0687 Nm, eje D de 3 mm × 10 mm, 35.5 × 12 × 10 mm, Q59.</li>
+      <li>La velocidad aparece como 100 r/min en las especificaciones y 320 RPM en la descripción. La página se contradice.</li>
+      <li>No publica la corriente a plena carga ni de bloqueo, y la ficha dice <b>NO DISPONIBLE</b>.</li>
+      <li>El circuito le entrega hasta 12 V al motor. Con uno de 6 V hay que cambiar algo (limitar el PWM, regular a 6 V o elegir uno de 12 V), y habría que recalibrar el límite de corriente.</li>
+      <li>El diseño del encoder supone cientos de pulsos por segundo (motor rápido). Con un eje de salida de 100 rpm y 20 ranuras salen unos 33 pulsos por segundo, mucho menos señal. Habría que revisarlo.</li>
+    </ul>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <b>¿Está el disco en la lista de compras?</b> Solo aparece como nota en la fila del opto: "junto con el disco de 20 ranuras que haces tú". No tiene fila propia ni precio, porque se fabrica (cartón rígido, plástico o impresión 3D), no se compra.
+  </div>
+</main>
+<script>
+  function slots(id, cx, cy, r1, r2, w) {
+    var g = document.getElementById(id), ns = 'http://www.w3.org/2000/svg';
+    for (var i = 0; i < 20; i++) {
+      var a = i / 20 * 360, rc = document.createElementNS(ns, 'rect');
+      rc.setAttribute('x', cx - w / 2); rc.setAttribute('y', cy - r2);
+      rc.setAttribute('width', w); rc.setAttribute('height', r2 - r1);
+      rc.setAttribute('fill', '#8dbbe6');
+      rc.setAttribute('transform', 'rotate(' + a + ' ' + cx + ' ' + cy + ')');
+      g.appendChild(rc);
+    }
+  }
+  slots('ran', 100, 60, 28, 42, 4);
+  slots('ran2', 660, 150, 62, 96, 7);
+</script>
+</body>
+</html>

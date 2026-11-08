@@ -20,6 +20,14 @@ RAIL = {"L": {"0": -3, "v5": -2}, "R": {"0": 12, "vm": 13}}
 POWER = {"0", "v5", "vm"}
 datos, zonas, ics = g3.construir_todo()
 parts = [d for d in datos]
+# LED que se enciende cuando el sensor IR detecta un objeto: v5 -> Rlo 470 -> LED -> pn.
+# pn es la salida de la NAND que invierte P, asi que vale 0 con objeto y el LED enciende (unos 6 mA); sin objeto pn = 5 V y se apaga.
+parts += [
+    dict(ref="LOG.Rlo", blk="LED_OBJ", kind="R", val="470", board="B", x=0, y=0, w=5, h=1,
+         pins=[dict(n="1", net="v5", x=0, y=0), dict(n="2", net="LOG.lo", x=4, y=0)]),
+    dict(ref="LOG.Dlo", blk="LED_OBJ", kind="LED", val="LED verde (objeto)", board="B", x=0, y=0, w=2, h=1,
+         pins=[dict(n="A", net="LOG.lo", x=0, y=0), dict(n="K", net="LOG.pn", x=1, y=0)]),
+]
 ORDEN = ["ENTRADA", "REG5V", "POTENCIA", "ALARMA", "SENSOR_IR", "SOBRECORRIENTE", "TEMPERATURA", "LOGICA", "REFVEL", "ENCODER_FV", "ERROR_AMP", "PWM_GEN"]
 K = {"R": 4, "D": 4, "DZ": 4, "RW": 5, "CC": 2, "CE": 2, "LED": 2, "BUZZER": 3}
 
@@ -115,7 +123,32 @@ def try_attach(b, d):
     return False
 
 
+def place_opto(b, d, row_from):
+    """Optointerruptor ranurado: 2 patas por brazo. A K a un lado del canal y C E al otro (a horcajadas, como la pieza real)."""
+    pa = {q["n"]: q for q in d["pins"]}
+    lc = [c for c in (4, 3, 2, 1, 0)]
+    rc = [c for c in (6, 7, 8, 9, 10)]
+    for r in list(range(row_from, ROWS - 1)) + list(range(0, min(row_from, ROWS - 1))):
+        want = [("L", r, "A"), ("L", r + 1, "K"), ("R", r, "C"), ("R", r + 1, "E")]
+        if any(not b.free_strip(s, rr, pa[n]["net"]) for s, rr, n in want):
+            continue
+        if any(len(b.cols[(s, rr)]) >= 4 for s, rr, n in want):
+            continue
+        cols = []
+        for s, rr, n in want:
+            c = next((c for c in (lc if s == "L" else rc) if c not in b.cols[(s, rr)] and (s, c, rr) not in b.cells), None)
+            cols.append(c)
+        if None in cols:
+            continue
+        for (s, rr, n), c in zip(want, cols):
+            put(b, d["ref"], n, pa[n]["net"], s, c, rr)
+        return True
+    return False
+
+
 def place_free(b, d, row_from):
+    if d["kind"] == "OPTO":
+        return place_opto(b, d, row_from)
     pins = d["pins"]
     n = len(pins)
     k = {"R": 4, "D": 4, "DZ": 4, "RW": 5, "CC": 2, "CE": 3 if d.get("big") else 2, "LED": 2, "BUZZER": 3, "TB": 2, "TCRT": 1, "OPTO": 1, "Q92": 1, "Q126": 1, "MOS": 1, "TRIM": 1}.get(d["kind"], 2)
@@ -188,6 +221,13 @@ def colocar():
 
 
 colocar()
+# el LED del objeto se coloca al final, en la placa B (la del sensor IR); la zona LED_OBJ no esta en ORDEN a proposito
+for _d in [d for d in parts if d["blk"] == "LED_OBJ"]:
+    for _b in sorted(boards, key=lambda q: q.name != "B"):
+        if place_free(_b, _d, 0):
+            break
+    else:
+        raise AssertionError(_d["ref"])
 
 
 def espaciar():
@@ -287,7 +327,7 @@ for net, strips in nstr.items():
             if BN[a[0]].free_col(a[1], a[2]) is None:      # esa tira ya no tiene agujeros libres para otro cable
                 continue
             for t in todo:
-                if BN[t[0]].free_col(t[1], t[2]) is None and len(todo) > 0 and False:
+                if BN[t[0]].free_col(t[1], t[2]) is None and len(todo) > 0:
                     continue
                 dist = (0 if a[0] == t[0] else 1000) + abs(a[2] - t[2]) + (3 if a[1] != t[1] else 0)
                 if best is None or dist < best[0]:

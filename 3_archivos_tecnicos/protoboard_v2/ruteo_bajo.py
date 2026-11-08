@@ -8,6 +8,7 @@ PITCH = 2.54
 ALTO = {"R": 3.5, "D": 3.5, "DZ": 3.5, "RW": 6, "CC": 5, "CE": 10, "LED": 6, "BUZZER": 12, "Q92": 6, "Q126": 12, "MOS": 14, "TRIM": 8,
         "IC": 8, "TCRT": 9, "OPTO": 9, "TB": 9}
 BASE0, PASO, HOLG = 3.2, 1.2, 1.3      # altura del nivel 0, paso entre niveles, holgura sobre una pieza (mm)
+EVITAR = set()                         # celdas del opto: los cables lo rodean en vez de pasar por encima
 SEP = 1.15                             # separacion minima entre cables (mm, entre ejes)
 
 
@@ -107,6 +108,8 @@ def costo(a, b, forma, ob):
             cell = (int(round(c0[0] + (c1[0] - c0[0]) * t)), int(round(c0[1] + (c1[1] - c0[1]) * t)))
             if cell not in propios and ob.get(cell, 0) > 0:
                 c += 1
+            if cell not in propios and cell in EVITAR:
+                c += 40
         c += n * 0.02
     return c + 0.3 * (len(cs) - 2)
 
@@ -144,37 +147,48 @@ class Ocupacion:
     def __init__(self):
         self.celda = defaultdict(list)
 
-    def choca(self, ms):
-        lim = SEP / PITCH * 1.0
+    def choca(self, ms, ign=None):
         for (x, y, lo, hi) in ms:
             cx, cy = int(x // .6), int(y // .6)
             for ix in (cx - 1, cx, cx + 1):
                 for iy in (cy - 1, cy, cy + 1):
-                    for (ox, oy, olo, ohi) in self.celda.get((ix, iy), ()):
-                        if (ox - x) ** 2 + (oy - y) ** 2 < (.5) ** 2 and lo - SEP < ohi and olo - SEP < hi:
+                    for (ox, oy, olo, ohi, oid) in self.celda.get((ix, iy), ()):
+                        if oid != ign and (ox - x) ** 2 + (oy - y) ** 2 < (.5) ** 2 and lo - SEP < ohi and olo - SEP < hi:
                             return True
         return False
 
-    def cuenta(self, ms):
+    def cuenta(self, ms, ign=None):
         n = 0
         for (x, y, lo, hi) in ms:
             cx, cy = int(x // .6), int(y // .6)
             hit = False
             for ix in (cx - 1, cx, cx + 1):
                 for iy in (cy - 1, cy, cy + 1):
-                    for (ox, oy, olo, ohi) in self.celda.get((ix, iy), ()):
-                        if (ox - x) ** 2 + (oy - y) ** 2 < .25 and lo - SEP < ohi and olo - SEP < hi:
+                    for (ox, oy, olo, ohi, oid) in self.celda.get((ix, iy), ()):
+                        if oid != ign and (ox - x) ** 2 + (oy - y) ** 2 < .25 and lo - SEP < ohi and olo - SEP < hi:
                             hit = True
             n += hit
         return n
 
-    def poner(self, ms):
+    def poner(self, ms, wid=None):
         for (x, y, lo, hi) in ms:
-            self.celda[(int(x // .6), int(y // .6))].append((x, y, lo, hi))
+            self.celda[(int(x // .6), int(y // .6))].append((x, y, lo, hi, wid))
+
+    def quitar(self, ms, wid):
+        for k in {(int(x // .6), int(y // .6)) for (x, y, lo, hi) in ms}:
+            self.celda[k] = [o for o in self.celda[k] if o[4] != wid]
 
 
 def rutear(W, parts, offs):
-    ob = celdas_obstaculo(parts, offs)
+    ob0 = celdas_obstaculo(parts, offs)
+    EVITAR.clear()
+    for p in parts:
+        if p["kind"] == "OPTO":
+            xs = [offs[p["board"]] + q["x"] for q in p["pins"]]
+            ys = [q["y"] for q in p["pins"]]
+            for gx in range(min(xs), max(xs) + 1):
+                for gy in range(min(ys), max(ys) + 1):
+                    EVITAR.add((gx, gy))
     def pt(e, net, kind):
         gy = e["y"] + ((0 if net == "0" else 6 if net == "v5" else 12) / PITCH if kind == "bus" else 0)
         return (offs[e["board"]] + e["x"], gy)
@@ -186,58 +200,103 @@ def rutear(W, parts, offs):
         items.append((abs(a[0] - b[0]) + abs(a[1] - b[1]), w, a, b))
     items.sort(key=lambda t: t[0])
     n = len(items)
-    EP = 14.0                                  # altura que se asume para la pata de otro cable al pasar por encima de su agujero
-    ob2 = dict(ob)
+    celda = lambda e: (int(round(e[0])), int(round(e[1])))
+    EP = 14.0                                  # altura que se asume al principio para la pata de otro cable al pasar por encima de su agujero
+
+    def con_patas(ep):
+        ob = dict(ob0)
+        for k, h in ep.items():
+            ob[k] = max(ob.get(k, 0), h)
+        return ob
+
+    ep0 = {}
     for _, w, a_, b_ in items:
         for e in (a_, b_):
-            k = (int(round(e[0])), int(round(e[1])))
-            ob2[k] = max(ob2.get(k, 0), EP)
-    ob = ob2
+            ep0[celda(e)] = EP
+    ob = con_patas(ep0)
     cands = [candidatas(a_, b_, ob) for (_, w, a_, b_) in items]
-    deps = [set() for _ in range(n)]
     oc = Ocupacion()
-    nivel_de = [None] * n
-    pend = set(range(n))
-    mx = 0
-    malos = 0
-    saltos = 0
-    while pend:
-        listos = [i for i in pend if not any(d in pend for d in deps[i])]
-        if not listos:
-            i = min(pend)
-            deps[i] = {d for d in deps[i] if d not in pend}
-            continue
-        for i in sorted(listos):
-            _, w, a_, b_ = items[i]
-            n0 = max([nivel_de[d] + 1 for d in deps[i] if nivel_de[d] is not None] + [0])
-            elegido = None
-            for nivel in range(n0, 30):
-                for f in cands[i]:
+    res = [None] * n                           # i -> (nivel, ruta, muestras)
+    # 1) primera pasada: del cable mas corto al mas largo, cada uno al nivel de altura mas bajo que no toque a los anteriores
+    for i in range(n):
+        _, w, a_, b_ = items[i]
+        elegido = None
+        for nivel in range(0, 30):
+            for f in cands[i]:
+                r = ruta(a_, b_, nivel, f, ob)
+                ms = muestras(r)
+                if not oc.choca(ms):
+                    elegido = (nivel, r, ms)
+                    break
+            if elegido:
+                break
+        if not elegido:
+            mejor = None
+            for nivel in range(0, 16):
+                for f in cands[i][:12]:
                     r = ruta(a_, b_, nivel, f, ob)
                     ms = muestras(r)
-                    if not oc.choca(ms):
-                        elegido = (nivel, r, ms)
+                    c = oc.cuenta(ms)
+                    if mejor is None or c < mejor[0]:
+                        mejor = (c, nivel, r, ms)
+            elegido = (mejor[1], mejor[2], mejor[3])
+        res[i] = elegido
+        oc.poner(elegido[2], i)
+
+    # 2) reparar: la pata de un cable sube hasta su altura real, asi que otro que pase por encima de su agujero debe saltar mas alto.
+    #    Cada cable que aun toca a otro se vuelve a trazar con las alturas reales de las patas de todos los demas.
+    def patas_reales(excepto):
+        ep = {}
+        for _, w, a_, b_ in items:
+            for e in (a_, b_):
+                ep[celda(e)] = EP
+        for j in range(n):
+            if j == excepto:
+                continue
+            base = BASE0 + PASO * res[j][0]
+            for e in (items[j][2], items[j][3]):
+                k = celda(e)
+                ep[k] = max(ep.get(k, EP), base)
+        return ep
+
+    for ronda in range(12):
+        malos = [i for i in range(n) if oc.cuenta(res[i][2], i) > 0]
+        if not malos:
+            break
+        mejoro = False
+        for i in malos:
+            _, w, a_, b_ = items[i]
+            if oc.cuenta(res[i][2], i) == 0:
+                continue
+            c_ant = oc.cuenta(res[i][2], i)
+            oc.quitar(res[i][2], i)
+            obi = con_patas(patas_reales(i))
+            cs = candidatas(a_, b_, obi, 60)
+            mejor = None
+            for nivel in range(0, 34):
+                for f in cs:
+                    r = ruta(a_, b_, nivel, f, obi)
+                    ms = muestras(r)
+                    c = oc.cuenta(ms, i)
+                    if mejor is None or c < mejor[0]:
+                        mejor = (c, nivel, r, ms)
+                    if c == 0:
                         break
-                if elegido:
+                if mejor[0] == 0:
                     break
-            if not elegido:
-                malos += 1
-                mejor = None
-                for nivel in range(0, 16):
-                    for f in cands[i][:12]:
-                        r = ruta(a_, b_, nivel, f, ob)
-                        ms = muestras(r)
-                        c = oc.cuenta(ms)
-                        if mejor is None or c < mejor[0]:
-                            mejor = (c, nivel, r, ms)
-                elegido = (mejor[1], mejor[2], mejor[3])
-            nivel, r, ms = elegido
-            oc.poner(ms)
-            nivel_de[i] = nivel
-            pend.discard(i)
-            w["pts"] = [[round(p[0], 3), round(p[1], 2), round(p[2], 3)] for p in r]
-            w["h"] = BASE0 + PASO * nivel
-            mx = max(mx, nivel)
+            if mejor[0] < c_ant:
+                res[i] = (mejor[1], mejor[2], mejor[3])
+                mejoro = True
+            oc.poner(res[i][2], i)
+        if not mejoro:
+            break
+
+    malos = sum(1 for i in range(n) if oc.cuenta(res[i][2], i) > 0)
+    mx = max(r[0] for r in res)
+    for i in range(n):
+        w = items[i][1]
+        w["pts"] = [[round(p[0], 3), round(p[1], 2), round(p[2], 3)] for p in res[i][1]]
+        w["h"] = BASE0 + PASO * res[i][0]
     j = 0
     for w in W:
         if w["kind"] == "ext":
