@@ -1813,13 +1813,13 @@ function applyBoardView(b, noFly){
     ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (others.length ? 'Conectada con: <b>' + others.join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos.' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) + (hideOut ? ' (Cables que salen: ocultos.)' : '') + '<br><b>Por dónde empezar:</b> ' + guide + '. Usa los botones de abajo para verlo pieza por pieza.'
     : 'Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.';
   if (noFly) return;
-  if (b){ const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 210, 120))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
+  if (b){ const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
 }
 (function(){
   const mk = (txt, b) => { const x = document.createElement('button'); x.textContent = txt; x.dataset.b = b; x.onclick = () => applyBoardView(boardView === b ? '' : b); $('bviews').appendChild(x); };
   mk('Todas', ''); BL.forEach(b => mk('Solo ' + b, b));
   ['tBoardParts', 'tHideOut', 'tHidePwr'].forEach(id => { $(id).onchange = () => applyBoardView(boardView, true); });
-  $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); };
+  $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); const t = V3(X(boardView, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); };
   $('bvNext').onclick = () => $('stepNext').click();
   $('bvPrev').onclick = () => $('stepPrev').click();
   addEventListener('keydown', e => { if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return; if (/^[0-9]$/.test(e.key)){ const k = +e.key; if (k === 0) applyBoardView(''); else if (BL[k - 1]) applyBoardView(BL[k - 1]); } });
@@ -1876,7 +1876,7 @@ function applySteps(){
   wireObjs.forEach(wo => { if (!wo) return; wo.group.userData.stepVis = !stepMode || shown.has('wire' + wo.data.i); });
   syncVis();
   $('stepRange').max = steps.length; $('stepRange').value = stepK; $('stepNum').textContent = stepMode ? stepK + ' / ' + steps.length : '';
-  if (stepMode && stepK > 0){ const s = steps[stepK - 1]; select(s.t, s.id, false); $('stepTxt').textContent = $('bvStep').textContent = 'Paso ' + stepK + ': ' + stepText(s); flyToObj(s.t === 'part' ? partObjs[s.id].pos : wireObjs[s.id].pos, 90); }
+  if (stepMode && stepK > 0){ const s = steps[stepK - 1]; select(s.t, s.id, false); $('stepTxt').textContent = $('bvStep').textContent = 'Paso ' + stepK + ': ' + stepText(s); if (!boardView) flyToObj(s.t === 'part' ? partObjs[s.id].pos : wireObjs[s.id].pos, 90); }
   else if (stepMode) $('stepTxt').textContent = $('bvStep').textContent = 'Placas vacías. Pulsa ▶ para soldar la primera pieza.';
 }
 $('stepOn').onclick = () => { stepMode = !stepMode; $('stepOn').classList.toggle('on', stepMode); $('stepOn').textContent = stepMode ? 'Desactivar' : 'Activar'; $('stepRange').disabled = !stepMode; stepK = stepMode ? 0 : steps.length; if (!stepMode){ clearInterval(playT); playT = null; $('stepPlay').textContent = '▶ Auto'; $('stepTxt').textContent = $('bvStep').textContent = ''; } applySteps(); };
