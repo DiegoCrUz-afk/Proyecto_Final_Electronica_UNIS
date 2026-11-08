@@ -64,7 +64,7 @@ select{width:100%}
 <div id="nogl">Tu navegador no pudo abrir WebGL. Prueba con Chrome o Edge actualizado.</div>
 <div id="panel">
   <h1>Protoboards 3D · miniestación industrial</h1>
-  <div class="sub">Guía para armar el circuito en <b>protoboards de 830 puntos</b> junto al esquemático: cada pata va en una tira de 5 agujeros (A-E izquierda, F-J derecha); los CI van sobre el canal; GND, 5 V y 12 V van a los rieles con cables cortos; los cables de colores unen las tiras de la misma red (numerados). Verificado: ninguna tira mezcla redes. Versión con piezas repartidas por toda la protoboard y cables ordenados (suben recto, giran en ángulo recto y bajan recto).</div>
+  <div class="sub">Guía para armar el circuito en <b>protoboards de 830 puntos (63 filas)</b> junto al esquemático: cada pata va en una tira de 5 agujeros (letras J-F a la izquierda y E-A a la derecha, filas numeradas desde 0 abajo, como en tu protoboard); los rieles vienen cortados a la mitad y se unen con 4 puentes (como en tu foto); los CI van sobre el canal; GND, 5 V y 12 V van a los rieles con cables cortos; los cables de colores unen las tiras de la misma red (numerados). Verificado: ninguna tira mezcla redes. Versión con piezas repartidas por toda la protoboard y cables ordenados (suben recto, giran en ángulo recto y bajan recto).</div>
 
   <div class="sec"><h2>Vistas</h2><div class="row" id="views"></div></div>
 
@@ -146,7 +146,7 @@ select{width:100%}
 <script>
 (function(){
 'use strict';
-const P = 2.54;
+const P = 2.54, NR = 63;
 const OFF = DATA.offs;
 const X = (b, x) => (OFF[b] + x) * P, Z = y => y * P;
 const $ = id => document.getElementById(id);
@@ -214,26 +214,33 @@ table.rotation.x = -Math.PI / 2; table.position.set(400, -8.2, 100); world.add(t
 const boardMat = {}, copperPlanes = {}, boardGrp = {};
 const BG = b => boardGrp[b] || (boardGrp[b] = (() => { const g = new THREE.Group(); world.add(g); return g; })());
 const GA = (b, o) => { o.userData.board = b; G.grid.add(o); return o; };
-const LCOL = [0, 1, 2, 3, 4], RCOL = [6, 7, 8, 9, 10], LET = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J'};
+const LCOL = [0, 1, 2, 3, 4], RCOL = [6, 7, 8, 9, 10], LET = {0: 'J', 1: 'I', 2: 'H', 3: 'G', 4: 'F', 6: 'E', 7: 'D', 8: 'C', 9: 'B', 10: 'A'}, LETB = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J'};
 Object.keys(DATA.dims).forEach(b => {
-  const o = DATA.offs[b], xa = (o - 4.5) * P, xb = (o + 14.5) * P, za = -1.5 * P, zb = 64.5 * P;
+  const o = DATA.offs[b], xa = (o - 4.5) * P, xb = (o + 14.5) * P, za = -1.5 * P, zb = (NR + 3.4) * P;
   const m = mat(0xf4f4ee, {roughness: .8}); boardMat[b] = m;
   const body = new THREE.Mesh(new THREE.BoxGeometry(xb - xa, 6, zb - za), m);
   body.position.set((xa + xb) / 2, -3, (za + zb) / 2); BG(b).add(body);
-  const ch = new THREE.Mesh(new THREE.BoxGeometry(2.2 * P, .2, 62 * P), new THREE.MeshBasicMaterial({color: 0xcfcfc4}));
-  ch.position.set((o + 5) * P, .1, 31.5 * P); BG(b).add(ch);
+  const ch = new THREE.Mesh(new THREE.BoxGeometry(2.2 * P, .2, NR * P), new THREE.MeshBasicMaterial({color: 0xcfcfc4}));
+  ch.position.set((o + 5) * P, .1, (NR - 1) / 2 * P); BG(b).add(ch);
   const cols = LCOL.concat(RCOL), rails = [-3, -2, 12, 13];
   const im = new THREE.InstancedMesh(new THREE.BoxGeometry(.9, .25, .9), new THREE.MeshBasicMaterial({color: 0x56564e}), 63 * (cols.length + 4));
   const M = new THREE.Matrix4(); let k = 0;
-  for (let r = 0; r < 63; r++){ cols.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); if (r % 6 !== 5) rails.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); }
+  for (let r = 0; r < NR; r++){ cols.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); if (r % 6 !== 5) rails.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); }
   im.count = k; BG(b).add(im);
-  [[-3, 0xd94141, '+5 V'], [-2, 0x3c58b8, 'GND'], [12, 0x3c58b8, 'GND'], [13, 0xff8f00, '+12 V']].forEach(([c, col, lab]) => {
-    const ln = new THREE.Mesh(new THREE.BoxGeometry(.35, .1, 62 * P), new THREE.MeshBasicMaterial({color: col})); ln.position.set((o + c) * P, .15, 31 * P); BG(b).add(ln);
-    GA(b, flatText(lab, (o + c) * P, -.8 * P, 3.4, 1.7, c === -3 ? '#b71c1c' : c === 13 ? '#c25a00' : '#243d8a'));
+  [[-3, 0x3c58b8, 'GND'], [-2, 0xd94141, '+5 V'], [12, 0x3c58b8, 'GND'], [13, 0xff8f00, '+12 V']].forEach(([c, col, lab]) => {
+    const ln = new THREE.Mesh(new THREE.BoxGeometry(.35, .1, (NR - 1) * P), new THREE.MeshBasicMaterial({color: col})); ln.position.set((o + c) * P, .15, (NR - 1) / 2 * P); BG(b).add(ln);
+    GA(b, flatText(lab, (o + c) * P, -.8 * P, 3.4, 1.7, c === -2 ? '#b71c1c' : c === 13 ? '#c25a00' : '#243d8a'));
   });
-  Object.keys(LET).forEach(c => GA(b, flatText(LET[c], (o + (+c)) * P, 63.3 * P, 2, 1.1, '#444')));
-  for (let r = 0; r < 63; r++) if (r % 5 === 4 || r === 0) { GA(b, flatText(String(r + 1), (o + 5) * P, r * P, 2.2, 1.1, '#666')); }
-  GA(b, flatText(DATA.titles[b], (xa + xb) / 2, 64 * P, 12 * P, 1.6 * P, '#333', true));
+  Object.keys(LET).forEach(c => { GA(b, flatText(LETB[c], (o + (+c)) * P, (NR + .3) * P, 2.4, 1.5, '#222')); GA(b, flatText(LET[c], (o + (+c)) * P, -1.3 * P, 2.4, 1.5, '#222')); });
+  // numeros de fila como en el tablero real: 0 abajo, cada 5, en el borde de cada mitad
+  for (let r = 0; r < NR; r++){ const L = NR - 1 - r; if (L % 5 === 0) [-1, 11].forEach(cx => GA(b, flatText(String(L), (o + cx) * P, r * P, 3.4, 1.7, '#333'))); }
+  // los rieles vienen cortados a la mitad: se unen con un puente (negro en -, rojo en +, naranja en +12 V)
+  [[-3, 0x111111], [-2, 0xd32f2f], [12, 0x111111], [13, 0xff8f00]].forEach(([c, col]) => {
+    const x = (o + c) * P, cv = new THREE.QuadraticBezierCurve3(V3(x, .3, 28 * P), V3(x, 8, 29 * P), V3(x, .3, 30 * P));
+    BG(b).add(new THREE.Mesh(new THREE.TubeGeometry(cv, 16, .55, 8, false), mat(col)));
+  });
+  [-2.5, 12.5].forEach(cx => { const cut = new THREE.Mesh(new THREE.BoxGeometry(2.7 * P, .12, .9), new THREE.MeshBasicMaterial({color: 0xf4f4ee})); cut.position.set((o + cx) * P, .22, 29 * P); BG(b).add(cut); });
+  GA(b, flatText(DATA.titles[b], (xa + xb) / 2, (NR + 2.3) * P, 12 * P, 1.6 * P, '#333', true));
 });
 DATA.zones.forEach(z => {
   const col = 0x7a5c1e;
@@ -674,7 +681,7 @@ function partLink(ref, txt){ return '<a onclick="__sel(&quot;part&quot;,&quot;' 
 function netChip(n){ return '<a onclick="window.__net(\'' + n + '\')">' + netLabel(n) + '</a>'; }
 window.__net = n => applyNet(n);
 window.__sel = (t, id) => select(t, id, true);
-function holeName(p, q){ return p.board + '-' + colName(q.x) + (q.y + 1); }
+function holeName(p, q){ return p.board + '-' + (LET[q.x] || '?') + (NR - 1 - q.y); }
 function endTxt(e){ return e.part ? '<b>' + e.hole + '</b> (' + e.part.split('.').pop() + ' ' + e.pin + ')' : '<b>' + e.hole + '</b>'; }
 function showPart(po){
   const p = po.data, b = DATA.blocks[p.blk];
@@ -727,7 +734,7 @@ function showMeas(id, fly){
   if (fly){ const t = pt.clone(); flyTo(t, t.clone().add(V3(0, 90, 55)), 800); }
 }
 // ---------- vistas ----------
-const BL = DATA.boards_list, center = V3((X(BL[0], 5) + X(BL[BL.length - 1], 5)) / 2, 0, Z(32));
+const BL = DATA.boards_list, center = V3((X(BL[0], 5) + X(BL[BL.length - 1], 5)) / 2, 0, Z(NR / 2));
 let anim = null;
 function flyTo(target, camPos, ms){ anim = {t0: performance.now(), ms: ms || 900, t1: target.clone(), c1: camPos.clone(), t0v: controls.target.clone(), c0: camera.position.clone()}; }
 function flyToObj(pos, dist){ const t = pos.clone(); flyTo(t, t.clone().add(V3(0, dist * .9, dist * .55)), 700); }
@@ -738,8 +745,8 @@ const VIEWS = [
   ['Arriba', () => flyTo(center, center.clone().add(V3(0, 840, .01)))],
   ['Banda', () => flyTo(bandPos, bandPos.clone().add(V3(0, 190, 250)))],
 ];
-BL.forEach(b => VIEWS.splice(2 + BL.indexOf(b), 0, ['Protoboard ' + b, () => { const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 210, 120))); }]));
-const PH = ['Circuitos integrados', 'Cables de alimentación', 'Resistencias, capacitores y demás piezas', 'Cables de esta placa', 'Cables hacia otras placas', 'Cables a dispositivos externos'];
+BL.forEach(b => VIEWS.splice(2 + BL.indexOf(b), 0, ['Protoboard ' + b, () => { const t = V3(X(b, 5), 0, Z(NR / 2)); flyTo(t, t.clone().add(V3(0, 210, 120))); }]));
+const PH = ['Piezas y cables de esta placa', 'Conexiones con otras placas', 'Puentes de alimentación entre placas', 'Conexión a dispositivos externos'];
 function applyBoardView(b, noFly){
   boardView = b || ''; boardExt = false;
   const hideOut = $('tHideOut').checked, hidePwr = $('tHidePwr').checked;
@@ -764,7 +771,7 @@ function applyBoardView(b, noFly){
     ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (others.length ? 'Conectada con: <b>' + others.join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos.' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) + (hideOut ? ' (Cables que salen: ocultos.)' : '') + '<br><span style="opacity:.8">Los cables de alimentación entre placas (rojo, negro, naranja) solo se ven cuando las dos placas están visibles; elige <b>Todas</b> para verlos.</span><br><b>Por dónde empezar:</b> ' + guide + '. Usa los botones de abajo para verlo pieza por pieza.'
     : 'Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.';
   if (noFly) return;
-  if (b){ const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
+  if (b){ const t = V3(X(b, 5), 0, Z(NR / 2)); flyTo(t, t.clone().add(V3(0, 250, 150))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
 }
 (function(){
   const mk = (txt, b) => { const x = document.createElement('button'); x.textContent = txt; x.dataset.b = b; x.onclick = () => applyBoardView(boardView === b ? '' : b); $('bviews').appendChild(x); };
@@ -772,7 +779,7 @@ function applyBoardView(b, noFly){
   [['Todas', ''], ...BL.map(b => ['Placa ' + b, b])].forEach(([t, b]) => { const x = document.createElement('button'); x.textContent = t; x.dataset.b = b; x.onclick = () => applyBoardView(b); $('stepBoards').appendChild(x); });
   document.querySelectorAll('#stepBoards button')[0].classList.add('on');
   ['tBoardParts', 'tHideOut', 'tHidePwr'].forEach(id => { $(id).onchange = () => applyBoardView(boardView, true); });
-  $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); const t = V3(X(boardView, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); };
+  $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); const t = V3(X(boardView, 5), 0, Z(NR / 2)); flyTo(t, t.clone().add(V3(0, 250, 150))); };
   $('bvNext').onclick = () => $('stepNext').click();
   $('bvPrev').onclick = () => $('stepPrev').click();
   addEventListener('keydown', e => { if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return; if (/^[0-9]$/.test(e.key)){ const k = +e.key; if (k === 0) applyBoardView(''); else if (BL[k - 1]) applyBoardView(BL[k - 1]); } });
@@ -808,12 +815,28 @@ function buildSteps(b, conn){
     return out;
   }
   const ps = DATA.parts.filter(p => p.board === b), touch = w => [w.a.board, w.b.board].includes(b);
-  ps.filter(p => p.kind === 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[0]}));
-  DATA.wires.filter(w => w.kind === 'bus' && touch(w) && conn && conn.has(w.a.board) && conn.has(w.b.board)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
-  ps.filter(p => p.kind !== 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[2]}));
-  DATA.wires.filter(w => w.kind === 'signal' && w.a.board === b && w.b.board === b).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[3]}));
-  DATA.wires.filter(w => w.kind === 'signal' && touch(w) && !(w.a.board === b && w.b.board === b)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[4]}));
-  DATA.wires.filter(w => w.kind === 'ext' && touch(w)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[5]}));
+  const late = p => ['TB', 'HDR', 'TCRT', 'OPTO'].includes(p.kind);
+  const bcmp = (x, y) => String(x.blk).localeCompare(String(y.blk)) || ((x.kind === 'IC' ? 0 : 1) - (y.kind === 'IC' ? 0 : 1)) || (x.y - y.y) || (x.x - y.x);
+  const sk = e => skey(e.board, e.x, e.y);
+  const stripKind = (k, kinds) => (stripPins[k] || []).some(o => o.p.board === b && kinds.includes(o.p.kind));
+  const internal = DATA.wires.filter(w => w.kind === 'signal' && w.a.board === b && w.b.board === b);
+  const defH = internal.filter(w => stripKind(sk(w.a), ['HDR']) || stripKind(sk(w.b), ['HDR']));
+  const defD = internal.filter(w => !defH.includes(w) && (stripKind(sk(w.a), ['TB', 'TCRT', 'OPTO']) || stripKind(sk(w.b), ['TB', 'TCRT', 'OPTO'])));
+  const flow = internal.filter(w => !defH.includes(w) && !defD.includes(w));
+  // 1) cada pieza y enseguida los cables que ya la unen con piezas puestas (o con un riel)
+  const placed = new Set(), done = new Set();
+  const endOK = e => { if (RAILX.has(e.x)) return true; const pl = (stripPins[sk(e)] || []).filter(o => o.p.board === b && !late(o.p)); return !pl.length || pl.some(o => placed.has(o.p.ref)); };
+  const flush = () => flow.forEach(w => { if (!done.has(w.i) && endOK(w.a) && endOK(w.b)){ done.add(w.i); out.push({t: 'wire', id: w.i, ph: PH[0]}); } });
+  ps.filter(p => !late(p)).sort(bcmp).forEach(p => { placed.add(p.ref); out.push({t: 'part', id: p.ref, ph: PH[0]}); flush(); });
+  flow.forEach(w => { if (!done.has(w.i)){ done.add(w.i); out.push({t: 'wire', id: w.i, ph: PH[0]}); } });
+  // 2) al final: lo que va a otras placas, puentes de alimentacion y dispositivos externos
+  ps.filter(p => p.kind === 'HDR').sort(bcmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[1]}));
+  defH.forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
+  DATA.wires.filter(w => w.kind === 'signal' && touch(w) && !(w.a.board === b && w.b.board === b)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
+  DATA.wires.filter(w => w.kind === 'bus' && touch(w) && conn && conn.has(w.a.board) && conn.has(w.b.board)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[2]}));
+  ps.filter(p => ['TB', 'TCRT', 'OPTO'].includes(p.kind)).sort(bcmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[3]}));
+  defD.forEach(w => out.push({t: 'wire', id: w.i, ph: PH[3]}));
+  DATA.wires.filter(w => w.kind === 'ext' && touch(w)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[3]}));
   return out;
 }
 steps = buildSteps('');

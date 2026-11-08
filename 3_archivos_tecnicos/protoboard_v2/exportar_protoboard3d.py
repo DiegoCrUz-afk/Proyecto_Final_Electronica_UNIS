@@ -78,13 +78,15 @@ def asignar_alturas(W, offs):
 BL = [b.name for b in P.boards]
 offs = {b: i * 22 for i, b in enumerate(BL)}
 dims = {b: dict(x0=offs[b] - 4.5, x1=offs[b] + 14.5, z1=64) for b in BL}
-LET = {0: "A", 1: "B", 2: "C", 3: "D", 4: "E", 6: "F", 7: "G", 8: "H", 9: "I", 10: "J"}
+LET = {0: "J", 1: "I", 2: "H", 3: "G", 4: "F", 6: "E", 7: "D", 8: "C", 9: "B", 10: "A"}  # igual que lo impreso en el tablero (izq. a der.)
+ROWS_N = 63
+row_lbl = lambda y: ROWS_N - 1 - y  # fila 0 abajo
 
 
 def hole(b, x, y):
     if x in LET:
-        return "%s-%s%d" % (b, LET[x], y + 1)
-    return "%s-riel %s fila %d" % (b, {-3: "+5 V izq", -2: "GND izq", 12: "GND der", 13: "+12 V der"}.get(x, "?"), y + 1)
+        return "%s-%s%d" % (b, LET[x], row_lbl(y))
+    return "%s-riel %s fila %d" % (b, {-3: "GND izq", -2: "+5 V izq", 12: "GND der", 13: "+12 V der"}.get(x, "?"), row_lbl(y))
 
 
 parts = []
@@ -112,7 +114,7 @@ for p in parts:
                           a=dict(board=p["board"], x=q["x"], y=q["y"], hole=hole(p["board"], q["x"], q["y"]), part=p["ref"], pin=q["n"]),
                           b=dict(ext=dev, term=q["n"], hole="dispositivo " + dev + " · " + q["n"])))
 # cables entre rieles de protoboards (GND, 5 V, 12 V)
-for n, xs in (("0", (-2, -2)), ("v5", (-3, -3)), ("vm", (13, 13))):
+for n, xs in (("0", (-3, -3)), ("v5", (-2, -2)), ("vm", (13, 13))):
     for i in range(1, len(BL)):
         ya, yb = P.rail_y(BL[0], xs[0], 1 + 2 * i), P.rail_y(BL[i], xs[1], 1 + 2 * i)
         W.append(dict(i=len(W) + 1, net=n, color=nets[n]["color"], kind="bus", a=dict(board=BL[0], x=xs[0], y=ya, hole=hole(BL[0], xs[0], ya)),
@@ -120,7 +122,7 @@ for n, xs in (("0", (-2, -2)), ("v5", (-3, -3)), ("vm", (13, 13))):
 import ruteo_bajo
 NIV = ruteo_bajo.rutear(W, parts, offs)
 print("niveles de altura usados:", NIV)
-gnd = {b: dict(x=-2, y=3) for b in BL}
+gnd = {b: dict(x=-3, y=3) for b in BL}
 titles = {b: "PROTOBOARD %s · 830 puntos" % b for b in BL}
 data = dict(parts=parts, wires=W, tracks=[], zones=[], nets=nets, meas=E.MEAS, offs=offs, dims=dims, gnd=gnd, cu={b: "" for b in BL}, power=E.POWER, cell=1.27, pitch=2.54, w_trace=.8, w_wide=1.6,
             sim=E.datos_sim(), titles=titles, boards_list=BL, blocks={})

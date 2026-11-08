@@ -16,7 +16,7 @@ import generar_montaje3d as g3
 
 ROWS = 63
 LCOLS, RCOLS = [0, 1, 2, 3, 4], [6, 7, 8, 9, 10]          # canal en x = 5
-RAIL = {"L": {"v5": -3, "0": -2}, "R": {"0": 12, "vm": 13}}
+RAIL = {"L": {"0": -3, "v5": -2}, "R": {"0": 12, "vm": 13}}
 POWER = {"0", "v5", "vm"}
 datos, zonas, ics = g3.construir_todo()
 parts = [d for d in datos]
