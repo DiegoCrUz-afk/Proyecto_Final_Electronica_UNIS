@@ -1,0 +1,7 @@
+# GitHub Pages: la v1 del 3D se conserva en el repositorio pero ya no se publica en linea.
+exclude:
+  - 6_Montaje_3D/Protoboards_3D_miniestacion.html
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
