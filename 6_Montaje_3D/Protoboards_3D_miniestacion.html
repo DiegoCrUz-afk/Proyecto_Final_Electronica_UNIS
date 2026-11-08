@@ -1793,7 +1793,7 @@ function applyBoardView(b, noFly){
   boardView = b || ''; boardExt = false;
   const hideOut = $('tHideOut').checked, hidePwr = $('tHidePwr').checked;
   const conn = new Set(b ? [b] : []);
-  if (b) DATA.wires.forEach(w => { const bs = [w.a.board, w.b.board].filter(Boolean); if (bs.includes(b)){ bs.forEach(x => conn.add(x)); if (w.kind === 'ext') boardExt = true; } });
+  if (b) DATA.wires.forEach(w => { if (w.kind === 'bus') return; const bs = [w.a.board, w.b.board].filter(Boolean); if (bs.includes(b)){ bs.forEach(x => conn.add(x)); if (w.kind === 'ext') boardExt = true; } });
   boardSet = hideOut && b ? new Set([b]) : conn;
   if (hideOut) boardExt = false;
   const vis = x => !b || boardSet.has(x);
@@ -1801,8 +1801,8 @@ function applyBoardView(b, noFly){
   G.grid.children.forEach(o => { if (o.userData.board) o.visible = vis(o.userData.board); });
   Object.values(partObjs).forEach(po => { po.group.userData.boardVis = partShown(po.data.board); });
   const internal = w => w.kind !== 'ext' && w.a.board === w.b.board;
-  wireObjs.forEach(wo => { if (!wo) return; const w = wo.data; wo.group.userData.boardVis = (!b || [w.a.board, w.b.board].includes(b)) && (!hideOut || internal(w)) && (!hidePwr || !DATA.power[w.net]); });
-  steps = buildSteps(b);
+  wireObjs.forEach(wo => { if (!wo) return; const w = wo.data; wo.group.userData.boardVis = (!b || [w.a.board, w.b.board].includes(b)) && (!hideOut || internal(w)) && (!hidePwr || !DATA.power[w.net]) && (w.kind !== 'bus' || (vis(w.a.board) && vis(w.b.board))); });
+  steps = buildSteps(b, boardSet);
   if (stepMode){ stepK = 0; }
   select(null); applyFocus(); if (stepMode) applySteps();
   [...document.querySelectorAll('#bviews button')].forEach(x => x.classList.toggle('on', x.dataset.b === boardView));
@@ -1810,7 +1810,7 @@ function applyBoardView(b, noFly){
   const guide = PH.filter(p => cnt[p]).map((p, i) => (i + 1) + ') ' + p + ' (' + cnt[p] + ')').join(' → ');
   const others = [...conn].filter(x => x !== b);
   $('bvInfo').innerHTML = b
-    ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (others.length ? 'Conectada con: <b>' + others.join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos.' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) + (hideOut ? ' (Cables que salen: ocultos.)' : '') + '<br><b>Por dónde empezar:</b> ' + guide + '. Usa los botones de abajo para verlo pieza por pieza.'
+    ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (others.length ? 'Conectada con: <b>' + others.join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos.' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) + (hideOut ? ' (Cables que salen: ocultos.)' : '') + '<br><span style="opacity:.8">Los cables de alimentación entre placas (rojo, negro, naranja) solo se ven cuando las dos placas están visibles; elige <b>Todas</b> para verlos.</span><br><b>Por dónde empezar:</b> ' + guide + '. Usa los botones de abajo para verlo pieza por pieza.'
     : 'Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.';
   if (noFly) return;
   if (b){ const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
@@ -1842,7 +1842,7 @@ bind('tTags', v => { tagsOn = v; });
 
 // ---------- armado paso a paso ----------
 let steps = [];
-function buildSteps(b){
+function buildSteps(b, conn){
   const zi = {}; DATA.zones.forEach((z, k) => zi[z.id] = k);
   const out = [], cmp = (x, y) => (zi[x.blk] - zi[y.blk]) || (x.y - y.y) || (x.x - y.x);
   if (!b){
@@ -1856,7 +1856,7 @@ function buildSteps(b){
   }
   const ps = DATA.parts.filter(p => p.board === b), touch = w => [w.a.board, w.b.board].includes(b);
   ps.filter(p => p.kind === 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[0]}));
-  DATA.wires.filter(w => w.kind === 'bus' && touch(w)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
+  DATA.wires.filter(w => w.kind === 'bus' && touch(w) && conn && conn.has(w.a.board) && conn.has(w.b.board)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
   ps.filter(p => p.kind !== 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[2]}));
   DATA.wires.filter(w => w.kind === 'signal' && w.a.board === b && w.b.board === b).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[3]}));
   DATA.wires.filter(w => w.kind === 'signal' && touch(w) && !(w.a.board === b && w.b.board === b)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[4]}));
