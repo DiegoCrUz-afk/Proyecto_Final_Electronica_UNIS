@@ -348,10 +348,9 @@ function partGroup(p){
     pts.forEach(v => legTo(g, v.x, v.z, 1.5));
     top = 12;
   } else if (k === 'TB'){
-    const n = p.pins.length, w = (pts[n - 1].x - pts[0].x) + P * 1.6;
-    body(new THREE.BoxGeometry(w, 9, 7.5), 0x1e7a46, {roughness: .5}, cx, 4.5, cz);
-    pts.forEach(v => { const s = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, .8, 16), mat(0xd6d6d6, {metalness: .6, roughness: .35})); s.position.set(v.x, 9.2, cz); g.add(s); legTo(g, v.x, v.z, 2); });
-    top = 11;
+    // extremo pelado del cable que va al dispositivo: entra directo al agujero (sin bornera)
+    pts.forEach(v => { legTo(g, v.x, v.z, 5); body(new THREE.CylinderGeometry(1.0, 1.0, 3.2, 14), 0xe8e8e8, {roughness: .5}, v.x, 6.2, v.z); });
+    top = 9;
   } else if (k === 'TCRT' || k === 'OPTO'){
     const w = P * 4 + 1;
     body(new THREE.BoxGeometry(w, 5, 4.4), 0x151515, {roughness: .55}, cx, 4, cz);
@@ -381,7 +380,7 @@ function partGroup(p){
       legSprites.push({s, ref: p.ref, x: wpts[i].x, z: wpts[i].z, act: k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM'}); G.legs.add(s);
     });
   }
-  const lb = sprite([p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
+  const lb = sprite(k === 'TB' ? ['cable →', p.val] : [p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
   lb.position.set(cxw, top + 4, czw); g.userData.label = lb; G.labels.add(lb);
   g.traverse(o => { if (o.isMesh) o.userData.owner = g; });
   partObjs[p.ref] = {group: g, data: p, top, pos: V3(cxw, top / 2, czw), px: cxw, zm: czw};
@@ -555,7 +554,7 @@ DATA.parts.slice().sort((a, b) => a.ref.localeCompare(b.ref, undefined, {numeric
 $('partSel').onchange = e => { if (e.target.value){ const pb = partObjs[e.target.value].data.board; if (boardView && !partShown(pb)) applyBoardView(pb); select('part', e.target.value, true); } };
 const HINT = {R: 'resistencia (bandas de color según el valor)', RW: 'resistencia de potencia (shunt de corriente)', CE: 'electrolítico: la franja clara marca la pata −; el + va al nodo de más voltaje', CC: 'capacitor sin polaridad', D: 'diodo: banda clara = cátodo (K)', DZ: 'Zener: la banda es el cátodo (K) y va al lado de más voltaje', LED: 'LED: pata larga = ánodo (A)',
   Q92: 'transistor TO-92: cara plana hacia ti, patas E-B-C de izquierda a derecha', Q126: 'TO-126: cara con texto hacia ti, patas E-C-B de izquierda a derecha', MOS: 'MOSFET TO-220 de nivel lógico con disipador: patas G-D-S de izquierda a derecha, cara con texto hacia ti',
-  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'bornera de tornillo: va con cable al dispositivo', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'conector de 4 patas del TCRT5000 (A K = LED IR, C E = fototransistor)', OPTO: 'conector de 4 patas del optointerruptor (A K = LED, C E = fototransistor)', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
+  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'extremo del cable que va al dispositivo (sensor, motor, interruptor…): entra directo a estos agujeros, sin bornera', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'conector de 4 patas del TCRT5000 (A K = LED IR, C E = fototransistor)', OPTO: 'conector de 4 patas del optointerruptor (A K = LED, C E = fototransistor)', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
 const fx = new THREE.Group(); scene.add(fx);
 const fxTags = [], fxRings = [], glowedWires = []; let tagsOn = true;
 function ringAt(pt, color, r){
@@ -572,7 +571,7 @@ function syncVis(){
   wireObjs.forEach(wo => { if (!wo) return; const g = wo.group, v = g.userData.stepVis !== false && g.userData.focusVis !== false && g.userData.boardVis !== false; g.visible = v; g.userData.num.visible = v; });
 }
 function applyFocus(){
-  const f = focusOn && focus;
+  const f = focusOn && focus && !stepMode;
   Object.values(partObjs).forEach(po => { po.group.userData.focusVis = !f || focus.parts.has(po.data.ref); });
   wireObjs.forEach(wo => { if (wo) wo.group.userData.focusVis = !f || focus.wires.has(wo.data.i); });
   G.dev.visible = $('tDev').checked && devOK() && (!f || focus.hasExt);
@@ -817,7 +816,7 @@ steps = buildSteps('');
 let stepMode = false, stepK = 0, playT = null;
 function stepText(s){
   const pre = s.ph ? '[' + s.ph + '] ' : '';
-  if (s.t === 'part'){ const p = partObjs[s.id].data; return pre + 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ' + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
+  if (s.t === 'part'){ const p = partObjs[s.id].data; return pre + (p.kind === 'TB' ? 'Mete los cables de ' + p.val + ' (van al dispositivo) en la placa ' + p.board + ': ' : 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ') + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
   const w = DATA.wires[s.id - 1]; return pre + 'Cable [' + w.i + '] (' + netLabel(w.net) + '): ' + w.a.hole + ' → ' + w.b.hole;
 }
 function applySteps(){
@@ -1060,7 +1059,7 @@ function loop(now){
   Object.values(partObjs).forEach(po => {
     const s = po.group.userData.label, d = camera.position.distanceTo(s.position), k = Math.min(16, Math.max(7.5, d * .04));
     s.scale.set(k, k * .373, 1); s.position.set(po.px, po.top + 5 + po.group.position.y, po.zm);
-    const fo = focusOn && focus; s.visible = po.group.userData.stepVis !== false && po.group.userData.focusVis !== false && po.group.userData.boardVis !== false && (fo ? !!(selected && selected.type === 'part' && selected.id === po.data.ref) : (far || d < 230));
+    const fo = focusOn && focus && !stepMode; s.visible = po.group.userData.stepVis !== false && po.group.userData.focusVis !== false && po.group.userData.boardVis !== false && (fo ? !!(selected && selected.type === 'part' && selected.id === po.data.ref) : (far || d < 230));
   });
   devLabels.forEach(([s, w0]) => { const d = camera.position.distanceTo(s.position), r = s.scale.y / s.scale.x, w = Math.min(w0, Math.max(14, d * .09)); s.scale.set(w, w * r, 1); });
   wireObjs.forEach(wo => { if (!wo) return; const n = wo.group.userData.num, d = camera.position.distanceTo(n.position), k = Math.min(5.2, Math.max(2.4, d * .011)); n.scale.set(k, k, 1); });
