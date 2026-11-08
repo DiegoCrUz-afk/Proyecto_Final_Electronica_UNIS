@@ -128,6 +128,8 @@ select{width:100%}
   </div>
 
   <div class="sec"><h2>Armado paso a paso</h2>
+    <div class="hint" style="margin-bottom:5px">Primero elige qué placa armar (o Todas) y luego pulsa Activar:</div>
+    <div class="row" id="stepBoards" style="margin-bottom:6px"></div>
     <div class="row"><button id="stepOn">Activar</button><button id="stepPrev">◀</button><button id="stepNext">▶</button><button id="stepPlay">▶ Auto</button></div>
     <div id="stepbar"><input type="range" id="stepRange" min="0" max="1" value="0" disabled style="width:100%"><span id="stepNum" class="hint"></span></div>
     <div id="stepTxt" class="hint" style="margin-top:5px"></div>
@@ -754,7 +756,7 @@ function applyBoardView(b, noFly){
   steps = buildSteps(b, boardSet);
   if (stepMode){ stepK = 0; }
   select(null); applyFocus(); if (stepMode) applySteps();
-  [...document.querySelectorAll('#bviews button')].forEach(x => x.classList.toggle('on', x.dataset.b === boardView));
+  [...document.querySelectorAll('#bviews button, #stepBoards button')].forEach(x => x.classList.toggle('on', x.dataset.b === boardView));
   const cnt = {}; steps.forEach(s => { if (s.ph) cnt[s.ph] = (cnt[s.ph] || 0) + 1; });
   const guide = PH.filter(p => cnt[p]).map((p, i) => (i + 1) + ') ' + p + ' (' + cnt[p] + ')').join(' → ');
   const others = [...conn].filter(x => x !== b);
@@ -767,6 +769,8 @@ function applyBoardView(b, noFly){
 (function(){
   const mk = (txt, b) => { const x = document.createElement('button'); x.textContent = txt; x.dataset.b = b; x.onclick = () => applyBoardView(boardView === b ? '' : b); $('bviews').appendChild(x); };
   mk('Todas', ''); BL.forEach(b => mk('Solo ' + b, b));
+  [['Todas', ''], ...BL.map(b => ['Placa ' + b, b])].forEach(([t, b]) => { const x = document.createElement('button'); x.textContent = t; x.dataset.b = b; x.onclick = () => applyBoardView(b); $('stepBoards').appendChild(x); });
+  document.querySelectorAll('#stepBoards button')[0].classList.add('on');
   ['tBoardParts', 'tHideOut', 'tHidePwr'].forEach(id => { $(id).onchange = () => applyBoardView(boardView, true); });
   $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); const t = V3(X(boardView, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 250, 150))); };
   $('bvNext').onclick = () => $('stepNext').click();
