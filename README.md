@@ -10,6 +10,5 @@ Minibanda transportadora con motor DC de 12 V (máx. 500 mA), hecha con electró
 - `6_Montaje_3D`: paginas 3D (abrir el `.html` en el navegador):
   - `Protoboards_3D_miniestacion_v2.html`: la guia 3D vigente (5 protoboards, 120 piezas, 229 cables, con el LED de objeto en la placa B). Ver en linea: https://diegocruz-afk.github.io/Proyecto_Final_Electronica_UNIS/6_Montaje_3D/Protoboards_3D_miniestacion_v2.html
   - `Maquina_3D_banda.html`: la banda con motor, disco, opto y los 20 cables numerados, con vista desarmable y WASD. Ver en linea: https://diegocruz-afk.github.io/Proyecto_Final_Electronica_UNIS/6_Montaje_3D/Maquina_3D_banda.html
-  - `Motor_opto_desmontado.html`: diagrama de motor, disco y opto y tabla de a donde va cada cable. Ver en linea: https://diegocruz-afk.github.io/Proyecto_Final_Electronica_UNIS/6_Montaje_3D/Motor_opto_desmontado.html
-  - `Protoboards_3D_miniestacion.html` (v1): retirada; se conserva en el repo pero ya no se publica en linea ni se actualiza.
+  - `Protoboards_3D_miniestacion.html` (v1) y `Motor_opto_desmontado.html` (diagrama del motor): retiradas; se conservan en el repo pero ya no se publican en linea ni se actualizan.
 - `7_Multisim`: esquemáticos de Multisim (11 bloques, `SISTEMA_COMPLETO.ms14` con su imagen y `SISTEMA_SOLO_CIRCUITO.ms14`, el circuito sin fuentes de prueba, con su imagen) y los scripts que los generan; ver `LEEME_MULTISIM.md`.

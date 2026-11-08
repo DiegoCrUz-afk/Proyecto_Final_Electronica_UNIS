@@ -5,8 +5,7 @@ Abrir con Chrome o Edge (un solo archivo cada uno, sin internet).
 ## Paginas
 - `Protoboards_3D_miniestacion_v2.html` (VIGENTE): guia para armar en 5 protoboards de 830 puntos (63 filas, 0 abajo) junto al esquematico. 120 piezas, 377 patas, 82 redes, 229 cables. Sale de `3_archivos_tecnicos\sistema.inc` (el mismo circuito que se simula) mas el LED de objeto de la placa B (solo esta aqui).
 - `Maquina_3D_banda.html`: la banda con el motor, el disco, el opto, el sensor IR, el micro-switch, el NTC, la fuente, el interruptor, el reset y las 5 protoboards, con los 20 cables numerados igual que en la v2. WASD (Q/E suben y bajan, Shift mas rapido), vista desarmable (explosionada) y clic en una pieza o cable para ver sus datos. Los engranes extra son una propuesta ilustrativa, no estan en el diseno.
-- `Motor_opto_desmontado.html`: diagrama de las piezas del encoder, tabla de a donde va cada cable y avisos del motor (el Steren MOT-125 es de 6 V; el diseno es de 12 V).
-- `Protoboards_3D_miniestacion.html` (v1): RETIRADA. Se conserva en el repo, ya no se publica en GitHub Pages ni se actualiza a menos que se pida.
+- `Protoboards_3D_miniestacion.html` (v1) y `Motor_opto_desmontado.html` (diagrama del motor): RETIRADAS. Se conservan en el repo, ya no se publican en GitHub Pages ni se actualizan a menos que se pida.
 
 ## Como usar la v2
 - Piezas con letras J I H G F | E D C B A como las protoboards reales; rieles azul (-) y rojo (+) cortados a la mitad con puentes. Las piezas estan repartidas por toda la placa y los cables corren bajitos, solo saltan donde hay una pieza.
