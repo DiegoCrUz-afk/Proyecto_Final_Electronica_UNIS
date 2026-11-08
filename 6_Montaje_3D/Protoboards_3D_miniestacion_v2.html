@@ -72,6 +72,10 @@ select{width:100%}
     <div class="row" id="bviews"></div>
     <div class="hint" id="bvInfo" style="margin-top:6px">Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.</div>
     <label class="chk"><input type="checkbox" id="tBoardParts"> Mostrar también las piezas de las placas conectadas</label>
+    <label class="chk"><input type="checkbox" id="tHideOut"> Ocultar los cables que salen a otras placas o a dispositivos (queda solo esta placa)</label>
+    <label class="chk"><input type="checkbox" id="tHidePwr"> Ocultar los cables de alimentación (GND, 5 V, 12 V)</label>
+    <div class="row" style="margin-top:6px"><button id="bvStart">▶ Armar esta placa paso a paso</button><button id="bvPrev" title="Paso anterior">◀</button><button id="bvNext" title="Paso siguiente">▶</button></div>
+    <div id="bvStep" class="hint" style="margin-top:5px"></div>
   </div>
 
   <div class="sec"><h2>Funcionamiento (simulación)</h2>
@@ -1785,26 +1789,40 @@ const VIEWS = [
   ['Banda', () => flyTo(bandPos, bandPos.clone().add(V3(0, 190, 250)))],
 ];
 BL.forEach(b => VIEWS.splice(2 + BL.indexOf(b), 0, ['Protoboard ' + b, () => { const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 210, 120))); }]));
-function applyBoardView(b){
-  boardView = b || ''; boardSet = null; boardExt = false;
-  if (b){
-    boardSet = new Set([b]);
-    DATA.wires.forEach(w => { const bs = [w.a.board, w.b.board].filter(Boolean); if (bs.includes(b)){ bs.forEach(x => boardSet.add(x)); if (w.kind === 'ext') boardExt = true; } });
-  }
+const PH = ['Circuitos integrados', 'Cables de alimentación', 'Resistencias, capacitores y demás piezas', 'Cables de esta placa', 'Cables hacia otras placas', 'Cables a dispositivos externos'];
+function applyBoardView(b, noFly){
+  boardView = b || ''; boardExt = false;
+  const hideOut = $('tHideOut').checked, hidePwr = $('tHidePwr').checked;
+  const conn = new Set(b ? [b] : []);
+  if (b) DATA.wires.forEach(w => { const bs = [w.a.board, w.b.board].filter(Boolean); if (bs.includes(b)){ bs.forEach(x => conn.add(x)); if (w.kind === 'ext') boardExt = true; } });
+  boardSet = hideOut && b ? new Set([b]) : conn;
+  if (hideOut) boardExt = false;
   const vis = x => !b || boardSet.has(x);
   Object.keys(boardGrp).forEach(x => { boardGrp[x].visible = vis(x); });
   G.grid.children.forEach(o => { if (o.userData.board) o.visible = vis(o.userData.board); });
   Object.values(partObjs).forEach(po => { po.group.userData.boardVis = partShown(po.data.board); });
-  wireObjs.forEach(wo => { if (wo) wo.group.userData.boardVis = !b || [wo.data.a.board, wo.data.b.board].includes(b); });
-  select(null); applyFocus();
+  const internal = w => w.kind !== 'ext' && w.a.board === w.b.board;
+  wireObjs.forEach(wo => { if (!wo) return; const w = wo.data; wo.group.userData.boardVis = (!b || [w.a.board, w.b.board].includes(b)) && (!hideOut || internal(w)) && (!hidePwr || !DATA.power[w.net]); });
+  steps = buildSteps(b);
+  if (stepMode){ stepK = 0; }
+  select(null); applyFocus(); if (stepMode) applySteps();
   [...document.querySelectorAll('#bviews button')].forEach(x => x.classList.toggle('on', x.dataset.b === boardView));
-  $('bvInfo').innerHTML = b ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (boardSet.size > 1 ? 'Conectada con: <b>' + [...boardSet].filter(x => x !== b).join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos (banda, motor, sensores, interruptores).' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) : 'Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.';
+  const cnt = {}; steps.forEach(s => { if (s.ph) cnt[s.ph] = (cnt[s.ph] || 0) + 1; });
+  const guide = PH.filter(p => cnt[p]).map((p, i) => (i + 1) + ') ' + p + ' (' + cnt[p] + ')').join(' → ');
+  const others = [...conn].filter(x => x !== b);
+  $('bvInfo').innerHTML = b
+    ? 'Protoboard <b>' + b + '</b> (' + DATA.titles[b] + '). ' + (others.length ? 'Conectada con: <b>' + others.join(', ') + '</b>' + (boardExt ? ' y con los dispositivos externos.' : '.') : 'No tiene cables hacia otras placas' + (boardExt ? ', solo hacia los dispositivos externos.' : '.')) + (hideOut ? ' (Cables que salen: ocultos.)' : '') + '<br><b>Por dónde empezar:</b> ' + guide + '. Usa los botones de abajo para verlo pieza por pieza.'
+    : 'Elige una protoboard (o teclas 1-5; 0 = todas): se muestra sola y aparecen únicamente las que tienen cables hacia ella.';
+  if (noFly) return;
   if (b){ const t = V3(X(b, 5), 0, Z(32)); flyTo(t, t.clone().add(V3(0, 210, 120))); } else flyTo(center, center.clone().add(V3(0, 430, 560)));
 }
 (function(){
   const mk = (txt, b) => { const x = document.createElement('button'); x.textContent = txt; x.dataset.b = b; x.onclick = () => applyBoardView(boardView === b ? '' : b); $('bviews').appendChild(x); };
   mk('Todas', ''); BL.forEach(b => mk('Solo ' + b, b));
-  $('tBoardParts').onchange = () => applyBoardView(boardView);
+  ['tBoardParts', 'tHideOut', 'tHidePwr'].forEach(id => { $(id).onchange = () => applyBoardView(boardView, true); });
+  $('bvStart').onclick = () => { if (!boardView){ $('bvStep').textContent = 'Primero elige una protoboard (Solo A, Solo B…).'; return; } if (!stepMode) $('stepOn').click(); stepK = 0; applySteps(); };
+  $('bvNext').onclick = () => $('stepNext').click();
+  $('bvPrev').onclick = () => $('stepPrev').click();
   addEventListener('keydown', e => { if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return; if (/^[0-9]$/.test(e.key)){ const k = +e.key; if (k === 0) applyBoardView(''); else if (BL[k - 1]) applyBoardView(BL[k - 1]); } });
 })();
 VIEWS.forEach(([n, f]) => { const b = document.createElement('button'); b.textContent = n; b.onclick = f; $('views').appendChild(b); });
@@ -1824,20 +1842,34 @@ bind('tFocus', v => { focusOn = v; applyFocus(); });
 bind('tTags', v => { tagsOn = v; });
 
 // ---------- armado paso a paso ----------
-const steps = [];
-(function(){
+let steps = [];
+function buildSteps(b){
   const zi = {}; DATA.zones.forEach((z, k) => zi[z.id] = k);
-  DATA.boards_list.forEach(b => {
-    DATA.parts.filter(p => p.board === b).sort((x, y) => (zi[x.blk] - zi[y.blk]) || ((x.kind === 'IC' ? 0 : 1) - (y.kind === 'IC' ? 0 : 1)) || (x.y - y.y) || (x.x - y.x)).forEach(p => steps.push({t: 'part', id: p.ref}));
-    DATA.wires.filter(w => w.kind === 'signal' && w.a.board === b && w.b.board === b).forEach(w => steps.push({t: 'wire', id: w.i}));
-  });
-  DATA.wires.filter(w => w.kind === 'signal' && w.a.board !== w.b.board).forEach(w => steps.push({t: 'wire', id: w.i}));
-  DATA.wires.filter(w => w.kind !== 'signal').forEach(w => steps.push({t: 'wire', id: w.i}));
-})();
+  const out = [], cmp = (x, y) => (zi[x.blk] - zi[y.blk]) || (x.y - y.y) || (x.x - y.x);
+  if (!b){
+    DATA.boards_list.forEach(bb => {
+      DATA.parts.filter(p => p.board === bb).sort((x, y) => (zi[x.blk] - zi[y.blk]) || ((x.kind === 'IC' ? 0 : 1) - (y.kind === 'IC' ? 0 : 1)) || (x.y - y.y) || (x.x - y.x)).forEach(p => out.push({t: 'part', id: p.ref}));
+      DATA.wires.filter(w => w.kind === 'signal' && w.a.board === bb && w.b.board === bb).forEach(w => out.push({t: 'wire', id: w.i}));
+    });
+    DATA.wires.filter(w => w.kind === 'signal' && w.a.board !== w.b.board).forEach(w => out.push({t: 'wire', id: w.i}));
+    DATA.wires.filter(w => w.kind !== 'signal').forEach(w => out.push({t: 'wire', id: w.i}));
+    return out;
+  }
+  const ps = DATA.parts.filter(p => p.board === b), touch = w => [w.a.board, w.b.board].includes(b);
+  ps.filter(p => p.kind === 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[0]}));
+  DATA.wires.filter(w => w.kind === 'bus' && touch(w)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[1]}));
+  ps.filter(p => p.kind !== 'IC').sort(cmp).forEach(p => out.push({t: 'part', id: p.ref, ph: PH[2]}));
+  DATA.wires.filter(w => w.kind === 'signal' && w.a.board === b && w.b.board === b).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[3]}));
+  DATA.wires.filter(w => w.kind === 'signal' && touch(w) && !(w.a.board === b && w.b.board === b)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[4]}));
+  DATA.wires.filter(w => w.kind === 'ext' && touch(w)).forEach(w => out.push({t: 'wire', id: w.i, ph: PH[5]}));
+  return out;
+}
+steps = buildSteps('');
 let stepMode = false, stepK = 0, playT = null;
 function stepText(s){
-  if (s.t === 'part'){ const p = partObjs[s.id].data; return 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ' + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
-  const w = DATA.wires[s.id - 1]; return 'Cable [' + w.i + '] (' + netLabel(w.net) + '): ' + w.a.hole + ' → ' + w.b.hole;
+  const pre = s.ph ? '[' + s.ph + '] ' : '';
+  if (s.t === 'part'){ const p = partObjs[s.id].data; return pre + 'Suelda ' + p.short + ' (' + p.val + ') en la placa ' + p.board + ': ' + p.pins.map(q => q.n + ' → ' + holeName(p, q)).join(' · '); }
+  const w = DATA.wires[s.id - 1]; return pre + 'Cable [' + w.i + '] (' + netLabel(w.net) + '): ' + w.a.hole + ' → ' + w.b.hole;
 }
 function applySteps(){
   const shown = new Set(steps.slice(0, stepK).map(s => s.t + s.id));
@@ -1845,10 +1877,10 @@ function applySteps(){
   wireObjs.forEach(wo => { if (!wo) return; wo.group.userData.stepVis = !stepMode || shown.has('wire' + wo.data.i); });
   syncVis();
   $('stepRange').max = steps.length; $('stepRange').value = stepK; $('stepNum').textContent = stepMode ? stepK + ' / ' + steps.length : '';
-  if (stepMode && stepK > 0){ const s = steps[stepK - 1]; select(s.t, s.id, false); $('stepTxt').textContent = 'Paso ' + stepK + ': ' + stepText(s); flyToObj(s.t === 'part' ? partObjs[s.id].pos : wireObjs[s.id].pos, 90); }
-  else if (stepMode) $('stepTxt').textContent = 'Placas vacías. Pulsa ▶ para soldar la primera pieza.';
+  if (stepMode && stepK > 0){ const s = steps[stepK - 1]; select(s.t, s.id, false); $('stepTxt').textContent = $('bvStep').textContent = 'Paso ' + stepK + ': ' + stepText(s); flyToObj(s.t === 'part' ? partObjs[s.id].pos : wireObjs[s.id].pos, 90); }
+  else if (stepMode) $('stepTxt').textContent = $('bvStep').textContent = 'Placas vacías. Pulsa ▶ para soldar la primera pieza.';
 }
-$('stepOn').onclick = () => { stepMode = !stepMode; $('stepOn').classList.toggle('on', stepMode); $('stepOn').textContent = stepMode ? 'Desactivar' : 'Activar'; $('stepRange').disabled = !stepMode; stepK = stepMode ? 0 : steps.length; if (!stepMode){ clearInterval(playT); playT = null; $('stepPlay').textContent = '▶ Auto'; $('stepTxt').textContent = ''; } applySteps(); };
+$('stepOn').onclick = () => { stepMode = !stepMode; $('stepOn').classList.toggle('on', stepMode); $('stepOn').textContent = stepMode ? 'Desactivar' : 'Activar'; $('stepRange').disabled = !stepMode; stepK = stepMode ? 0 : steps.length; if (!stepMode){ clearInterval(playT); playT = null; $('stepPlay').textContent = '▶ Auto'; $('stepTxt').textContent = $('bvStep').textContent = ''; } applySteps(); };
 $('stepNext').onclick = () => { if (!stepMode) $('stepOn').click(); stepK = Math.min(steps.length, stepK + 1); applySteps(); };
 $('stepPrev').onclick = () => { if (!stepMode) $('stepOn').click(); stepK = Math.max(0, stepK - 1); applySteps(); };
 $('stepRange').oninput = e => { stepK = +e.target.value; applySteps(); };
@@ -1873,7 +1905,7 @@ function pick(ev){
   let o = hit.object; while (o && !o.userData.type) o = o.parent; return o ? o.userData : null;
 }
 let down = null;
-renderer.domElement.addEventListener('pointerdown', e => { down = {x: e.clientX, y: e.clientY}; });
+renderer.domElement.addEventListener('pointerdown', e => { down = {x: e.clientX, y: e.clientY}; if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); });
 renderer.domElement.addEventListener('pointerup', e => {
   if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
   const h = pick(e); if (h) select(h.type, h.type === 'part' ? h.ref : h.n, false); else select(null);
@@ -1887,7 +1919,7 @@ renderer.domElement.addEventListener('pointermove', e => {
 
 // ---------- moverse ----------
 const keys = {}, padK = {};
-const typing = e => /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
+const typing = e => { const t = e.target; return t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && /^(text|number|search|email|url|password)$/.test(t.type)); };
 addEventListener('keydown', e => {
   if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key.toLowerCase();
