@@ -1,12 +1,12 @@
 """Genera 6_Montaje_3D/Maquina_3D_banda.html: la banda con motor, disco, opto y cada cable hacia su protoboard.
-Los cables y sus numeros salen de Protoboards_3D_miniestacion_v2.html (mismos numeros que en esa guia).
+Los cables y sus numeros salen de Protoboards_3D_miniestacion_v3.html (mismos numeros que en la guia v3).
 Uso: python exportar_maquina3d.py"""
 import json
 import os
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 PROY = os.path.abspath(os.path.join(AQUI, "..", ".."))
-FUENTE = os.path.join(PROY, "6_Montaje_3D", "Protoboards_3D_miniestacion_v2.html")
+FUENTE = os.path.join(PROY, "6_Montaje_3D", "Protoboards_3D_miniestacion_v3.html")
 SALIDA = os.path.join(PROY, "6_Montaje_3D", "Maquina_3D_banda.html")
 LIB = os.path.join(AQUI, "..", "montaje3d", "lib3d")
 
