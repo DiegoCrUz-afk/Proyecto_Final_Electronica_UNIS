@@ -101,6 +101,7 @@ def valor(v):
     return ("%g" % n) + "k" if n < 1000 else ("%g" % (n / 1000)) + "M"
 
 
+POLAR_1U = {"LOG.Cpor", "ENC.Cfv", "ENC.Cfv2"}      # + a la pata 1 (nodo de mayor voltaje)
 parts = []
 for d in P.parts:
     pins = []
@@ -109,6 +110,10 @@ for d in P.parts:
         pins.append(dict(n=q["n"], net=q["net"], x=col, y=row, **({"name": q["name"]} if "name" in q else {})))
     bn = P.pos[(d["ref"], d["pins"][0]["n"])][0]
     p = dict(d, val=valor(d["val"]), board=bn, pins=pins, short=d["ref"].split(".")[-1], x=min(q["x"] for q in pins), y=min(q["y"] for q in pins), blk=d["blk"])
+    if d["ref"] in POLAR_1U:                      # electroliticos de 1 uF (lista de compras): misma posicion que antes, pero con polaridad + / -
+        p["kind"] = "CE"
+        for q in p["pins"]:
+            q["n"] = {"1": "+", "2": "-"}[q["n"]]
     p["cells"] = sorted({tuple(c) for c in P.partinfo.get(d["ref"], {}).get("area", [])})
     parts.append(p)
 by_ref = {p["ref"]: p for p in parts}
@@ -154,10 +159,10 @@ for p_ in parts:
         v_ = next(q for q in p_["pins"] if q.get("name") == "VCC")
         g_ = next(q for q in p_["pins"] if q.get("name") == "GND")
         E.m("m_vcc_" + p_["ref"], GV, "%s %s: entre VCC (pata %s) y GND (pata %s)" % (p_["ref"].split(".")[-1], p_["val"], v_["n"], g_["n"]), [p_["ref"], v_["n"]],
-            "5.0 V (entre 4.75 y 5.25 V)" if v_["net"] == "v5" else "≈ 11 V (los 12 V después de D1)",
+            "5.0 V (entre 4.75 y 5.25 V)" if v_["net"] == "v5" else "11.1 a 11.3 V (los 12 V después de D1)",
             "0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.", black=[p_["ref"], g_["n"]])
-E.m("m_led", "LED de objeto", "LED de objeto: ánodo (pata A)", ["LOG.Dlo", "A"], "≈ 2 V con objeto (el LED enciende); 5 V sin objeto (apagado)",
-    "Nunca enciende: LED al revés (la pata larga es A) o Rlo abierta.")
+E.m("m_led", "LED de objeto", "LED de objeto: ánodo (pata A)", ["LOG.Dlo", "A"], "≈ 2.0 V con objeto (el LED enciende, unos 4.4 mA con la resistencia de 680 Ω); 5 V sin objeto (apagado)",
+    "Nunca enciende: LED al revés (la pata larga es A) o Rlo (680 Ω) abierta.")
 # pruebas de cada bloque: las mediciones guiadas (E.MEAS) cuya punta roja cae en una pieza del bloque
 tests = defaultdict(list)
 for m_ in E.MEAS:

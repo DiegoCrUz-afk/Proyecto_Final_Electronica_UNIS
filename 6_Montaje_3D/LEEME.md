@@ -3,7 +3,9 @@
 Abrir con Chrome o Edge (un solo archivo cada uno, sin internet).
 
 ## Paginas
-- `Protoboards_3D_miniestacion_v2.html` (VIGENTE): guia para armar en 5 protoboards de 830 puntos (63 filas, 0 abajo) junto al esquematico. 120 piezas, 377 patas, 82 redes, 229 cables. Sale de `3_archivos_tecnicos\sistema.inc` (el mismo circuito que se simula) mas el LED de objeto de la placa B (solo esta aqui).
+- `Protoboards_3D_miniestacion_v3.html` (VIGENTE): guia de armado. Placas A, B y C = las 3 protoboards de la PRO'S KIT BX-4135 (rieles de en medio compartidos); D y E, protoboards sueltas. 120 piezas, 377 patas, 82 redes, 252 cables (a ras de la placa, sin atravesar piezas ni cruzarse). Panel por bloque con piezas y pruebas, paso a paso con una prueba al final de cada bloque, cables a la banda al final. Interruptor, final de carrera y pulsador dibujados como son. Sale de `3_archivos_tecnicos/protoboard_v3`.
+- `Lista_conexiones_v3.html`: conexiones pata por pata de cada bloque (generada con el mismo dato del 3D).
+- `Protoboards_3D_miniestacion_v2.html` (anterior; la muesca de los CI esta en el extremo equivocado, usar la v3): guia para armar en 5 protoboards de 830 puntos (63 filas, 0 abajo) junto al esquematico. 120 piezas, 377 patas, 82 redes, 229 cables. Sale de `3_archivos_tecnicos\sistema.inc` (el mismo circuito que se simula) mas el LED de objeto de la placa B (solo esta aqui).
 - `Maquina_3D_banda.html`: la banda con el motor, el disco, el opto, el sensor IR, el micro-switch, el NTC, la fuente, el interruptor, el reset y las 5 protoboards, con los 20 cables numerados igual que en la v2. WASD (Q/E suben y bajan, Shift mas rapido), vista desarmable (explosionada) y clic en una pieza o cable para ver sus datos. Los engranes extra son una propuesta ilustrativa, no estan en el diseno.
 - `Protoboards_3D_miniestacion.html` (v1) y `Motor_opto_desmontado.html` (diagrama del motor): RETIRADAS. Se conservan en el repo, ya no se publican en GitHub Pages ni se actualizan a menos que se pida.
 

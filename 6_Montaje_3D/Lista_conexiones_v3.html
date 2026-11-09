@@ -66,7 +66,7 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 </table>
 <h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
 <tr><td>12 V que entran por el jack<br><span class=mut>V DC</span></td><td>12 V (fuente externa)</td><td>0 V: el jack no está conectado o la fuente está apagada.</td></tr>
-<tr><td>vm: 12 V después del diodo D1 (cátodo)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V con el motor andando (simulación: mínimo 11.13 V)</td><td>0 V: D1 puesto al revés (la banda va hacia vm). 12 V sin caída con el motor parado es normal.</td></tr>
+<tr><td>vm: 12 V después del diodo D1 (cátodo)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V con el motor andando (simulación: mínimo 11.13 V)</td><td>0 V: D1 puesto al revés. La banda (cátodo K) debe ir hacia vm, el riel de 12 V, y el otro extremo (ánodo A) hacia el jack; si la banda mira al jack, está al revés. 12 V sin caída con el motor parado es normal.</td></tr>
 </table>
 <h2 id="b_REG5V">1 Regulador 5 V · placa A</h2>
 <h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
@@ -378,7 +378,7 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
 <tr><td>Salida del LM358 (ganancia 7.8)<br><span class=mut>V DC</span></td><td>≈ 0.55 V con 0.15 A (7.8 × sh)</td><td>0 V: falta Rg o Rf mal. Sin ganancia: Rf abierta.</td></tr>
 <tr><td>U14 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
-<tr><td>U4 LM358: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>≈ 11 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U4 LM358: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
 </table>
 <h2 id="b_TEMPERATURA">4 Temperatura · placa B</h2>
 <h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
@@ -499,17 +499,17 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <tr><td>2</td><td></td><td>C-C35</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Cgf</b><br>100 nF</td><td>1</td><td></td><td>C-H40</td><td>LOG.gf → Rsg pata 2, U11 pata 5</td></tr>
 <tr><td>2</td><td></td><td>C-H38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
-<tr><td rowspan=2><b>Cpor</b><br>1 µF</td><td>1</td><td></td><td>C-H32</td><td><span class="v5">+5 V</span> (riel)</td></tr>
-<tr><td>2</td><td></td><td>C-H30</td><td>LOG.por → Rpor pata 1, Dpor pata A</td></tr>
+<tr><td rowspan=2><b>Cpor</b><br>1 µF</td><td>+</td><td></td><td>C-H32</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>-</td><td></td><td>C-H30</td><td>LOG.por → Rpor pata 1, Dpor pata A</td></tr>
 <tr><td rowspan=2><b>Crf</b><br>100 nF</td><td>1</td><td></td><td>C-C32</td><td>LOG.rf → Rsr pata 2, Dpor pata K, U11 pata 11</td></tr>
 <tr><td>2</td><td></td><td>C-C30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
-<tr><td rowspan=2><b>Dpor</b><br>1N4148</td><td>A</td><td></td><td>C-D36</td><td>LOG.por → Cpor pata 2, Rpor pata 1</td></tr>
+<tr><td rowspan=2><b>Dpor</b><br>1N4148</td><td>A</td><td></td><td>C-D36</td><td>LOG.por → Cpor pata -, Rpor pata 1</td></tr>
 <tr><td>K</td><td></td><td>C-D32</td><td>LOG.rf → Rsr pata 2, Crf pata 1, U11 pata 11</td></tr>
 <tr><td rowspan=2><b>Rpe</b><br>10k</td><td>1</td><td></td><td>C-E28</td><td>ein → Rse pata 1, TBE pata E</td></tr>
 <tr><td>2</td><td></td><td>C-E24</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Rpg</b><br>10k</td><td>1</td><td></td><td>C-F29</td><td>gin → Rsg pata 1, TBG pata G</td></tr>
 <tr><td>2</td><td></td><td>C-F25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
-<tr><td rowspan=2><b>Rpor</b><br>47k</td><td>1</td><td></td><td>C-A34</td><td>LOG.por → Cpor pata 2, Dpor pata A</td></tr>
+<tr><td rowspan=2><b>Rpor</b><br>47k</td><td>1</td><td></td><td>C-A34</td><td>LOG.por → Cpor pata -, Dpor pata A</td></tr>
 <tr><td>2</td><td></td><td>C-A30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Rpr</b><br>10k</td><td>1</td><td></td><td>C-B29</td><td>rin → Rsr pata 1, TBR pata RST</td></tr>
 <tr><td>2</td><td></td><td>C-B25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
@@ -591,12 +591,12 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <h2 id="b_LED_OBJ">LED de objeto · placa C</h2>
 <h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
 <tr><td>1</td><td>LED verde (objeto)</td><td>Dlo</td></tr>
-<tr><td>1</td><td>470</td><td>Rlo</td></tr>
+<tr><td>1</td><td>680</td><td>Rlo</td></tr>
 </table>
 <h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
 <tr><td rowspan=2><b>Dlo</b><br>LED verde (objeto)</td><td>A</td><td></td><td>C-D15</td><td>LOG.lo → Rlo pata 2</td></tr>
 <tr><td>K</td><td></td><td>C-D13</td><td>LOG.pn → U8 pata 11, U9 pata 10</td></tr>
-<tr><td rowspan=2><b>Rlo</b><br>470</td><td>1</td><td></td><td>C-B19</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rlo</b><br>680</td><td>1</td><td></td><td>C-B19</td><td><span class="v5">+5 V</span> (riel)</td></tr>
 <tr><td>2</td><td></td><td>C-B15</td><td>LOG.lo → Dlo pata A</td></tr>
 </table>
 <h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
@@ -604,7 +604,7 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <tr><td>[164]</td><td>LOG.pn</td><td>C-C50</td><td>C-B13</td></tr>
 </table>
 <h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
-<tr><td>LED de objeto: ánodo (pata A)<br><span class=mut>V DC</span></td><td>≈ 2 V con objeto (el LED enciende); 5 V sin objeto (apagado)</td><td>Nunca enciende: LED al revés (la pata larga es A) o Rlo abierta.</td></tr>
+<tr><td>LED de objeto: ánodo (pata A)<br><span class=mut>V DC</span></td><td>≈ 2.0 V con objeto (el LED enciende, unos 4.4 mA con la resistencia de 680 Ω); 5 V sin objeto (apagado)</td><td>Nunca enciende: LED al revés (la pata larga es A) o Rlo (680 Ω) abierta.</td></tr>
 </table>
 <h2 id="b_REFVEL">9 Referencia de velocidad · placa C</h2>
 <h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
@@ -661,7 +661,7 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <tr><td>2</td><td>IN- 1</td><td>D-F61</td><td>ERR.vrb → R3 pata 1, U5 pata 1</td></tr>
 <tr><td>3</td><td>IN+ 1</td><td>D-F60</td><td>vref → Rt pata 2, T1 pata 1, T2 pata 1, Cr pata 1</td></tr>
 <tr><td>4</td><td>VCC</td><td>D-F59</td><td><span class="vm">+12 V</span> (riel)</td></tr>
-<tr><td>5</td><td>IN+ 2</td><td>D-F58</td><td>vspd → Rfv2 pata 2, Cfv2 pata 1</td></tr>
+<tr><td>5</td><td>IN+ 2</td><td>D-F58</td><td>vspd → Rfv2 pata 2, Cfv2 pata +</td></tr>
 <tr><td>6</td><td>IN- 2</td><td>D-F57</td><td>ERR.vsb → R1 pata 1, U5 pata 7</td></tr>
 <tr><td>7</td><td>OUT 2</td><td>D-F56</td><td>ERR.vsb → R1 pata 1, U5 pata 6</td></tr>
 <tr><td>8</td><td>OUT 3</td><td>D-E56</td><td>ERR.vob → R4 pata 2, U5 pata 9</td></tr>
@@ -715,7 +715,7 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 </table>
 <h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
 <tr><td>vctrl: salida del amplificador de error<br><span class=mut>V DC</span></td><td>≈ 2.6 a 2.7 V en normal; sube a 7.6 V con el motor parado por falla</td><td>Fijo: el lazo no está cerrado.</td></tr>
-<tr><td>U5 LM324: entre VCC (pata 4) y GND (pata 11)<br><span class=mut>V DC</span></td><td>≈ 11 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U5 LM324: entre VCC (pata 4) y GND (pata 11)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
 </table>
 <h2 id="b_PWM_GEN">6 Generador de PWM · placa D</h2>
 <h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
@@ -825,10 +825,10 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <tr><td>2</td><td></td><td>E-C40</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Cd</b><br>1 nF</td><td>1</td><td></td><td>E-D43</td><td>ENC.eq → Rpq pata 2, Rhe pata 1, U3 pata 1</td></tr>
 <tr><td>2</td><td></td><td>E-D41</td><td>ENC.tg → Rtg pata 2, Dcl pata A, U7 pata 2</td></tr>
-<tr><td rowspan=2><b>Cfv</b><br>1 µF</td><td>1</td><td></td><td>E-H39</td><td>ENC.vf1 → Rfv pata 2, Rfv2 pata 1</td></tr>
-<tr><td>2</td><td></td><td>E-H37</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
-<tr><td rowspan=2><b>Cfv2</b><br>1 µF</td><td>1</td><td></td><td>E-H34</td><td>vspd → Rfv2 pata 2, U5 pata 5</td></tr>
-<tr><td>2</td><td></td><td>E-H32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cfv</b><br>1 µF</td><td>+</td><td></td><td>E-H39</td><td>ENC.vf1 → Rfv pata 2, Rfv2 pata 1</td></tr>
+<tr><td>-</td><td></td><td>E-H37</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cfv2</b><br>1 µF</td><td>+</td><td></td><td>E-H34</td><td>vspd → Rfv2 pata 2, U5 pata 5</td></tr>
+<tr><td>-</td><td></td><td>E-H32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Ct7</b><br>10 nF</td><td>1</td><td></td><td>E-D51</td><td>ENC.dis7 → Rt7 pata 2, U7 pata 6, U7 pata 7</td></tr>
 <tr><td>2</td><td></td><td>E-D49</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Dcl</b><br>1N4148</td><td>A</td><td></td><td>E-J61</td><td>ENC.tg → Cd pata 2, Rtg pata 2, U7 pata 2</td></tr>
@@ -838,9 +838,9 @@ nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{dis
 <tr><td>C</td><td></td><td>E-E33</td><td>enc → Rpe pata 2, U3 pata 2</td></tr>
 <tr><td>E</td><td></td><td>E-E32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
 <tr><td rowspan=2><b>Rfv</b><br>10k</td><td>1</td><td></td><td>E-F43</td><td>ENC.mq → U12 pata 3</td></tr>
-<tr><td>2</td><td></td><td>E-F39</td><td>ENC.vf1 → Cfv pata 1, Rfv2 pata 1</td></tr>
-<tr><td rowspan=2><b>Rfv2</b><br>10k</td><td>1</td><td></td><td>E-J39</td><td>ENC.vf1 → Rfv pata 2, Cfv pata 1</td></tr>
-<tr><td>2</td><td></td><td>E-J35</td><td>vspd → Cfv2 pata 1, U5 pata 5</td></tr>
+<tr><td>2</td><td></td><td>E-F39</td><td>ENC.vf1 → Cfv pata +, Rfv2 pata 1</td></tr>
+<tr><td rowspan=2><b>Rfv2</b><br>10k</td><td>1</td><td></td><td>E-J39</td><td>ENC.vf1 → Rfv pata 2, Cfv pata +</td></tr>
+<tr><td>2</td><td></td><td>E-J35</td><td>vspd → Cfv2 pata +, U5 pata 5</td></tr>
 <tr><td rowspan=2><b>Rhe</b><br>1M</td><td>1</td><td></td><td>E-I58</td><td>ENC.eq → Rpq pata 2, Cd pata 1, U3 pata 1</td></tr>
 <tr><td>2</td><td></td><td>E-I54</td><td>ENC.eref → Ru1 pata 2, Ru2 pata 1, U3 pata 3</td></tr>
 <tr><td rowspan=2><b>Rled</b><br>220</td><td>1</td><td></td><td>E-E31</td><td><span class="v5">+5 V</span> (riel)</td></tr>

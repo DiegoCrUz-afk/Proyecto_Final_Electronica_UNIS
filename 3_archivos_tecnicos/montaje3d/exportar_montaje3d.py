@@ -204,7 +204,7 @@ def m(id_, grp, t, red, exp, bad, mode="V DC", black=None):
 
 G0 = "0 · Alimentación"
 m("m_vin", G0, "12 V que entran por el jack", ["ENT.J1", "+12V"], "12 V (fuente externa)", "0 V: el jack no está conectado o la fuente está apagada.")
-m("m_vm", G0, "vm: 12 V después del diodo D1 (cátodo)", ["ENT.D1", "K"], "11.1 a 11.3 V con el motor andando (simulación: mínimo 11.13 V)", "0 V: D1 puesto al revés (la banda va hacia vm). 12 V sin caída con el motor parado es normal.")
+m("m_vm", G0, "vm: 12 V después del diodo D1 (cátodo)", ["ENT.D1", "K"], "11.1 a 11.3 V con el motor andando (simulación: mínimo 11.13 V)", "0 V: D1 puesto al revés. La banda (cátodo K) debe ir hacia vm, el riel de 12 V, y el otro extremo (ánodo A) hacia el jack; si la banda mira al jack, está al revés. 12 V sin caída con el motor parado es normal.")
 m("m_v5", G0, "v5: salida del regulador (emisor de Q1)", pin_of("v5", "REG.Q1"), "5.0 V (simulación: 5.012 a 5.018 V). Debe estar entre 4.75 y 5.25 V", "Fuera de rango: ajusta el trimpot Rtr (100 Ω) y revisa Q1 y el Zener.")
 m("m_bz", G0, "Base de Q1 (cátodo del Zener)", ["REG.Q1", "B"], "≈ 5.7 V", "0 V: el Zener está al revés o falta Rz. 12 V: Rz sin carga (Zener abierto).")
 G2 = "2 · Sensor IR"

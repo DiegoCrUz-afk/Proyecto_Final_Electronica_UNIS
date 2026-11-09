@@ -370,11 +370,9 @@ function partGroup(p){
       top = 9;
     }
   } else if (k === 'TCRT'){
-    const w = P * 4 + 1;
-    body(new THREE.BoxGeometry(w, 5, 4.4), 0x151515, {roughness: .55}, cx, 4, cz);
-    pts.forEach(v => legTo(g, v.x, v.z, 2));
-    decal(k === 'TCRT' ? 'TCRT5000' : 'OPTO', w * .9, 2.6, 42, '#ddd', cx, 6.6, cz, true);
-    top = 8;
+    // el TCRT5000 real va en la banda: aqui solo estan los 4 agujeros donde entran sus cables (postes naranja = LED, azul = fototransistor)
+    pts.forEach((v, i) => { legTo(g, v.x, v.z, 5); body(new THREE.CylinderGeometry(1.0, 1.0, 3.2, 14), i < 2 ? 0xffb454 : 0x4da3ff, {roughness: .5}, v.x, 6.2, v.z); });
+    top = 9;
   } else if (k === 'HDR'){
     pts.forEach(v => { legTo(g, v.x, v.z, 7); body(new THREE.CylinderGeometry(1.2, 1.2, 6, 14), 0xd6b24a, {metalness: .7, roughness: .3}, v.x, 4.5, v.z); });
     top = 9;
@@ -398,7 +396,7 @@ function partGroup(p){
       legSprites.push({s, ref: p.ref, x: wpts[i].x, z: wpts[i].z, act: k === 'Q92' || k === 'Q126' || k === 'MOS' || k === 'TRIM' || k === 'OPTO'}); G.legs.add(s);
     });
   }
-  const lb = sprite(k === 'TB' ? ['cable →', p.val] : k === 'OPTO' ? ['cables del opto', 'A K | C E'] : [p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
+  const lb = sprite(k === 'TB' ? ['cable →', p.val] : k === 'OPTO' ? ['cables del opto', 'A K | C E'] : k === 'TCRT' ? ['cables del sensor TCRT5000', 'A K | C E'] : [p.short, p.val], 15, 5.6, {bg: '#10151acc', color: '#fff', size: [50, 36]});
   lb.position.set(cxw, top + 4, czw); g.userData.label = lb; G.labels.add(lb);
   g.traverse(o => { if (o.isMesh) o.userData.owner = g; });
   partObjs[p.ref] = {group: g, data: p, top, pos: V3(cxw, top / 2, czw), px: cxw, zm: czw};
@@ -413,7 +411,7 @@ const DEV = {}, devLabels = [];
   const LAST = DATA.boards_list[DATA.boards_list.length - 1];
   const g = G.dev, x0 = (OFF[LAST] + 46) * P + 90;
   const term = (name, tm, pos, col) => { DEV[name + '|' + tm] = pos.clone(); const s = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.6, 2.6), mat(col || 0xd9b34a)); s.position.copy(pos); g.add(s); };
-  const label = (txt, pos, w) => { const s = sprite(txt, w, w * .3, {w: 512, h: 150, bg: '#10151add', border: '#4fd1c5', size: [54, 34]}); s.position.copy(pos); g.add(s); devLabels.push([s, w]); };
+  const label = (txt, pos, w, border) => { const s = sprite(txt, w, w * .3, {w: 512, h: 150, bg: '#10151add', border: border || '#4fd1c5', size: [54, 34]}); s.position.copy(pos); g.add(s); devLabels.push([s, w]); };
   const bx = x0 + 120, bz = Z(40);
   const base = new THREE.Mesh(new THREE.BoxGeometry(260, 14, 70), mat(0x39434d, {roughness: .7})); base.position.set(bx, 3, bz); g.add(base);
   const belt = new THREE.Mesh(new THREE.BoxGeometry(250, 2, 58), mat(0x15181b, {roughness: .9})); belt.position.set(bx, 11.2, bz); g.add(belt);
@@ -450,9 +448,30 @@ const DEV = {}, devLabels = [];
   label(['TCRT5000', 'sensor IR (A K = LED · C E = fototransistor)'], V3(sx, 86, bz - 6), 62);
   const cvG = new THREE.Group(); cvG.position.set(bx, 13, bz - 36); g.add(cvG); SOBJ.cover = cvG;
   const cv = new THREE.Mesh(new THREE.BoxGeometry(262, 70, 72), mat(0x9fd3ff, {transparent: true, opacity: .13, roughness: .2})); cv.position.set(0, 35, 36); cv.userData.keep = true; cvG.add(cv);
-  const ms = new THREE.Mesh(new THREE.BoxGeometry(18, 8, 12), mat(0xd4b44a)); ms.position.set(bx + 80, 14, bz + 36); g.add(ms);
-  term('SW_G', '5V', V3(bx + 74, 20, bz + 38), 0xe53935); term('SW_G', 'G', V3(bx + 86, 20, bz + 38), 0x3ddc84);
-  label(['MICRO-SWITCH DE CUBIERTA', 'cerrado = G (5 V)'], V3(bx + 80, 40, bz + 70), 58);
+  // ---- piezas externas dibujadas como son (ampliadas); las patas que SE SUELDAN llevan punto de conexion y etiqueta dorada, las que no se usan van en gris
+  const mkb = (w, h, d, col, o, x, y, z, par) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(col, o || {})); m.position.set(x, y, z); (par || g).add(m); return m; };
+  const mkc = (rt, rbt, h, col, o, x, y, z, par, sg) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rbt, h, sg || 20), mat(col, o || {})); m.position.set(x, y, z); (par || g).add(m); return m; };
+  const ORO = 0xe8b923, GRIS = 0x7d848b;
+  const tabPin = (par, gp, K, lx, ly, lz, w, len, used) => {       // lengueta plana que sale hacia el frente (+z) con su agujero; devuelve la posicion del agujero en el mundo
+    mkb(w * K, .7 * K, len * K, used ? ORO : GRIS, {metalness: .7, roughness: .3}, lx, ly, lz + len * K / 2, par);
+    const hole = new THREE.Mesh(new THREE.CircleGeometry(.55 * K, 16), new THREE.MeshBasicMaterial({color: 0x111111})); hole.rotation.x = -Math.PI / 2; hole.position.set(lx, ly + .4 * K, lz + (len - 1.6) * K); par.add(hole);
+    return V3(gp.x + lx, gp.y + ly + .4 * K, gp.z + lz + (len - 1.6) * K);
+  };
+  // micro-switch SPDT con palanca (final de carrera mediano, ~28 x 10 x 16 mm), 1.6x
+  {
+    const K = 1.15, gp = V3(bx + 80, 10, bz + 36), mg = new THREE.Group(); mg.position.copy(gp); g.add(mg);
+    mkb(28 * K, 10 * K, 16 * K, 0xd4b44a, {roughness: .5}, 0, 5 * K, 0, mg);
+    mkb(5 * K, 1.2 * K, 12 * K, 0x2a2a2a, {roughness: .6}, -8 * K, 10.4 * K, 0, mg);                       // tope de la palanca
+    const lvm = new THREE.Group(); lvm.position.set(-12 * K, 11.5 * K, 0); lvm.rotation.z = -.12; mg.add(lvm);
+    mkb(27 * K, .7 * K, 6 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 13.5 * K, 0, 0, lvm);              // palanca
+    mkc(2.4 * K, 2.4 * K, 5 * K, 0xd9d9d9, {metalness: .6, roughness: .3}, 26 * K, -.5 * K, 0, lvm).rotation.x = Math.PI / 2;   // rodillo
+    [['COM', -8, 1, '5V'], ['NO', 0, 1, 'G'], ['NC', 8, 0, null]].forEach(([nm, lx, used, dev], k) => {
+      const w = tabPin(mg, gp, K, lx * K, 2.6 * K, 8 * K, 3.2, 6, !!used);
+      if (dev) term('SW_G', dev, w, used ? ORO : GRIS);
+      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x, 24 + 10 * k, w.z + 10), 18, used ? '#e8b923' : '#7d848b');
+    });
+    label(['MICRO-SWITCH DE CUBIERTA', 'final de carrera SPDT con palanca (1.15×) · COM→5V, NO→G (cerrado = G 5 V)'], V3(gp.x, 58, gp.z + 16), 62);
+  }
   const ntc = new THREE.Mesh(new THREE.SphereGeometry(3.2, 14, 10), mat(0x2d6cdf, {roughness: .4})); ntc.position.set(mx + 6, 36, bz - 14); g.add(ntc); SOBJ.ntc = ntc;
   term('NTC', '5V', V3(mx + 14, 44, bz - 18), 0xe53935); term('NTC', 'NTC', V3(mx + 22, 44, bz - 18), 0x3ddc84);
   label(['NTC 10 kΩ', 'pegado a la carcasa del motor'], V3(mx + 18, 66, bz - 22), 50);
@@ -460,14 +479,43 @@ const DEV = {}, devLabels = [];
   const adp = new THREE.Mesh(new THREE.BoxGeometry(70, 30, 42), mat(0x1a1a1a, {roughness: .6})); adp.position.set(px0 - 90, 11, pz + 6); g.add(adp);
   term('FUENTE', '+12V', V3(px0 - 62, 28, pz - 4), 0xd32020); term('FUENTE', 'GND', V3(px0 - 62, 28, pz + 10), 0x222222);
   label(['FUENTE EXTERNA 12 V ≥ 2 A', 'certificada'], V3(px0 - 90, 44, pz + 6), 56);
-  const swb = new THREE.Mesh(new THREE.BoxGeometry(24, 14, 18), mat(0x2d3a48)); swb.position.set(px0 + 20, 3, pz + 6); g.add(swb);
-  const lever = new THREE.Mesh(new THREE.BoxGeometry(3, 12, 3), mat(0xd8d8d8)); lever.position.set(px0 + 20, 16, pz + 6); lever.rotation.z = .35; g.add(lever); SOBJ.lever = lever;
-  term('SW_E', '5V', V3(px0 + 14, 14, pz - 6), 0xe53935); term('SW_E', 'E', V3(px0 + 26, 14, pz - 6), 0x3ddc84);
-  label(['INTERRUPTOR E', 'habilita el sistema'], V3(px0 + 20, 38, pz + 6), 44);
-  const rb = new THREE.Mesh(new THREE.BoxGeometry(24, 14, 18), mat(0x2d3a48)); rb.position.set(px0 + 70, 3, pz + 6); g.add(rb);
-  const bt = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 6, 24), mat(0xd32f2f)); bt.position.set(px0 + 70, 13, pz + 6); g.add(bt); SOBJ.btn = bt; SOBJ.btnY = 13;
-  term('SW_R', '5V', V3(px0 + 64, 14, pz - 6), 0xe53935); term('SW_R', 'RST', V3(px0 + 76, 14, pz - 6), 0x3ddc84);
-  label(['PULSADOR RESET', 'rearme manual'], V3(px0 + 70, 38, pz + 6), 44);
+  // interruptor toggle SPDT 6 A (3 lengüetas: COM al centro y una a cada lado), 2x
+  {
+    const K = 1.4, gp = V3(px0 + 6, -4, pz + 6), tg = new THREE.Group(); tg.position.copy(gp); g.add(tg);
+    mkb(13.2 * K, 8 * K, 9.5 * K, 0x9aa3ac, {metalness: .6, roughness: .4}, 0, 4 * K, 0, tg);           // carcasa
+    mkb(13.4 * K, 1 * K, 9.9 * K, 0x15181b, {roughness: .7}, 0, .5 * K, 0, tg);                              // base negra
+    mkc(3 * K, 3 * K, 7 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 0, 12 * K, 0, tg);                    // buje roscado M6
+    mkc(4.75 * K, 4.75 * K, 1.8 * K, 0xb8bec5, {metalness: .8, roughness: .3}, 0, 11 * K, 0, tg, 6);          // tuerca hexagonal
+    const lv = new THREE.Group(); lv.position.set(0, 15.5 * K, 0); lv.rotation.z = .35; tg.add(lv);
+    mkc(1.2 * K, 1.2 * K, 14 * K, 0xd8d8d8, {metalness: .7, roughness: .3}, 0, 7 * K, 0, lv);                 // palanca
+    const bl = new THREE.Mesh(new THREE.SphereGeometry(1.9 * K, 14, 10), mat(0xd8d8d8, {metalness: .7, roughness: .3})); bl.position.set(0, 14.5 * K, 0); lv.add(bl);
+    SOBJ.lever = lv;
+    [['COM (centro)', 0, '5V', true], ['lateral izq.', -4.7, 'E', true], ['lateral der.', 4.7, null, false]].forEach(([nm, lx, dev, used], k) => {
+      const w = tabPin(tg, gp, K, lx * K, 1.8 * K, 4.75 * K, 3.4, 7, used);
+      if (dev) term('SW_E', dev, w, ORO);
+      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x, 26 + 10 * k, w.z + 8), 20, used ? '#e8b923' : '#7d848b');
+    });
+    label(['INTERRUPTOR E', 'toggle SPDT 6 A (dibujado 1.4×) · usa el centro y UN lateral'], V3(gp.x, 58, gp.z + 4), 56);
+  }
+  // pulsador normalmente abierto 6 x 6 x 15 mm de 4 patas, 3x. Las dos patas de un mismo lado estan unidas por dentro: se usan dos en DIAGONAL
+  {
+    const K = 2.1, gp = V3(px0 + 84, -4, pz + 6), bg = new THREE.Group(); bg.position.copy(gp); g.add(bg);
+    mkb(6 * K, 3.5 * K, 6 * K, 0x1c1f23, {roughness: .6}, 0, 1.75 * K, 0, bg);                                // base negra
+    mkb(5.9 * K, .4 * K, 5.9 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 0, 3.7 * K, 0, bg);               // marco metalico
+    const btg = new THREE.Group(); btg.position.set(gp.x, gp.y + 3.9 * K, gp.z); g.add(btg);
+    mkc(1.75 * K, 1.75 * K, 7 * K, 0x2b2b2b, {roughness: .5}, 0, 3.5 * K, 0, btg);                           // vastago
+    mkc(2.6 * K, 2.6 * K, 4 * K, 0xd32f2f, {roughness: .4}, 0, 8.5 * K, 0, btg);                              // tapa roja
+    SOBJ.btn = btg; SOBJ.btnY = btg.position.y;
+    const leg = (nm, sx, sz, dev) => {
+      const lx = sx * 3.25 * K, lz = sz * 2.25 * K, used = !!dev;
+      mkb(3 * K, .5 * K, 1 * K, used ? ORO : GRIS, {metalness: .7, roughness: .3}, lx + sx * 1.5 * K, .6 * K, lz, bg);   // pata doblada hacia afuera
+      const w = V3(gp.x + lx + sx * 2.8 * K, gp.y + .9 * K, gp.z + lz);
+      if (dev) term('SW_R', dev, w, ORO);
+      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x + sx * 3, 26 + (sz > 0 ? 0 : 10), w.z + sz * 7), 18, used ? '#e8b923' : '#7d848b');
+    };
+    leg('A1', -1, 1, '5V'); leg('A2', -1, -1, null); leg('B1', 1, 1, null); leg('B2', 1, -1, 'RST');
+    label(['PULSADOR RESET', 'NA 6×6×15 de 4 patas (dibujado 2.1×) · A1 y B2 en diagonal'], V3(gp.x, 58, gp.z + 4), 56);
+  }
 })();
 
 // ---------- cables ----------
@@ -590,7 +638,7 @@ DATA.parts.slice().sort((a, b) => a.ref.localeCompare(b.ref, undefined, {numeric
 $('partSel').onchange = e => { if (e.target.value){ const pb = partObjs[e.target.value].data.board; if (boardView && !partShown(pb)) applyBoardView(pb); select('part', e.target.value, true); } };
 const HINT = {R: 'resistencia (bandas de color según el valor)', RW: 'resistencia de potencia (shunt de corriente)', CE: 'electrolítico: la franja clara marca la pata −; el + va al nodo de más voltaje', CC: 'capacitor sin polaridad', D: 'diodo: banda clara = cátodo (K)', DZ: 'Zener: la banda es el cátodo (K) y va al lado de más voltaje', LED: 'LED: pata larga = ánodo (A)',
   Q92: 'transistor TO-92: cara plana hacia ti, patas E-B-C de izquierda a derecha', Q126: 'TO-126: cara con texto hacia ti, patas E-C-B de izquierda a derecha', MOS: 'MOSFET TO-220 de nivel lógico con disipador: patas G-D-S de izquierda a derecha, cara con texto hacia ti',
-  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'extremo del cable que va al dispositivo (sensor, motor, interruptor…): entra directo a estos agujeros, sin bornera', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'conector de 4 patas del TCRT5000 (A K = LED IR, C E = fototransistor)', OPTO: 'agujeros donde entran los 4 cables que salen del optointerruptor: A = ánodo (+) y K = cátodo (−) del LED (amarillo); C = colector y E = emisor del fototransistor (azul). Entran directo a estos agujeros', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
+  TRIM: 'trimpot: 1 = extremo, W = cursor, 3 = extremo', BUZZER: 'buzzer activo 12 V: + a vm', TB: 'extremo del cable que va al dispositivo (sensor, motor, interruptor…): entra directo a estos agujeros, sin bornera', HDR: 'punto de union entre placas: poste de alambre soldado', TCRT: 'puntos donde entran los 4 cables del sensor TCRT5000 (el sensor va en la banda): A K = LED IR (naranja), C E = fototransistor (azul)', OPTO: 'agujeros donde entran los 4 cables que salen del optointerruptor: A = ánodo (+) y K = cátodo (−) del LED (amarillo); C = colector y E = emisor del fototransistor (azul). Entran directo a estos agujeros', IC: 'circuito integrado DIP: muesca a la izquierda, pata 1 abajo a la izquierda y se cuenta hacia la derecha'};
 const fx = new THREE.Group(); scene.add(fx);
 const fxTags = [], fxRings = [], glowedWires = []; let tagsOn = true;
 function ringAt(pt, color, r){

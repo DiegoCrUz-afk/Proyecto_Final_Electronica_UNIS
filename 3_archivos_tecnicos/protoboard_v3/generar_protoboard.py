@@ -45,9 +45,9 @@ def canon(bn, x):
 
 datos, zonas, ics = g3.construir_todo()
 parts = [d for d in datos]
-# LED que se enciende cuando el sensor IR detecta un objeto: v5 -> Rlo 470 -> LED -> pn.
+# LED que se enciende cuando el sensor IR detecta un objeto: v5 -> Rlo 680 -> LED -> pn (unos 4.4 mA, VOL de la NAND 0.22 V: dentro de la especificacion del 74HC).
 parts += [
-    dict(ref="LOG.Rlo", blk="LED_OBJ", kind="R", val="470", board="B", x=0, y=0, w=5, h=1,
+    dict(ref="LOG.Rlo", blk="LED_OBJ", kind="R", val="680", board="B", x=0, y=0, w=5, h=1,
          pins=[dict(n="1", net="v5", x=0, y=0), dict(n="2", net="LOG.lo", x=4, y=0)]),
     dict(ref="LOG.Dlo", blk="LED_OBJ", kind="LED", val="LED verde (objeto)", board="B", x=0, y=0, w=2, h=1,
          pins=[dict(n="A", net="LOG.lo", x=0, y=0), dict(n="K", net="LOG.pn", x=1, y=0)]),
@@ -370,6 +370,45 @@ def colocar():
 
 
 colocar()
+
+# electroliticos de 1 uF (lista de compras): cuerpo de 5 mm, mas ancho que el capacitor de pelicula con el que se coloco. Si el cuerpo toca otra pieza,
+# SOLO ese capacitor se vuelve a colocar (el resto no se mueve; las placas A y B no se tocan nunca).
+POLAR_1U = {"LOG.Cpor", "ENC.Cfv", "ENC.Cfv2"}
+PLACAS_LIBRES = {"C", "D", "E"}
+
+
+def quitar_pieza(b, d):
+    area = set(partinfo[d["ref"]].get("area", []))
+    for q in d["pins"]:
+        _, side, col, row = pos.pop((d["ref"], q["n"]))
+        b.cols[(side, row)].discard(col)
+        b.cells.discard((side, col, row))
+        if not b.cols[(side, row)]:
+            b.strip.pop((side, row), None)
+            if (b.name, side, row) in nstr[q["net"]]:
+                nstr[q["net"]].remove((b.name, side, row))
+    for (c, rw) in area:
+        for sd in "LR":
+            b.cells.discard((sd, c, rw)) if (sd == "L") == (c <= 4) else None
+    del partinfo[d["ref"]]
+
+
+for _d in parts:
+    if _d["ref"] in POLAR_1U:
+        _bn = pos[(_d["ref"], _d["pins"][0]["n"])][0]
+        _b = next(x for x in boards if x.name == _bn)
+        _ce = dict(_d, kind="CE")
+        _side, _col = pos[(_d["ref"], _d["pins"][0]["n"])][1:3]
+        _rows = [pos[(_d["ref"], q["n"])][3] for q in _d["pins"]]
+        _f = fp_of(_ce)
+        _propias = set(partinfo[_d["ref"]].get("area", []))
+        _choca = any((_side, c, r) in _b.cells and (c, r) not in _propias
+                     for r in range(min(_rows) - _f["rb"], max(_rows) + _f["ra"] + 1) for c in range(_col - _f["cl"], _col + _f["cr"] + 1))
+        if _choca:
+            assert _bn in PLACAS_LIBRES, ("no se puede mover una pieza de las placas A o B", _d["ref"])
+            quitar_pieza(_b, _d)
+            assert place_free(_b, _ce, 0, ROWS - 1), ("no hay lugar para", _d["ref"])
+            print("recolocado:", _d["ref"], "en la placa", _bn)
 BN = {b.name: b for b in boards}
 
 # ---------------- cables

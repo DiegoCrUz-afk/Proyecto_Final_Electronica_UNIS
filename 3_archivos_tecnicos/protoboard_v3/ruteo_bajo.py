@@ -36,7 +36,7 @@ def tope(p):
     if k == "TRIM":
         return 11.3
     if k == "TCRT":
-        return 6.6
+        return 7.9
     if k == "TB":
         return 7.9
     if k == "OPTO":
