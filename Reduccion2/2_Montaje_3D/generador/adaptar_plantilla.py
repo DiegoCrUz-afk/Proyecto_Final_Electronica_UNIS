@@ -37,8 +37,10 @@ rep("(GND, 5 V, 12 V)", "(GND, 5 V)")
 # ---------- trimpot: tornillo visible (antes quedaba dentro del cuerpo) con ranura, y etiquetas 1 / W / 3 sobre cada pata ----------
 rep("""    const sc = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, .7, 20), mat(0xd6b24a, {metalness: .7, roughness: .35})); sc.position.set(cx, 1 + 9.8, cz); g.add(sc);
     decal(p.val, 8, 2.2, 40, '#fff', cx, 6, cz + 2.4, false);""",
-"""    const sc = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, 1.2, 28), mat(0xd6b24a, {metalness: .7, roughness: .35})); sc.position.set(cx, 11.1, cz); g.add(sc);
-    const ranura = new THREE.Mesh(new THREE.BoxGeometry(4.8, 1.4, .7), mat(0x3a2f10, {roughness: .8})); ranura.position.set(cx, 11.1, cz); g.add(ranura);
+"""    // Bourns 3296W (datasheet): tornillo chico (2.19 mm) en la cara de arriba, a 1.27 mm del extremo del lado de la pata 1 (CCW); pata 2 = cursor W; pata 3 = CW
+    const sgn = pts[0].x < pts[2].x ? -1 : 1, sx = cx + sgn * (P + 2.5 - 1.27);
+    const sc = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, .9, 24), mat(0xd6b24a, {metalness: .7, roughness: .35})); sc.position.set(sx, 10.9, cz); g.add(sc);
+    const ranura = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.0, .5), mat(0x3a2f10, {roughness: .8})); ranura.position.set(sx, 10.9, cz); g.add(ranura);
     decal(p.val, 8, 2.2, 40, '#fff', cx, 8, cz + 2.4, false);
     p.pins.forEach((q, i) => decal(q.n, 2.6, 2.6, 56, q.n === 'W' ? '#ffd24a' : '#ffffff', pts[i].x, 4, pts[i].z + 2.4, false));""")
 
