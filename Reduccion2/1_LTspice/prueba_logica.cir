@@ -1,0 +1,155 @@
+* Reduccion 2 - prueba de la logica (E,G,P,F -> M,N,L) y del pestillo; generado por scripts/gen_logica.py
+.include modelos.inc
+.include sistema.inc
+.include reduccion2.inc
+Vcc v5 0 PWL(0 0 1m 5)
+* P = salida del sensor (0 sin objeto, 5 V con objeto)
+Vp p 0 PWL(0.000000 0 0.150000 0 0.150010 0 0.170000 0 0.170010 5 0.190000 5 0.190010 0 0.210000 0 0.210010 5 0.230000 5 0.230010 0 0.250000 0 0.250010 5 0.270000 5 0.270010 0 0.290000 0 0.290010 5 0.310000 5 0.310010 0 0.350000 0 0.350010 0 0.370000 0 0.370010 5 0.390000 5 0.390010 0 0.410000 0 0.410010 5 0.430000 5 0.430010 0 0.450000 0 0.450010 5 0.470000 5 0.470010 0 0.490000 0 0.490010 5 0.510000 5 0.510010 0)
+* Toggle E y micro-switch G: 5 V -> entrada (control 1 = cerrado)
+Ve ce 0 PWL(0.000000 0 0.150000 0 0.150010 0 0.170000 0 0.170010 0 0.190000 0 0.190010 0 0.210000 0 0.210010 0 0.230000 0 0.230010 1 0.250000 1 0.250010 1 0.270000 1 0.270010 1 0.290000 1 0.290010 1 0.310000 1 0.310010 1 0.350000 1 0.350010 0 0.370000 0 0.370010 0 0.390000 0 0.390010 0 0.410000 0 0.410010 0 0.430000 0 0.430010 1 0.450000 1 0.450010 1 0.470000 1 0.470010 1 0.490000 1 0.490010 1 0.510000 1 0.510010 1)
+Vg cg 0 PWL(0.000000 0 0.150000 0 0.150010 0 0.170000 0 0.170010 0 0.190000 0 0.190010 1 0.210000 1 0.210010 1 0.230000 1 0.230010 0 0.250000 0 0.250010 0 0.270000 0 0.270010 1 0.290000 1 0.290010 1 0.310000 1 0.310010 1 0.350000 1 0.350010 0 0.370000 0 0.370010 0 0.390000 0 0.390010 1 0.410000 1 0.410010 1 0.430000 1 0.430010 0 0.450000 0 0.450010 0 0.470000 0 0.470010 1 0.490000 1 0.490010 1 0.510000 1 0.510010 1)
+Vs cs 0 PWL(0.000000 0 0.310000 0 0.310010 1 0.330000 1 0.330010 0 0.510000 0 0.510010 1 0.560000 1 0.560010 0)
+Vr cr 0 PWL(0.000000 0 0.520000 0 0.520010 1 0.540000 1 0.540010 0 0.600000 0 0.600010 1 0.620000 1 0.620010 0)
+.model SWB SW(Ron=0.1 Roff=1G Vt=0.5 Vh=0.1)
+Se v5 ein ce 0 SWB
+Sg v5 gin cg 0 SWB
+Sr v5 rin cr 0 SWB
+* Pulsador FALLA: setn a GND (10k a 5 V ya esta dentro de LOGICA)
+Sf setn 0 cs 0 SWB
+XL v5 ein gin rin p setn m n l f fn LOGICA_R2
+.tran 0 0.670 0 10u
+.options plotwinsize=0
+.meas tran m_A_000 find V(m) at=0.1680
+.meas tran n_A_000 find V(n) at=0.1680
+.meas tran l_A_000 find V(l) at=0.1680
+.meas tran f_A_000 find V(f) at=0.1680
+.meas tran lo_A_000 find V(xl:lo) at=0.1680
+.meas tran elimpio_A_000 find V(xl:e) at=0.1680
+.meas tran glimpio_A_000 find V(xl:g) at=0.1680
+.meas tran m_A_001 find V(m) at=0.1880
+.meas tran n_A_001 find V(n) at=0.1880
+.meas tran l_A_001 find V(l) at=0.1880
+.meas tran f_A_001 find V(f) at=0.1880
+.meas tran lo_A_001 find V(xl:lo) at=0.1880
+.meas tran elimpio_A_001 find V(xl:e) at=0.1880
+.meas tran glimpio_A_001 find V(xl:g) at=0.1880
+.meas tran m_A_010 find V(m) at=0.2080
+.meas tran n_A_010 find V(n) at=0.2080
+.meas tran l_A_010 find V(l) at=0.2080
+.meas tran f_A_010 find V(f) at=0.2080
+.meas tran lo_A_010 find V(xl:lo) at=0.2080
+.meas tran elimpio_A_010 find V(xl:e) at=0.2080
+.meas tran glimpio_A_010 find V(xl:g) at=0.2080
+.meas tran m_A_011 find V(m) at=0.2280
+.meas tran n_A_011 find V(n) at=0.2280
+.meas tran l_A_011 find V(l) at=0.2280
+.meas tran f_A_011 find V(f) at=0.2280
+.meas tran lo_A_011 find V(xl:lo) at=0.2280
+.meas tran elimpio_A_011 find V(xl:e) at=0.2280
+.meas tran glimpio_A_011 find V(xl:g) at=0.2280
+.meas tran m_A_100 find V(m) at=0.2480
+.meas tran n_A_100 find V(n) at=0.2480
+.meas tran l_A_100 find V(l) at=0.2480
+.meas tran f_A_100 find V(f) at=0.2480
+.meas tran lo_A_100 find V(xl:lo) at=0.2480
+.meas tran elimpio_A_100 find V(xl:e) at=0.2480
+.meas tran glimpio_A_100 find V(xl:g) at=0.2480
+.meas tran m_A_101 find V(m) at=0.2680
+.meas tran n_A_101 find V(n) at=0.2680
+.meas tran l_A_101 find V(l) at=0.2680
+.meas tran f_A_101 find V(f) at=0.2680
+.meas tran lo_A_101 find V(xl:lo) at=0.2680
+.meas tran elimpio_A_101 find V(xl:e) at=0.2680
+.meas tran glimpio_A_101 find V(xl:g) at=0.2680
+.meas tran m_A_110 find V(m) at=0.2880
+.meas tran n_A_110 find V(n) at=0.2880
+.meas tran l_A_110 find V(l) at=0.2880
+.meas tran f_A_110 find V(f) at=0.2880
+.meas tran lo_A_110 find V(xl:lo) at=0.2880
+.meas tran elimpio_A_110 find V(xl:e) at=0.2880
+.meas tran glimpio_A_110 find V(xl:g) at=0.2880
+.meas tran m_A_111 find V(m) at=0.3080
+.meas tran n_A_111 find V(n) at=0.3080
+.meas tran l_A_111 find V(l) at=0.3080
+.meas tran f_A_111 find V(f) at=0.3080
+.meas tran lo_A_111 find V(xl:lo) at=0.3080
+.meas tran elimpio_A_111 find V(xl:e) at=0.3080
+.meas tran glimpio_A_111 find V(xl:g) at=0.3080
+.meas tran m_B_000 find V(m) at=0.3680
+.meas tran n_B_000 find V(n) at=0.3680
+.meas tran l_B_000 find V(l) at=0.3680
+.meas tran f_B_000 find V(f) at=0.3680
+.meas tran lo_B_000 find V(xl:lo) at=0.3680
+.meas tran elimpio_B_000 find V(xl:e) at=0.3680
+.meas tran glimpio_B_000 find V(xl:g) at=0.3680
+.meas tran m_B_001 find V(m) at=0.3880
+.meas tran n_B_001 find V(n) at=0.3880
+.meas tran l_B_001 find V(l) at=0.3880
+.meas tran f_B_001 find V(f) at=0.3880
+.meas tran lo_B_001 find V(xl:lo) at=0.3880
+.meas tran elimpio_B_001 find V(xl:e) at=0.3880
+.meas tran glimpio_B_001 find V(xl:g) at=0.3880
+.meas tran m_B_010 find V(m) at=0.4080
+.meas tran n_B_010 find V(n) at=0.4080
+.meas tran l_B_010 find V(l) at=0.4080
+.meas tran f_B_010 find V(f) at=0.4080
+.meas tran lo_B_010 find V(xl:lo) at=0.4080
+.meas tran elimpio_B_010 find V(xl:e) at=0.4080
+.meas tran glimpio_B_010 find V(xl:g) at=0.4080
+.meas tran m_B_011 find V(m) at=0.4280
+.meas tran n_B_011 find V(n) at=0.4280
+.meas tran l_B_011 find V(l) at=0.4280
+.meas tran f_B_011 find V(f) at=0.4280
+.meas tran lo_B_011 find V(xl:lo) at=0.4280
+.meas tran elimpio_B_011 find V(xl:e) at=0.4280
+.meas tran glimpio_B_011 find V(xl:g) at=0.4280
+.meas tran m_B_100 find V(m) at=0.4480
+.meas tran n_B_100 find V(n) at=0.4480
+.meas tran l_B_100 find V(l) at=0.4480
+.meas tran f_B_100 find V(f) at=0.4480
+.meas tran lo_B_100 find V(xl:lo) at=0.4480
+.meas tran elimpio_B_100 find V(xl:e) at=0.4480
+.meas tran glimpio_B_100 find V(xl:g) at=0.4480
+.meas tran m_B_101 find V(m) at=0.4680
+.meas tran n_B_101 find V(n) at=0.4680
+.meas tran l_B_101 find V(l) at=0.4680
+.meas tran f_B_101 find V(f) at=0.4680
+.meas tran lo_B_101 find V(xl:lo) at=0.4680
+.meas tran elimpio_B_101 find V(xl:e) at=0.4680
+.meas tran glimpio_B_101 find V(xl:g) at=0.4680
+.meas tran m_B_110 find V(m) at=0.4880
+.meas tran n_B_110 find V(n) at=0.4880
+.meas tran l_B_110 find V(l) at=0.4880
+.meas tran f_B_110 find V(f) at=0.4880
+.meas tran lo_B_110 find V(xl:lo) at=0.4880
+.meas tran elimpio_B_110 find V(xl:e) at=0.4880
+.meas tran glimpio_B_110 find V(xl:g) at=0.4880
+.meas tran m_B_111 find V(m) at=0.5080
+.meas tran n_B_111 find V(n) at=0.5080
+.meas tran l_B_111 find V(l) at=0.5080
+.meas tran f_B_111 find V(f) at=0.5080
+.meas tran lo_B_111 find V(xl:lo) at=0.5080
+.meas tran elimpio_B_111 find V(xl:e) at=0.5080
+.meas tran glimpio_B_111 find V(xl:g) at=0.5080
+.meas tran m_L1_FALLA_pulsada find V(m) at=0.5180
+.meas tran f_L1_FALLA_pulsada find V(f) at=0.5180
+.meas tran setn_L1_FALLA_pulsada find V(setn) at=0.5180
+.meas tran fn_L1_FALLA_pulsada find V(fn) at=0.5180
+.meas tran rstlimpio_L1_FALLA_pulsada find V(xl:rst) at=0.5180
+.meas tran m_L2_RESET_con_FALLA_pulsada find V(m) at=0.5380
+.meas tran f_L2_RESET_con_FALLA_pulsada find V(f) at=0.5380
+.meas tran setn_L2_RESET_con_FALLA_pulsada find V(setn) at=0.5380
+.meas tran fn_L2_RESET_con_FALLA_pulsada find V(fn) at=0.5380
+.meas tran rstlimpio_L2_RESET_con_FALLA_pulsada find V(xl:rst) at=0.5380
+.meas tran m_L3_FALLA_suelta_sin_reset find V(m) at=0.5950
+.meas tran f_L3_FALLA_suelta_sin_reset find V(f) at=0.5950
+.meas tran setn_L3_FALLA_suelta_sin_reset find V(setn) at=0.5950
+.meas tran fn_L3_FALLA_suelta_sin_reset find V(fn) at=0.5950
+.meas tran rstlimpio_L3_FALLA_suelta_sin_reset find V(xl:rst) at=0.5950
+.meas tran m_L4_RESET_con_FALLA_suelta find V(m) at=0.6500
+.meas tran f_L4_RESET_con_FALLA_suelta find V(f) at=0.6500
+.meas tran setn_L4_RESET_con_FALLA_suelta find V(setn) at=0.6500
+.meas tran fn_L4_RESET_con_FALLA_suelta find V(fn) at=0.6500
+.save V(xl:lo) V(xl:e) V(xl:g) V(xl:rst) V(setn) V(m) V(n) V(l) V(f) V(fn) V(p) V(ein)
+.meas tran rstlimpio_L4_RESET_con_FALLA_suelta find V(xl:rst) at=0.6500
+.end

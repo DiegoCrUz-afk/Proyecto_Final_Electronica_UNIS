@@ -1,0 +1,36 @@
+* Reduccion 2 - potencia a 5 V (puente MOSFET, barrido Rs). Motor SUPUESTO Ra=12 La=3m Ke=0.035 Tl=0.004 (no es el Steren medido)
+.include modelos.inc
+.include reduccion2.inc
+Vcc v5 0 5
+Cb v5 0 100u
+Cc v5 0 100n
+* m = permiso del motor (74HC08, 0/5 V); n = velocidad normal (0 = objeto)
+Vm m 0 PWL(0 0 0.3 0 0.3001 5 3.9 5 3.9001 0)
+Vn n 0 PWL(0 0 0.3 0 0.3001 5 1.5 5 1.5001 0 2.7 0 2.7001 5)
+Rpd m 0 10k
+M1 ds m 0 0 IRLZ44N_P
+* motor entre 5 V y dm; Rs entre dm y ds; diodo de dm a 5 V
+Lm v5 x 3m
+Rm x n2 12
+Beb n2 dm V=Ke*V(w)
+Dfw dm v5 D1N5819
+Rs dm ds {Rs}
+Mp dm n ds ds IRLZ44N_P
+* mecanica del motor (igual que el original)
+Cw w 0 {J} ic=0
+Bw 0 w I=Ke*I(Lm)-Bfr*V(w)-Tl*tanh(V(w))
+.param Ke=0.035 J=1e-5 Bfr=7.2e-6 Tl=0.004 Rs=1
+.step param Rs list 1 4.7 10 15 22 33 47
+.tran 0 4.2 0 100u
+.options plotwinsize=0
+.save V(w) I(Lm) V(dm) V(ds) V(m) V(n) V(bq)
+.meas tran w_normal find V(w) at=1.4
+.meas tran w_lento find V(w) at=2.6
+.meas tran w_normal2 find V(w) at=3.8
+.meas tran i_normal find I(Lm) at=1.4
+.meas tran i_lento find I(Lm) at=2.6
+.meas tran vds_normal find V(dm) at=1.4
+.meas tran vmotor_lento find V(dm) at=2.6
+.meas tran vpk_gate max V(m)
+.meas tran ipico_arranque max I(Lm) from=0.3 to=0.8
+.end

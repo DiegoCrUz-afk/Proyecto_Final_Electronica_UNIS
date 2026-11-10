@@ -1,0 +1,16 @@
+* Reduccion 2 - sensor IR a 5 V (bloque SENSOR_IR del original). Fototransistor simulado: 2 uA sin objeto, 50 uA con objeto (0.5 a 1.0 s)
+.include modelos.inc
+.include sistema.inc
+Vcc v5 0 5
+Iph v5 b PWL(0 2u 0.5 2u 0.5001 50u 1.0 50u 1.0001 2u)
+Xs v5 b p SENSOR_IR
+.save V(p) V(b) V(xs:c) V(xs:th)
+.tran 0 1.5 0 100u
+.meas tran p_sin_objeto find V(p) at=0.4
+.meas tran p_con_objeto find V(p) at=0.9
+.meas tran vb_sin find V(b) at=0.4
+.meas tran vb_con find V(b) at=0.9
+.meas tran vc_sin find V(xs:c) at=0.4
+.meas tran vc_con find V(xs:c) at=0.9
+.meas tran vth find V(xs:th) at=0.4
+.end

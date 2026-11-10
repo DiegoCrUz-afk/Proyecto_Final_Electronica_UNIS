@@ -1,0 +1,1 @@
+cables: 112 | largo total (agujeros): 3034 | giros totales: 283 | giros por cable: 2.53 | altura maxima (mm): 10.4
