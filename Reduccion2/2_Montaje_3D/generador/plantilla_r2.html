@@ -197,7 +197,7 @@ Object.keys(DATA.dims).forEach(b => {
   body.position.set((xa + xb) / 2, -3, (za + zb) / 2); BG(b).add(body);
   const ch = new THREE.Mesh(new THREE.BoxGeometry(2.2 * P, .2, NR * P), new THREE.MeshBasicMaterial({color: 0xcfcfc4}));
   ch.position.set((o + 5) * P, .1, (NR - 1) / 2 * P); BG(b).add(ch);
-  const cols = LCOL.concat(RCOL), shL = DATA.bx.indexOf(b) > 0, rails = shL ? [12, 13] : [-3, -2, 12, 13], RC = DATA.rails[b], RINFO = {'0': [0x3c58b8, 'GND', '#243d8a', 0x111111], 'v5': [0xd94141, '+5 V', '#b71c1c', 0xd32f2f], 'vm': [0xff8f00, '+12 V', '#c25a00', 0xff8f00]};
+  const cols = LCOL.concat(RCOL), shL = DATA.bx.indexOf(b) > 0, rails = [-3, -2, 12, 13], RC = DATA.rails[b], RINFO = {'0': [0x3c58b8, 'GND', '#243d8a', 0x111111], 'v5': [0xd94141, '+5 V', '#b71c1c', 0xd32f2f], 'vm': [0xff8f00, '+12 V', '#c25a00', 0xff8f00]};
   const im = new THREE.InstancedMesh(new THREE.BoxGeometry(.9, .25, .9), new THREE.MeshBasicMaterial({color: 0x56564e}), 63 * (cols.length + 4));
   const M = new THREE.Matrix4(); let k = 0;
   for (let r = 0; r < NR; r++){ cols.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); if (r % 6 !== 5) rails.forEach(c => { M.setPosition((o + c) * P, .12, r * P); im.setMatrixAt(k++, M); }); }
@@ -214,7 +214,7 @@ Object.keys(DATA.dims).forEach(b => {
     const x = (o + c) * P, cv = new THREE.QuadraticBezierCurve3(V3(x, .3, 28 * P), V3(x, 8, 29 * P), V3(x, .3, 30 * P));
     BG(b).add(new THREE.Mesh(new THREE.TubeGeometry(cv, 16, .55, 8, false), mat(col)));
   });
-  (shL ? [12.5] : [-2.5, 12.5]).forEach(cx => { const cut = new THREE.Mesh(new THREE.BoxGeometry(2.7 * P, .12, .9), new THREE.MeshBasicMaterial({color: 0xf4f4ee})); cut.position.set((o + cx) * P, .22, 29 * P); BG(b).add(cut); });
+  [-2.5, 12.5].forEach(cx => { const cut = new THREE.Mesh(new THREE.BoxGeometry(2.7 * P, .12, .9), new THREE.MeshBasicMaterial({color: 0xf4f4ee})); cut.position.set((o + cx) * P, .22, 29 * P); BG(b).add(cut); });
   GA(b, flatText(DATA.titles[b], (xa + xb) / 2, (NR + 2.3) * P, 12 * P, 1.6 * P, '#333', true));
 });
 DATA.zones.forEach(z => {

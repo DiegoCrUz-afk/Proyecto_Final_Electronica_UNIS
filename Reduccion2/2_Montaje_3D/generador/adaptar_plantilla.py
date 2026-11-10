@@ -22,6 +22,9 @@ def rep(a, b):
 
 
 # ---------- texto ----------
+rep('rails = shL ? [12, 13] : [-3, -2, 12, 13]', 'rails = [-3, -2, 12, 13]')      # cada placa dibuja sus 2 pares de rieles (el de en medio se repite en la misma posicion)
+rep('(shL ? [12.5] : [-2.5, 12.5]).forEach', '[-2.5, 12.5].forEach')
+
 rep("decal('0.5 Ω 5 W',", "decal(String(p.val).replace(/ \(ajustar\)/, ''),")      # la resistencia de potencia dice su valor real
 
 rep(": 'Suelda ' + p.short", ": 'Coloca ' + p.short")        # en protoboard no se suelda
