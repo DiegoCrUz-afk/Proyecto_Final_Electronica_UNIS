@@ -32,7 +32,7 @@ def placa(spec):
 
 
 TIT = {b: D["blocks"][b]["title"] for b in D["med"]}
-PLACA = {"ALIM": "A", "SENSOR_IR": "B", "ENTRADAS": "B", "PESTILLO": "C", "LOGICA": "C", "POTENCIA": "A", "LED_ROJO": "A"}
+PLACA = {"ALIM": "A", "SENSOR_IR": "B", "ENTRADAS": "B", "PESTILLO": "C", "LOGICA": "C", "POTENCIA": "A", "LED_ROJO": "A", "BUZZER": "A"}
 L = ["# Guía de pruebas · Reducción 2 (5 V)", "",
      "**Regla:** al terminar de armar cada bloque haces SUS pruebas, una a una, de la primera a la última. Si una no pasa, **no avances al siguiente bloque**. Son las mismas pruebas que el *Modo medición* del 3D (`2_Montaje_3D/Protoboards_3D_reduccion2.html`).", "",
      "- Los valores esperados salen de **simulación en LTspice** o del **diseño original**, y cada prueba dice cuál. **No son mediciones de la máquina.** Lo que dice *a medir* aún no tiene valor.",

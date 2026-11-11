@@ -11,8 +11,8 @@ import generar_montaje3d as g
 D = json.load(open(os.path.join(AQUI, "datos_r2.json"), encoding="utf-8"))
 parts = {p["ref"]: p for p in D["parts"]}
 GLOB = {"0", "v5", "b", "p", "setn", "m", "n", "l", "f", "fn", "ein", "gin", "rin", "dm", "ds"}
-HOJAS = {"BLOQUE_SENSOR_IR": "SEN", "BLOQUE_LOGICA": "LOG", "BLOQUE_POTENCIA_R2": "POT"}
-RENOMBRAR = {"Rl": "ALA.Rl", "Dl": "ALA.Dl", "Cin": "ENT.Cin"}
+HOJAS = {"BLOQUE_SENSOR_IR": "SEN", "BLOQUE_LOGICA": "LOG", "BLOQUE_POTENCIA_R2": "POT", "BLOQUE_BUZZER": "BZ"}
+RENOMBRAR = {"Rz": "BZ.Z", "Rl": "ALA.Rl", "Dl": "ALA.Dl", "Cin": "ENT.Cin"}
 SIM = {"R", "C", "RW", "CC", "CE"}          # piezas sin orden de patas (R, C) -> se prueban las 2 alineaciones
 
 

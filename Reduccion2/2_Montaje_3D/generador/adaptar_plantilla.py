@@ -44,6 +44,23 @@ rep("""    const sc = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, .7, 20
     decal(p.val, 8, 2.2, 40, '#fff', cx, 8, cz + 2.4, false);
     p.pins.forEach((q, i) => decal(q.n, 2.6, 2.6, 56, q.n === 'W' ? '#ffd24a' : '#ffffff', pts[i].x, 4, pts[i].z + 2.4, false));""")
 
+# ---------- TCRT5000 dibujado como es (Vishay 83760, p.4): cuerpo 10.2 x 5.8, lente del fototransistor (Coll/E) y del LED (A/Cath), 4 patas en esquinas ----------
+rep("""  const tc = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 12), mat(0x151515)); tc.position.set(sx, 54, bz); g.add(tc); SOBJ.tc = tc;
+  ['A', 'K', 'C', 'E'].forEach((t, i) => term('TCRT', t, V3(sx + (i - 1.5) * 4, 62, bz - 6), i < 2 ? 0xffb454 : 0x4da3ff));
+  label(['TCRT5000', 'sensor IR (A K = LED · C E = fototransistor)'], V3(sx, 86, bz - 6), 62);""",
+"""  // ampliado 2.2x. El sensor mira hacia abajo (lentes hacia la banda) y se ve por el lado de las patas.
+  const KT = 2.2, tcy = 54;
+  const tc = new THREE.Mesh(new THREE.BoxGeometry(10.2 * KT, 3.5 * KT, 5.8 * KT), mat(0x151515)); tc.position.set(sx, tcy, bz); g.add(tc); SOBJ.tc = tc;
+  [[-2.75, 0xffffff, 0x4da3ff], [2.75, 0xffffff, 0xffb454]].forEach(a => { const ln = new THREE.Mesh(new THREE.CylinderGeometry(1.25 * KT, 1.25 * KT, 2.6 * KT, 24), mat(a[2], {roughness: .4})); ln.position.set(sx + a[0] * KT, tcy - 3.0 * KT, bz); g.add(ln); });
+  // patas segun el footprint del datasheet: Coll. y A en una fila; E y Cath. en la otra (separacion 2.54 mm entre filas)
+  [['C', -2.75, 1.27, 0x4da3ff], ['A', 2.75, 1.27, 0xffb454], ['E', -2.325, -1.27, 0x4da3ff], ['K', 2.325, -1.27, 0xffb454]].forEach(a => {
+    const lx = sx + a[1] * KT, lz = bz + a[2] * KT;
+    const lg = new THREE.Mesh(new THREE.CylinderGeometry(.45 * KT, .45 * KT, 8 * KT / 2.2 * 1.0 + 4, 10), mat(0xc9ced4, {metalness: .8, roughness: .3})); lg.position.set(lx, tcy + 1.75 * KT + 6, lz); g.add(lg);
+    term('TCRT', a[0], V3(lx, tcy + 1.75 * KT + 12, lz), a[3]);
+    label([a[0]], V3(lx, tcy + 1.75 * KT + 19, lz), 9);
+  });
+  label(['TCRT5000', 'lente azul = fototransistor (C, E) · naranja = LED (A, K)'], V3(sx, 92, bz - 6), 78);""")
+
 # ---------- panel: se quitan simulacion, 'que medir' generico, resaltar red y 'Mostrar' (los controles quedan ocultos para que el codigo siga andando) ----------
 cut('<div class="sec"><h2>Funcionamiento (simulación)</h2>', '<div class="sec"><h2>Moverte</h2>')
 cut('<div class="sec"><h2>Qué medir (multímetro / osciloscopio)</h2>', '<div class="sec"><h2>Buscar pieza</h2>')
@@ -89,6 +106,7 @@ rep("""  let h = head + '<div class="hint">Medición ' + (medK + 1) + ' de ' + i
   let h = head + '<div class="hint">Medición ' + (medK + 1) + ' de ' + ids.length + '</div><div style="margin:6px 0"><b>' + m.t + '</b></div>' +
     '<div style="margin:6px 0;padding:6px 8px;border-left:3px solid #ff5a4d;background:#1d2530"><b style="color:#ff5a4d">ROJO</b> en ' + po0.data.short + ' pata ' + q0.n + ' (' + holeName(po0.data, q0) + ') · <b>NEGRO</b> en ' + negS + ' → <b>' + m.exp.split(';')[0] + '</b></div><div class="hint">' + m.mode + '</div>' +""")
 rep("neg = 'la barra de <b>GND</b>", "neg = 'la barra de <b>GND</b>") if False else None
+rep("BUZZER: 'buzzer activo 12 V: + a vm'", "BUZZER: 'buzzer activo (de 12 V; aquí se usa a 5 V): la pata + va a 5 V y la otra al colector del 2N3904'")
 # ---------- pruebas con 6 campos (Reduccion 2) ----------
 js = open(os.path.join(AQUI, "medicion_r2.js"), encoding="utf-8").read()
 rep("// ---------- vistas ----------", js + chr(10) + "// ---------- vistas ----------")

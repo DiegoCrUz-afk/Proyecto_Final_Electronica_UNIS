@@ -18,11 +18,11 @@ El netlist (`verificacion_conexiones/circuito_desde_3D.cir`) se genera **solo** 
 | Situación | p (sensor) | M | N | F | LED objeto (V) | LED rojo (V) | Velocidad (rpm) |
 |---|---|---|---|---|---|---|---|
 | Normal (E=1, G=1, sin objeto) | 0.03 | 4.98 | 4.80 | 0.00 | 5.00 | 0.00 | 898 |
-| Con objeto | 4.93 | 4.98 | -0.00 | 0.00 | 2.00 | 0.00 | 469 |
+| Con objeto | 4.93 | 4.98 | 0.00 | 0.00 | 2.00 | 0.00 | 469 |
 | Objeto retirado | 0.03 | 4.98 | 4.80 | 0.00 | 5.00 | 0.00 | 897 |
-| Cubierta abierta (G=0) | 0.03 | 0.00 | 0.00 | 0.00 | 5.00 | 0.00 | 151 |
-| Falla guardada (FALLA pulsada y soltada) | 0.03 | 0.00 | 0.00 | 4.69 | 5.00 | 1.81 | 0 |
-| Después de RESET | 0.03 | 4.98 | 4.80 | -0.00 | 5.00 | -0.00 | 897 |
+| Cubierta abierta (G=0) | 0.03 | -0.00 | -0.00 | 0.00 | 5.00 | 0.00 | 151 |
+| Falla guardada (FALLA pulsada y soltada) | 0.03 | 0.00 | 0.00 | 4.65 | 5.00 | 1.80 | 0 |
+| Después de RESET | 0.03 | 4.98 | 4.80 | 0.00 | 5.00 | 0.00 | 897 |
 
 | Comprobación | Resultado |
 |---|---|

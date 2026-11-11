@@ -23,6 +23,13 @@ Las pruebas que citan una simulación se comparan con los .log actuales. Lo marc
 | m_dm | prueba_potencia_Rs15_bjt · vdm_parado | 5 | 4.9 a 5.1 | OK |
 | m_dm | prueba_potencia_Rs15_bjt · vce_normal | 0.09602 | 0.08 a 0.12 | OK |
 | m_rs | prueba_potencia_Rs15_bjt · vrs_lento | 1.857 | 1.7 a 2 | OK |
+| m_bz_sin | prueba_buzzer · vc_sin | 5 | 4.95 a 5.05 | OK |
+| m_bz_vb | prueba_buzzer · vb_con | 0.746 | 0.68 a 0.8 | OK |
+| m_bz_vb | prueba_buzzer · vb_sin | 2.376e-08 | -0.01 a 0.01 | OK |
+| m_bz_rb | prueba_buzzer · vrb_con | 3.909 | 3.5 a 4.2 | OK |
+| m_bz_rb | prueba_buzzer · vrb_peor | 2.92 | 2.8 a 3.1 | OK |
+| m_bz_vbz | prueba_buzzer · vbz_con | 4.953 | 4.85 a 5 | OK |
+| m_bz_vbz | prueba_buzzer · vbz_peor | 4.943 | 4.85 a 5 | OK |
 | lógica (16 combinaciones + pestillo + LED) | prueba_logica | ver resultado_logica.md | 0 errores | OK |
 | E y G limpios (U11) | prueba_logica | 16 combinaciones | = lo aplicado | OK |
 | RST limpio (U11) | prueba_logica | 5.00 V pulsado / 0.005 V suelto | 5 V / 0 V | OK |

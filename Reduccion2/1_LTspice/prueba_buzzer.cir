@@ -1,0 +1,53 @@
+* Reduccion 2 - buzzer de falla: 2N3904 como interruptor, manejado por la senal f (la misma que enciende el LED rojo).
+* El buzzer real (activo, magnetico, de 12 V) NO tiene corriente conocida a 5 V: aqui es una resistencia SUPUESTA (400 ohm = 12.5 mA; 200 ohm = 25 mA). A MEDIR con el multimetro.
+* f (salida del 74HC00) se modela como fuente con resistencia de salida; el LED rojo (470 ohm) cuelga de f como en la placa A.
+* Caso 1: F = 0 (f = 0 V).  Caso 2: F = 1 tipico (Rout 50 ohm).  Caso 3: F = 1 peor caso (VOH minimo del 74HC: 3.84 V a 4 mA -> Rout 290 ohm) con hFE = 100.
+.include modelos.inc
+.param RBZ=400
+Vcc v5 0 5
+* ---- caso 1: sin falla ----
+Vf1 fs1 0 0
+Rs1 fs1 f1 50
+Rl1 f1 a1 470
+Dl1 a1 0 DLED
+Rb1 f1 b1 4.7k
+Q1 c1 b1 0 Q2N3904
+Rz1 v5 c1 {RBZ}
+Dp1 c1 v5 D1N4148
+* ---- caso 2: con falla, 74HC tipico ----
+Vf2 fs2 0 5
+Rs2 fs2 f2 50
+Rl2 f2 a2 470
+Dl2 a2 0 DLED
+Rb2 f2 b2 4.7k
+Q2 c2 b2 0 Q2N3904
+Rz2 v5 c2 {RBZ}
+Dp2 c2 v5 D1N4148
+* ---- caso 3: con falla, peor caso (hFE 100, VOH minimo) ----
+Vf3 fs3 0 5
+Rs3 fs3 f3 290
+Rl3 f3 a3 470
+Dl3 a3 0 DLED
+Rb3 f3 b3 4.7k
+Q3 c3 b3 0 QPEOR
+Rz3 v5 c3 {RBZ}
+Dp3 c3 v5 D1N4148
+.model QPEOR NPN(IS=1E-14 VAF=100 Bf=100 IKF=0.4 BR=4 RB=20 RC=0.1 RE=0.1)
+.save V(v5) I(Rz2) I(Rz3) V(f1) V(b1) V(c1) V(f2) V(b2) V(c2) V(f3) V(b3) V(c3)
+.tran 0 1m 0 10u
+.meas tran vf_sin find V(f1) at=0.9m
+.meas tran vb_sin find V(b1) at=0.9m
+.meas tran vc_sin find V(c1) at=0.9m
+.meas tran vf_con find V(f2) at=0.9m
+.meas tran vb_con find V(b2) at=0.9m
+.meas tran vc_con find V(c2) at=0.9m
+.meas tran vrb_con find V(f2)-V(b2) at=0.9m
+.meas tran ic_con find I(Rz2) at=0.9m
+.meas tran vbz_con find V(v5)-V(c2) at=0.9m
+.meas tran vf_peor find V(f3) at=0.9m
+.meas tran vb_peor find V(b3) at=0.9m
+.meas tran vc_peor find V(c3) at=0.9m
+.meas tran vrb_peor find V(f3)-V(b3) at=0.9m
+.meas tran ic_peor find I(Rz3) at=0.9m
+.meas tran vbz_peor find V(v5)-V(c3) at=0.9m
+.end

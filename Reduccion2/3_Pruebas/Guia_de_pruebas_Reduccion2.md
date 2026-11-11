@@ -744,6 +744,131 @@
   3. Con la simulación (motor supuesto): 10 Ω da 66 %, 15 Ω da 50 % y 22 Ω da 29 %; con el motor real saldrá distinto.
 - **Medido:** ________
 
+## 7 Buzzer de falla (alarma acústica)  (placa A)
+
+### Prueba 41 · Resistencia entre 5 V y GND (sin energía)
+
+- **Qué estamos midiendo:** La resistencia entre 5 V y GND de este bloque, con la fuente desconectada.
+- **Para qué sirve:** Detecta un corto (5 V pegado a GND) antes de encender y dañar algo.
+- **Antes de medir:** Fuente de 5 V DESCONECTADA. El bloque recién armado. Placa A: buzzer, 2N3904, 4.7 kΩ y diodo ya puestos. El buzzer es magnético: puede marcar poco al principio mientras el multímetro lo carga; espera a que se estabilice.
+- **Modo del multímetro:** Ω (resistencia)
+- **Punta ROJA (+):** Dz pata K (**A-C17**)
+- **Punta NEGRA (−):** riel azul (−, GND) de la placa A, agujero **A-riel GND izq fila 61**
+- **Debe dar:** Mayor de 1 kΩ (no cerca de 0 Ω). Valor exacto: a medir (anótalo).
+- **De dónde sale el valor:** regla de seguridad; valor exacto a medir
+- **Si no da, revisa en este orden:**
+  1. Cerca de 0 Ω: hay un corto. NO conectes la fuente.
+  2. Revisa la polaridad de los electrolíticos y de los LED, y que ningún chip esté al revés (muesca).
+  3. Busca un cable que una 5 V con GND y quita las piezas del bloque una por una hasta que la resistencia suba.
+- **Medido:** ________
+
+### Prueba 42 · Colector del 2N3904 sin falla (buzzer en silencio)
+
+- **Qué estamos midiendo:** El voltaje entre el colector y el emisor del 2N3904 del buzzer.
+- **Para qué sirve:** Confirma que sin falla el transistor está apagado y el buzzer no suena.
+- **Antes de medir:** Fuente conectada. Cubierta cerrada y sin pulsar FALLA (F = 0). Buzzer en silencio.
+- **Modo del multímetro:** V DC
+- **Punta ROJA (+):** Qz pata C (**A-D21**)
+- **Punta NEGRA (−):** Qz pata E (**A-D23**)
+- **Debe dar:** ≈ 5 V (entre 4.8 y 5.1 V)
+
+| Condición | Valor esperado |
+|---|---|
+| Sin falla (F = 0) | ≈ 5 V |
+| Con falla guardada (F = 1) | 0.05 a 0.3 V (a medir) |
+- **De dónde sale el valor:** simulación LTspice (prueba_buzzer.cir) con buzzer SUPUESTO de 400 Ω (12.5 mA); el buzzer real: a medir
+- **NO validado todavía:** depende del buzzer real.
+- **Si no da, revisa en este orden:**
+  1. Cerca de 0 V y suena: F = 1 (revisa el pestillo, bloque 3) o la base está pegada a 5 V o a f sin la resistencia de 4.7 kΩ.
+  2. Marca 0 V y no suena: el colector no llega al buzzer (revisa el cable entre las filas del colector y del buzzer) o el buzzer está al revés/abierto.
+  3. Entre 1 y 4 V: el transistor conduce a medias; revisa que la base no toque otra fila.
+- **Medido:** ________
+
+### Prueba 43 · Base del 2N3904 del buzzer
+
+- **Qué estamos midiendo:** El voltaje entre la base y el emisor del 2N3904 del buzzer.
+- **Para qué sirve:** Confirma que f llega a la base por la resistencia de 4.7 kΩ y que el transistor conduce con falla.
+- **Antes de medir:** Fuente conectada. Mide sin falla y luego con falla guardada (pulsa FALLA y suelta).
+- **Modo del multímetro:** V DC
+- **Punta ROJA (+):** Qz pata B (**A-D22**)
+- **Punta NEGRA (−):** Qz pata E (**A-D23**)
+- **Debe dar:** Ver tabla
+
+| Condición | Valor esperado |
+|---|---|
+| Sin falla (F = 0) | ≈ 0 V (menos de 0.1 V) |
+| Con falla guardada (F = 1) | 0.65 a 0.85 V |
+- **De dónde sale el valor:** simulación LTspice (prueba_buzzer.cir) con buzzer SUPUESTO de 400 Ω (12.5 mA); el buzzer real: a medir
+- **NO validado todavía:** depende del buzzer real.
+- **Si no da, revisa en este orden:**
+  1. Con falla marca 0 V: la resistencia de 4.7 kΩ no llega a f (revisa el cable de f) o la base está en otra fila.
+  2. Con falla marca más de 0.9 V: la resistencia o el transistor están mal (¿patas E-B-C al revés?).
+  3. Sin falla marca más de 0.1 V: f no baja a 0 V; revisa el pestillo.
+- **Medido:** ________
+
+### Prueba 44 · Caída en la resistencia de base de 4.7 kΩ
+
+- **Qué estamos midiendo:** El voltaje entre los dos extremos de la resistencia de 4.7 kΩ (la corriente de base es ese voltaje entre 4.7 kΩ).
+- **Para qué sirve:** Da la corriente de base real: debe ser suficiente para saturar el transistor.
+- **Antes de medir:** Fuente conectada. Falla guardada (pulsa FALLA y suelta).
+- **Modo del multímetro:** V DC
+- **Punta ROJA (+):** Rbz pata 1 (**A-B22**)
+- **Punta NEGRA (−):** Rbz pata 2 (**A-B18**)
+- **Debe dar:** 2.9 a 4.2 V (corriente de base de 0.6 a 0.9 mA)
+- **De dónde sale el valor:** simulación LTspice (prueba_buzzer.cir) con buzzer SUPUESTO de 400 Ω (12.5 mA); el buzzer real: a medir
+- **NO validado todavía:** depende del buzzer real.
+- **Si no da, revisa en este orden:**
+  1. Casi 0 V: no pasa corriente por la base (transistor abierto o resistencia mal puesta).
+  2. Menos de 2.9 V: f está débil; revisa que el LED rojo y el 74HC00 no estén sobrecargados.
+  3. Calcula Ib = voltaje / 4700; para un buzzer de 12.5 mA con ganancia 100 basta 0.13 mA.
+- **Medido:** ________
+
+### Prueba 45 · 5 V en el buzzer con falla
+
+- **Qué estamos midiendo:** El voltaje que recibe el buzzer (entre sus dos patas).
+- **Para qué sirve:** Confirma que, con falla, el buzzer recibe casi los 5 V completos y suena.
+- **Antes de medir:** Fuente conectada. Mide sin falla y con falla guardada.
+- **Modo del multímetro:** V DC
+- **Punta ROJA (+):** Buzzer pata + (**A-A1**)
+- **Punta NEGRA (−):** Buzzer pata - (**A-A4**)
+- **Debe dar:** Ver tabla
+
+| Condición | Valor esperado |
+|---|---|
+| Sin falla (F = 0) | ≈ 0 V (menos de 0.3 V) |
+| Con falla guardada (F = 1) | ≈ 4.9 V (4.5 a 5 V; a medir) |
+- **De dónde sale el valor:** simulación LTspice (prueba_buzzer.cir) con buzzer SUPUESTO de 400 Ω (12.5 mA); el buzzer real: a medir
+- **NO validado todavía:** depende del buzzer real.
+- **Si no da, revisa en este orden:**
+  1. Con falla marca poco (menos de 4.5 V): el transistor no satura; revisa la prueba de la base y la caída en 4.7 kΩ.
+  2. Con falla marca 5 V y no suena: el buzzer está al revés (la pata + o la marcada va a 5 V) o está dañado: pruébalo directo a 5 V.
+  3. Sin falla marca más de 0.3 V: hay fuga por el transistor; revisa que la base no toque otra fila.
+- **Medido:** ________
+
+### Prueba 46 · El buzzer suena con la falla y se apaga con RESET
+
+- **Qué estamos midiendo:** Si el buzzer suena exactamente cuando enciende el LED rojo.
+- **Para qué sirve:** Es la alarma acústica que pide el enunciado, ligada a la misma señal f del LED rojo.
+- **Antes de medir:** Fuente conectada. Cubierta cerrada y E en 1.
+- **Modo del multímetro:** oído
+- **Punta ROJA (+):** no se mide con multímetro: se escucha
+- **Punta NEGRA (−):** oído (y el LED rojo como referencia)
+- **Debe dar:** Suena con falla guardada y se apaga con RESET (ver tabla)
+
+| Condición | Valor esperado |
+|---|---|
+| Sin falla | silencio, LED rojo apagado |
+| Pulso FALLA | suena, LED rojo enciende, motor parado |
+| Suelto FALLA | sigue sonando (falla guardada) |
+| RESET con FALLA suelta | se apaga el buzzer y el LED rojo |
+- **De dónde sale el valor:** lógica del pestillo (simulada en 1_LTspice/resultado_logica.md); el sonido del buzzer real: a medir
+- **NO validado todavía:** depende del buzzer real.
+- **Si no da, revisa en este orden:**
+  1. Suena al encender sin pulsar nada: el reset automático no limpió F; revisa el pestillo (bloque 3).
+  2. Suena al soltar FALLA y deja de sonar solo: el pestillo no guarda; revisa el bloque 3.
+  3. No se apaga con RESET: suelta FALLA antes de pulsar RESET (con FALLA pulsada el RESET no limpia).
+- **Medido:** ________
+
 ## Cables a los dispositivos externos (se confirman con multímetro, no se dan por hechos)
 
 | Dispositivo | Pata del dispositivo | Agujero | Red |
