@@ -1,0 +1,22 @@
+MAQUETA DE LA BANDA - piezas de CARTON de 1.0 mm (0.1 cm). Archivos en CENTIMETROS.
+Capas: CORTE (rojo) = cortar; ETIQUETA (azul) = cotas y textos, NO cortar.
+
+PIEZAS A CORTAR
+  placa_base         cortar x1     31.00 x 17.70 cm   Placa base
+  lateral            cortar x2     28.00 x  6.50 cm   Lateral (2 iguales)
+  travesano          cortar x3     13.20 x  0.60 cm   Travesano (3)
+  pared_motor        cortar x2      2.70 x  4.40 cm   Pared del soporte del motor (2)
+  piso_motor         cortar x1      2.70 x  1.44 cm   Piso del soporte del motor (1)
+  calza_opto         cortar x8      1.20 x  1.00 cm   Calza del pedestal del opto (8)
+  pinon              cortar x3      2.19 x  2.19 cm   Pinon 12 dientes, modulo 1.5 (3 capas)
+  rueda              cortar x3      5.61 x  5.61 cm   Rueda 36 dientes, modulo 1.5 (3 capas)
+  disco_encoder      cortar x2      5.00 x  5.00 cm   Disco del encoder, 20 ranuras (2)
+  tapa_tubo_20mm     cortar x12     1.60 x  1.60 cm   Tapa para tubo de 20 mm (12)
+  tapa_tubo_30mm     cortar x12     2.60 x  2.60 cm   Tapa para tubo de 30 mm (12)
+  tapa_tubo_40mm     cortar x12     3.60 x  3.60 cm   Tapa para tubo de 40 mm (12)
+
+OTROS MATERIALES (no se cortan)
+  Palillo del rodillo 1 (el del engrane): diametro 6 mm, largo minimo 148 mm (14.8 cm)
+  Palillo del rodillo 2: diametro 6 mm, largo minimo 136 mm (13.6 cm)
+  2 tubos del mismo diametro, de 20 a 40 mm, y de 120 mm de largo; banda de 250 x 120 mm
+  Motor: cuerpo de 12 x 10 x 25 mm + eje de 10 mm (redondo de 4 mm con un plano a 3 mm)

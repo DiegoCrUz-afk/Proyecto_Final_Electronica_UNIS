@@ -1,0 +1,38 @@
+MEMORIA DE MEDIDAS Y COMPROBACIONES (todo en mm salvo que se diga otra cosa)
+
+Sistema: x = largo de la banda (0 = extremo trasero de los laterales); y = ancho (0 = cara exterior del lateral del motor; hacia afuera es negativo); z = altura sobre la mesa.
+
+DECISIONES DE DISENO
+- Altura de los ejes (palillos y eje del motor): 36 mm sobre la mesa = 35 mm sobre el borde inferior del lateral. La rueda grande (radio 28.05 mm) queda a 7.95 mm de la mesa.
+- Laterales de 280 x 64 mm. Rodillo 1 (el del engrane) a 25 mm del extremo. El rodillo 2 va en una RANURA (centros de 235 a 255 mm) para tubos de 2 a 4 cm con banda de 25 cm.
+- Engranes: modulo 1.5, 20 grados, perfil de evolvente. Pinon de 12 dientes con desplazamiento +0.3 y rueda de 36 con -0.3 (un pinon de 12 sin desplazamiento se socava). Distancia entre centros 36.0 mm. Radio exterior: pinon 10.95 mm, rueda 28.05 mm (2.81 cm). Cada diente se rebajo 0.1 mm para dar juego al carton y al pegamento.
+- El motor va DETRAS del rodillo 1, a la misma altura, con el eje apuntando al lateral. Pinon y rueda en la misma capa (a 5-8 mm del lateral), disco del encoder en el eje del motor (10-12 mm), cara del motor a 14 mm y paredes del soporte desde 13 mm: nada se cruza.
+- Cada engrane va en 3 capas pegadas (3 mm de carton). El disco del encoder en 2 capas.
+- El soporte del motor es una cuna: 2 paredes + un piso, con pestanas que entran en la base. El piso deja el motor apoyado a 31 mm, con su eje a 36 mm.
+
+COMPROBACIONES (las calcula el programa que dibuja las piezas)
+  [OK] Rueda grande: radio exterior 28.05 mm (2.81 cm); punto mas bajo a 7.95 mm de la mesa (minimo 5)
+  [OK] Rueda grande sobre la base (1 mm): holgura 6.95 mm
+  [OK] Tubo de 40 mm: parte baja a 16.0 mm de la mesa
+  [OK] Cara superior de la banda con tubo de 4 cm: 57.0 mm; tope del lateral: 65.0 mm
+  [OK] Travesano: su parte baja (59.0 mm) queda sobre la banda (57.0 mm)
+  [OK] Ranura del rodillo 2: centros de 235 a 255 mm = tubos de 4 a 2 cm con banda de 250 mm
+  [OK] Tubo de 4 cm en el rodillo 1 cabe en el lateral (sobra 5.0 mm atras)
+  [OK] Engranes: centros a 36.0 mm (= modulo x (12+36)/2); huella minima entre bordes 0.094 mm; solapes en 48 posiciones: 0
+  [OK] Raiz de la rueda libre de la punta del pinon: 0.38 mm
+  [OK] Eje del motor a la MISMA altura que los palillos (36 mm) y a 36 mm detras del rodillo 1
+  [OK] Eje del motor: punta a 4 mm del lateral; pinon entre 5 y 8 mm cabe en el eje de 10 mm (de 4 a 14)
+  [OK] Disco del encoder (radio 25): parte baja a 11 mm de la mesa; no toca el palillo del rodillo 1 (separacion 8 mm)
+  [OK] Capas: engranes d=5-8, disco d=10-12, paredes del soporte desde d=13: sin choques entre capas
+  [OK] Motor 12 x 10 mm entra en la cuna de 12.4 mm; piso a 31 mm: motor apoyado a 31 mm y eje a 36 mm
+  [OK] Paredes (hasta 44 mm) pasan el tope del motor (41 mm)
+  [OK] La base cubre el soporte: x desde -30 (pared en -18.2) y hacia afuera 45 mm (motor hasta 40)
+  [OK] Pedestal del opto: 8 calzas de 1 mm -> ranura a 17 mm (= eje 36 - radio 19)
+
+SUPUESTOS QUE HAY QUE CONFIRMAR
+- Eje del motor: redondo de 4 mm con un plano a 3 mm (asi interprete '4 mm' y '3 mm'). Si es otro, cambia el agujero en D del pinon y del disco.
+- El eje del motor sale por el centro de la cara de 12 x 10 mm.
+- Pared de los tubos supuesta de 2 mm por lado: las tapas miden el diametro del tubo menos 4 mm. Mide el diametro INTERIOR del tubo y ajusta la tapa si hace falta.
+- Opto ranurado: sin medir. Se supone 8 mm de la base a la ranura, 10 mm de ancho y ranura de 4 mm o mas. El pedestal de 8 calzas pone la ranura a 17 mm de la mesa; si tu opto es distinto, cambia el numero de calzas.
+- Ancho de corte del laser: no medido (se usa 0). Si el laser quita 0.2 mm por lado, los agujeros salen mas grandes y las piezas mas chicas.
+- Grosor del carton: se uso 1.0 mm. Si el carton real mide otro valor cambian las ranuras y las pestanas.

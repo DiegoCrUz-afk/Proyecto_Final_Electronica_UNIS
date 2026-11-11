@@ -26,6 +26,7 @@ select{width:100%}
 .legend i{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid #fff6}
 .legend span.on{background:#3d4d5d;border-color:var(--acc)}
 #info{font-size:13px}
+#medBox table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0}#medBox td{border-top:1px solid var(--line);padding:3px 4px;vertical-align:top}.okc{color:#4caf50;font-weight:700}.bdc{color:#ff7043;font-weight:700}#medBlocks button.done{border-color:#4caf50}#medBlocks button.fail{border-color:#ff7043}
 #blkInfo table{border-collapse:collapse;width:100%;margin-top:5px;font-size:12.5px}#blkInfo td,#blkInfo th{border-top:1px solid var(--line);padding:3px 4px;text-align:left;font-weight:normal;vertical-align:top}#blkInfo th{color:var(--mut);font-size:11px}
 #info table{border-collapse:collapse;width:100%;margin-top:5px}
 #info td,#info th{border-top:1px solid var(--line);padding:3px 4px;text-align:left;font-weight:normal}
@@ -101,6 +102,13 @@ select{width:100%}
     <div class="legend" id="blocks"></div>
     <div class="hint" style="margin-top:5px">Clic en un bloque para ver solo sus piezas y los cables que le llegan. Otra vez para quitar el filtro.</div>
     <div id="blkInfo" style="margin-top:8px;font-size:13px"></div>
+  </div>
+
+  <div class="sec" id="medSec"><h2>Modo medición (encontrar el error)</h2>
+    <div class="hint" style="margin-bottom:6px">Mides <b>un bloque a la vez</b>, de la entrada hacia el final. En cada medición el 3D marca dónde va la punta <b style="color:#ff5a4d">roja</b> y la <b>negra</b> y te dice cuánto debería dar. Marca si salió bien o no: si no salió igual, te dice la causa probable y qué revisar. No cambia ninguna pieza ni cable.</div>
+    <div class="row"><button id="medStart">▶ Empezar por la entrada</button><button id="medReset" title="Borrar lo que marcaste">↺ Borrar marcas</button></div>
+    <div class="row" id="medBlocks" style="margin-top:6px"></div>
+    <div id="medBox" style="margin-top:8px;font-size:13px"></div>
   </div>
 
   <div class="sec"><h2>Qué medir (multímetro / osciloscopio)</h2>
@@ -457,20 +465,20 @@ const DEV = {}, devLabels = [];
     const hole = new THREE.Mesh(new THREE.CircleGeometry(.55 * K, 16), new THREE.MeshBasicMaterial({color: 0x111111})); hole.rotation.x = -Math.PI / 2; hole.position.set(lx, ly + .4 * K, lz + (len - 1.6) * K); par.add(hole);
     return V3(gp.x + lx, gp.y + ly + .4 * K, gp.z + lz + (len - 1.6) * K);
   };
-  // micro-switch SPDT con palanca (final de carrera mediano, ~28 x 10 x 16 mm), 1.6x
+  // micro-switch mini verde (5 A 250 V, como la foto): 3 patas de lamina en fila por un extremo, 2 agujeros de montaje y palanca recta; numerado 1, 2, 3 (1 = NC, 2 = COM, 3 = NO)
   {
-    const K = 1.15, gp = V3(bx + 80, 10, bz + 36), mg = new THREE.Group(); mg.position.copy(gp); g.add(mg);
-    mkb(28 * K, 10 * K, 16 * K, 0xd4b44a, {roughness: .5}, 0, 5 * K, 0, mg);
-    mkb(5 * K, 1.2 * K, 12 * K, 0x2a2a2a, {roughness: .6}, -8 * K, 10.4 * K, 0, mg);                       // tope de la palanca
-    const lvm = new THREE.Group(); lvm.position.set(-12 * K, 11.5 * K, 0); lvm.rotation.z = -.12; mg.add(lvm);
-    mkb(27 * K, .7 * K, 6 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 13.5 * K, 0, 0, lvm);              // palanca
-    mkc(2.4 * K, 2.4 * K, 5 * K, 0xd9d9d9, {metalness: .6, roughness: .3}, 26 * K, -.5 * K, 0, lvm).rotation.x = Math.PI / 2;   // rodillo
-    [['COM', -8, 1, '5V'], ['NO', 0, 1, 'G'], ['NC', 8, 0, null]].forEach(([nm, lx, used, dev], k) => {
-      const w = tabPin(mg, gp, K, lx * K, 2.6 * K, 8 * K, 3.2, 6, !!used);
-      if (dev) term('SW_G', dev, w, used ? ORO : GRIS);
-      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x, 24 + 10 * k, w.z + 10), 18, used ? '#e8b923' : '#7d848b');
+    const K = 1.5, gp = V3(bx + 80, 10 + 5.1 * 1.5, bz + 36), mg = new THREE.Group(); mg.position.copy(gp); g.add(mg);
+    mkb(20 * K, 10.2 * K, 6.4 * K, 0x1fa58e, {roughness: .55}, 0, 0, 0, mg);                                  // cuerpo verde
+    [[-4.5, 2.6], [.5, -3.0]].forEach(([hx, hy]) => { mkc(1.2 * K, 1.2 * K, .3 * K, 0x0b1f1a, {}, hx * K, hy * K, 3.25 * K, mg).rotation.x = Math.PI / 2; });   // agujeros de montaje
+    const lvm = new THREE.Group(); lvm.position.set(10.5 * K, -4.6 * K, 0); lvm.rotation.z = -.1; mg.add(lvm);
+    mkb(.5 * K, 14 * K, 5 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 0, 7 * K, 0, lvm);                    // palanca recta
+    [['COM', 2, 3.8, '5V', true], ['NO', 3, 0, 'G', true], ['NC', 1, -3.8, null, false]].forEach(([nm, num, py, dev, used], k) => {
+      mkb(5 * K, 1.6 * K, .45 * K, used ? ORO : GRIS, {metalness: .7, roughness: .3}, -12.5 * K, py * K, 0, mg);   // pata de lamina
+      const w = V3(gp.x - 15 * K, gp.y + py * K, gp.z);
+      if (dev) term('SW_G', dev, w, ORO);
+      label([nm + ' (' + num + ')' + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x - 12, w.y + (k - 1) * 12, w.z + 12), 20, used ? '#e8b923' : '#7d848b');
     });
-    label(['MICRO-SWITCH DE CUBIERTA', 'final de carrera SPDT con palanca (1.15×) · COM→5V, NO→G (cerrado = G 5 V)'], V3(gp.x, 58, gp.z + 16), 62);
+    label(['MICRO-SWITCH DE CUBIERTA', 'mini 5 A 250 V (1.5×) · COM→5V, NO→G · confirma 1/2/3 y COM/NO/NC en tu pieza'], V3(gp.x, 62, gp.z + 14), 66);
   }
   const ntc = new THREE.Mesh(new THREE.SphereGeometry(3.2, 14, 10), mat(0x2d6cdf, {roughness: .4})); ntc.position.set(mx + 6, 36, bz - 14); g.add(ntc); SOBJ.ntc = ntc;
   term('NTC', '5V', V3(mx + 14, 44, bz - 18), 0xe53935); term('NTC', 'NTC', V3(mx + 22, 44, bz - 18), 0x3ddc84);
@@ -479,23 +487,25 @@ const DEV = {}, devLabels = [];
   const adp = new THREE.Mesh(new THREE.BoxGeometry(70, 30, 42), mat(0x1a1a1a, {roughness: .6})); adp.position.set(px0 - 90, 11, pz + 6); g.add(adp);
   term('FUENTE', '+12V', V3(px0 - 62, 28, pz - 4), 0xd32020); term('FUENTE', 'GND', V3(px0 - 62, 28, pz + 10), 0x222222);
   label(['FUENTE EXTERNA 12 V ≥ 2 A', 'certificada'], V3(px0 - 90, 44, pz + 6), 56);
-  // interruptor toggle SPDT 6 A (3 lengüetas: COM al centro y una a cada lado), 2x
+  // interruptor toggle mini azul (MTS, 3 A 250 V / 6 A 125 V, como la foto): buje roscado M6 con tuerca y palanca de un lado; 3 patas de lamina en fila por el lado contrario (la central es COM)
   {
-    const K = 1.4, gp = V3(px0 + 6, -4, pz + 6), tg = new THREE.Group(); tg.position.copy(gp); g.add(tg);
-    mkb(13.2 * K, 8 * K, 9.5 * K, 0x9aa3ac, {metalness: .6, roughness: .4}, 0, 4 * K, 0, tg);           // carcasa
-    mkb(13.4 * K, 1 * K, 9.9 * K, 0x15181b, {roughness: .7}, 0, .5 * K, 0, tg);                              // base negra
-    mkc(3 * K, 3 * K, 7 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 0, 12 * K, 0, tg);                    // buje roscado M6
-    mkc(4.75 * K, 4.75 * K, 1.8 * K, 0xb8bec5, {metalness: .8, roughness: .3}, 0, 11 * K, 0, tg, 6);          // tuerca hexagonal
-    const lv = new THREE.Group(); lv.position.set(0, 15.5 * K, 0); lv.rotation.z = .35; tg.add(lv);
-    mkc(1.2 * K, 1.2 * K, 14 * K, 0xd8d8d8, {metalness: .7, roughness: .3}, 0, 7 * K, 0, lv);                 // palanca
-    const bl = new THREE.Mesh(new THREE.SphereGeometry(1.9 * K, 14, 10), mat(0xd8d8d8, {metalness: .7, roughness: .3})); bl.position.set(0, 14.5 * K, 0); lv.add(bl);
+    const K = 1.4, gp = V3(px0 + 6, -4 + 6.6 * 1.4, pz + 6), tg = new THREE.Group(); tg.position.copy(gp); g.add(tg);
+    mkb(9.5 * K, 13.2 * K, 8 * K, 0x1f5fbf, {roughness: .55}, 0, 0, 0, tg);                                    // cuerpo azul
+    mkb(8.5 * K, 10 * K, .4 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 0, 0, 4.2 * K, tg);                 // placa metalica del frente
+    mkc(3 * K, 3 * K, 7 * K, 0xc9ced4, {metalness: .8, roughness: .3}, 8.25 * K, 0, 0, tg).rotation.z = Math.PI / 2;           // buje roscado
+    mkc(4.75 * K, 4.75 * K, 1.8 * K, 0xb8bec5, {metalness: .8, roughness: .3}, 7 * K, 0, 0, tg, 6).rotation.z = Math.PI / 2;   // tuerca hexagonal
+    mkc(4 * K, 4 * K, .6 * K, 0xd8dde2, {metalness: .8, roughness: .3}, 5.6 * K, 0, 0, tg).rotation.z = Math.PI / 2;           // arandela
+    const lv = new THREE.Group(); lv.position.set(11.75 * K, 0, 0); lv.rotation.z = .35; tg.add(lv);
+    mkc(1.2 * K, 1.2 * K, 14 * K, 0xd8d8d8, {metalness: .7, roughness: .3}, 7 * K, 0, 0, lv).rotation.z = Math.PI / 2;           // palanca
+    const bl = new THREE.Mesh(new THREE.SphereGeometry(1.9 * K, 14, 10), mat(0xd8d8d8, {metalness: .7, roughness: .3})); bl.position.set(14.5 * K, 0, 0); lv.add(bl);
     SOBJ.lever = lv;
-    [['COM (centro)', 0, '5V', true], ['lateral izq.', -4.7, 'E', true], ['lateral der.', 4.7, null, false]].forEach(([nm, lx, dev, used], k) => {
-      const w = tabPin(tg, gp, K, lx * K, 1.8 * K, 4.75 * K, 3.4, 7, used);
+    [['COM (centro)', 0, '5V', true], ['lateral', -4.7, 'E', true], ['lateral', 4.7, null, false]].forEach(([nm, py, dev, used], k) => {
+      mkb(5 * K, 2.4 * K, .6 * K, used ? ORO : GRIS, {metalness: .7, roughness: .3}, -7.25 * K, py * K, 0, tg);       // pata de lamina
+      const w = V3(gp.x - 9.75 * K, gp.y + py * K, gp.z);
       if (dev) term('SW_E', dev, w, ORO);
-      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x, 26 + 10 * k, w.z + 8), 20, used ? '#e8b923' : '#7d848b');
+      label([nm + (dev ? ' → ' + dev : ''), used ? 'SE SUELDA' : 'sin usar'], V3(w.x - 14, w.y + (k - 1) * 12, w.z + 12), 20, used ? '#e8b923' : '#7d848b');
     });
-    label(['INTERRUPTOR E', 'toggle SPDT 6 A (dibujado 1.4×) · usa el centro y UN lateral'], V3(gp.x, 58, gp.z + 4), 56);
+    label(['INTERRUPTOR E', 'toggle mini MTS (1.4×) · usa la pata central y UNA lateral'], V3(gp.x, 66, gp.z + 4), 62);
   }
   // pulsador normalmente abierto 6 x 6 x 15 mm de 4 patas, 3x. Las dos patas de un mismo lado estan unidas por dentro: se usan dos en DIAGONAL
   {
@@ -814,7 +824,7 @@ function probeAt(pt, color, col, text, i){
   const tip = new THREE.Mesh(new THREE.ConeGeometry(1.2, 3, 10), new THREE.MeshBasicMaterial({color})); tip.rotation.x = Math.PI; tip.position.set(pt.x, 1.6, pt.z); fx.add(tip);
   ringAt(pt, color, 2.2); tagAt(text, V3(pt.x, 0, pt.z), i, col);
 }
-function showMeas(id, fly){
+function showMeas(id, fly, quiet){
   const m = measById[id]; if (!m) return; clearFx(); selected = null;
   [...document.querySelectorAll('#measList .mi')].forEach(b => b.classList.toggle('on', b.dataset.id === id));
   const po = partObjs[m.red[0]]; if (!po) return;
@@ -825,9 +835,80 @@ function showMeas(id, fly){
   else { const gp = DATA.gnd[po.data.board]; bpt = V3(X(po.data.board, gp.x), 0, Z(gp.y)); }
   probeAt(bpt, 0x222222, '#ffffff', 'NEGRA (−) · ' + (m.black ? m.black[0].split('.').pop() + ' ' + m.black[1] : 'GND de la placa ' + po.data.board), 1);
   focus = null; applyFocus();
-  $('info').innerHTML = '<b>' + m.t + '</b><div class="hint">' + m.mode + '</div><div style="margin:6px 0"><b>Esperado (cálculo / simulación):</b> ' + m.exp + '</div><div class="warn">Si no coincide: ' + m.bad + '</div><div class="hint" style="margin-top:6px">Punta roja: <b>' + po.data.short + '</b> pata <b>' + q.n + '</b> (' + holeName(po.data, q) + ', red ' + netLabel(q.net) + ').</div>';
+  if (!quiet) $('info').innerHTML = '<b>' + m.t + '</b><div class="hint">' + m.mode + '</div><div style="margin:6px 0"><b>Esperado (cálculo / simulación):</b> ' + m.exp + '</div><div class="warn">Si no coincide: ' + m.bad + '</div><div class="hint" style="margin-top:6px">Punta roja: <b>' + po.data.short + '</b> pata <b>' + q.n + '</b> (' + holeName(po.data, q) + ', red ' + netLabel(q.net) + ').</div>';
   if (fly){ const t = pt.clone(); flyTo(t, t.clone().add(V3(0, 90, 55)), 800); }
 }
+// ---------- modo medicion: un bloque a la vez, de la entrada hacia el final ----------
+const MEDB = Object.keys(DATA.med || {});
+let medBi = -1, medK = 0, medBad = false;
+const medRes = {};
+function medPts(m){
+  const po = partObjs[m.red[0]], q = po.data.pins.find(r => r.n === m.red[1]);
+  let neg;
+  if (m.black){ const pb = partObjs[m.black[0]], qb = pb.data.pins.find(r => r.n === m.black[1]); neg = '<b>' + pb.data.short + '</b> pata <b>' + qb.n + '</b> (' + holeName(pb.data, qb) + ')'; }
+  else neg = 'la barra de <b>GND</b> de la placa <b>' + po.data.board + '</b>';
+  return {red: partLink(po.data.ref, '<b>' + po.data.short + '</b>') + ' pata <b>' + q.n + '</b> (' + holeName(po.data, q) + ', placa ' + po.data.board + ', red ' + netLabel(q.net) + ')', black: neg, part: po.data.ref, short: po.data.short};
+}
+function medMark(){
+  [...document.querySelectorAll('#medBlocks button')].forEach(x => {
+    const b = MEDB[+x.dataset.i], ids = DATA.med[b], r = ids.map(i => medRes[i]);
+    x.classList.toggle('on', +x.dataset.i === medBi);
+    x.classList.toggle('fail', r.includes('bad'));
+    x.classList.toggle('done', !r.includes('bad') && r.every(v => v === 'ok'));
+  });
+}
+function medSummary(b, ids, head){
+  const bad = ids.filter(i => medRes[i] === 'bad'), last = medBi === MEDB.length - 1;
+  let h = head + '<div style="margin:6px 0"><b>Resumen del bloque</b></div><table>' + ids.map(i => '<tr><td>' + (medRes[i] === 'ok' ? '<span class="okc">✔</span>' : medRes[i] === 'bad' ? '<span class="bdc">✖</span>' : '—') + '</td><td>' + measById[i].t + (medRes[i] === 'bad' ? '<div class="hint">Causa probable: ' + measById[i].bad + '</div>' : '') + '</td></tr>').join('') + '</table>';
+  h += bad.length ? '<div class="warn">Hay ' + bad.length + ' medición(es) que no salieron igual. Corrígelas antes de seguir: si este bloque falla, los siguientes que dependen de él también pueden fallar.</div>' : '<div class="hint">Todo lo medido en este bloque salió bien.</div>';
+  h += '<div class="row" style="margin-top:6px"><button data-a="repeat">↺ Repetir este bloque</button><button data-a="nextblk">' + (last ? 'Ver resumen final' : 'Siguiente bloque ▶') + '</button></div>';
+  $('medBox').innerHTML = h; medMark(); clearFx();
+}
+function medFinal(){
+  let h = '<div><b>Resumen final</b></div><table>';
+  MEDB.forEach(b => { const ids = DATA.med[b], ok = ids.filter(i => medRes[i] === 'ok').length, bad = ids.filter(i => medRes[i] === 'bad'), no = ids.length - ok - bad.length;
+    h += '<tr><td>' + (bad.length ? '<span class="bdc">✖</span>' : ok === ids.length ? '<span class="okc">✔</span>' : '—') + '</td><td><b>' + DATA.blocks[b].title + '</b><div class="hint">' + ok + ' bien · ' + bad.length + ' con error · ' + no + ' sin medir</div>' + bad.map(i => '<div class="hint">✖ ' + measById[i].t + ' → ' + measById[i].bad + '</div>').join('') + '</td></tr>'; });
+  h += '</table><div class="hint">Empieza a corregir por el primer bloque con ✖ (el de más arriba): los errores de un bloque suelen arrastrar a los siguientes.</div>';
+  $('medBox').innerHTML = h; medMark(); clearFx();
+}
+function medShow(){
+  const box = $('medBox');
+  if (medBi < 0){ box.innerHTML = ''; medMark(); return; }
+  if (medBi >= MEDB.length) return medFinal();
+  const b = MEDB[medBi], ids = DATA.med[b], B = DATA.blocks[b];
+  const head = '<div class="hint">Bloque ' + (medBi + 1) + ' de ' + MEDB.length + '</div><div style="font-size:14px"><b>' + B.title + '</b></div>';
+  if (medK >= ids.length) return medSummary(b, ids, head);
+  const m = measById[ids[medK]], pt = medPts(m);
+  showMeas(m.id, true, true);
+  let h = head + '<div class="hint">Medición ' + (medK + 1) + ' de ' + ids.length + '</div><div style="margin:6px 0"><b>' + m.t + '</b></div><div class="hint">' + m.mode + '</div>' +
+    '<div style="margin:6px 0">Punta <b style="color:#ff5a4d">roja (+)</b>: ' + pt.red + '<br>Punta <b>negra (−)</b>: ' + pt.black + '</div>' +
+    '<div style="margin:6px 0"><b>Debería dar:</b> ' + m.exp + '</div><div class="hint">Son valores de cálculo o simulación (motor supuesto): pequeñas diferencias son normales.</div>';
+  if (medBad){
+    h += '<div class="warn" style="margin-top:6px"><b>No salió igual.</b> Causa probable: ' + m.bad + '</div>' +
+      '<div class="hint" style="margin-top:4px">Qué revisar: 1) la pieza ' + partLink(pt.part, pt.short) + ' y sus cables (clic para ver sus conexiones); 2) que las mediciones anteriores de este bloque hayan salido bien; 3) que la alimentación (5 V o 12 V) llegue al chip.</div>' +
+      '<div class="row" style="margin-top:6px"><button data-a="again">Ya lo corregí: medir otra vez</button><button data-a="skip">Seguir de todos modos</button><button data-a="blk">Ver solo las piezas de este bloque</button></div>';
+  } else {
+    h += '<div class="row" style="margin-top:6px"><button data-a="ok">✔ Salió bien, siguiente</button><button data-a="bad">✖ No salió igual</button></div>' +
+      '<div class="row" style="margin-top:4px"><button data-a="prev"' + (medK ? '' : ' disabled') + '>◀ Anterior</button><button data-a="blk">Ver solo las piezas de este bloque</button></div>';
+  }
+  box.innerHTML = h; medMark();
+}
+$('medBox').onclick = e => {
+  const a = e.target.dataset && e.target.dataset.a; if (!a) return;
+  const b = MEDB[medBi], ids = b ? DATA.med[b] : [], id = ids[medK];
+  if (a === 'ok'){ medRes[id] = 'ok'; medBad = false; medK++; }
+  else if (a === 'bad'){ medRes[id] = 'bad'; medBad = true; }
+  else if (a === 'again'){ delete medRes[id]; medBad = false; }
+  else if (a === 'skip'){ medBad = false; medK++; }
+  else if (a === 'prev'){ medBad = false; medK = Math.max(0, medK - 1); }
+  else if (a === 'blk'){ applyBlock(blockFilter === b ? null : b); return; }
+  else if (a === 'repeat'){ ids.forEach(i => delete medRes[i]); medK = 0; medBad = false; }
+  else if (a === 'nextblk'){ medBi++; medK = 0; medBad = false; applyBlock(null); }
+  medShow();
+};
+MEDB.forEach((b, i) => { const x = document.createElement('button'); x.dataset.i = i; x.textContent = DATA.blocks[b].title; x.onclick = () => { medBi = i; medK = 0; medBad = false; medShow(); }; $('medBlocks').appendChild(x); });
+$('medStart').onclick = () => { medBi = 0; medK = 0; medBad = false; medShow(); };
+$('medReset').onclick = () => { Object.keys(medRes).forEach(k => delete medRes[k]); medBad = false; medK = 0; medShow(); };
 // ---------- vistas ----------
 const BL = DATA.boards_list, center = V3((X(BL[0], 5) + X(BL[BL.length - 1], 5)) / 2, 0, Z(NR / 2));
 let anim = null;

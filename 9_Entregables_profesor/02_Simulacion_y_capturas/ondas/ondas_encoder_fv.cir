@@ -1,0 +1,12 @@
+* ondas_encoder_fv
+.include "C:/Users/Diego Cruz/Documents/Proyecto_Final_Electronica_UNIS/3_archivos_tecnicos/modelos.inc"
+.include "C:/Users/Diego Cruz/Documents/Proyecto_Final_Electronica_UNIS/3_archivos_tecnicos/sistema.inc"
+.lib NE555.sub
+Vv5 v5 0 5
+Be enc_s 0 V=5*u(sin(2*pi*(200*min(time,.1)+500*max(min(time,.2)-.1,0)+1000*max(time-.2,0))))
+Re enc_s enc 100
+XE v5 enc vspd ENCODER_FV
+.save V(enc) V(vspd)
+.ic V(vspd)=0 V(xe:vf1)=0
+.tran 0 0.3 0 3u
+.end

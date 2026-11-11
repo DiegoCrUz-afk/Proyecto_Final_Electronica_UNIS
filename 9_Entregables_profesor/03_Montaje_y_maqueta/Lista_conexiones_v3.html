@@ -1,0 +1,914 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lista de conexiones v3</title><style>
+:root{--bg:#fff;--tx:#1b2128;--mut:#5a6672;--line:#d5dbe1;--hd:#eef2f6;--acc:#0b63c5;--gnd:#1a237e;--v5:#b71c1c;--vm:#b25a00}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171c22;--tx:#e8edf2;--mut:#9aa7b4;--line:#33404c;--hd:#202831;--acc:#6db3ff;--gnd:#8f9bff;--v5:#ff7a7a;--vm:#ffb454}}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,Segoe UI,Arial,sans-serif;margin:0;padding:16px;max-width:1100px;margin-inline:auto}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:18px;margin:26px 0 6px;padding-top:10px;border-top:2px solid var(--line)}h3{font-size:15px;margin:14px 0 4px}
+.mut{color:var(--mut)}table{border-collapse:collapse;width:100%;margin:6px 0 10px;font-size:13.5px}th,td{border:1px solid var(--line);padding:3px 6px;text-align:left;vertical-align:top}th{background:var(--hd)}
+.g{color:var(--gnd);font-weight:600}.v5{color:var(--v5);font-weight:600}.vm{color:var(--vm);font-weight:600}.warn{background:var(--hd);border-left:4px solid var(--acc);padding:6px 10px;margin:8px 0}
+nav a{color:var(--acc);margin-right:10px;white-space:nowrap}@media print{nav{display:none}h2{break-before:page}}
+</style></head><body>
+<h1>Lista de conexiones · pata por pata</h1>
+<div class="mut">Miniestación industrial automatizada. Generada del mismo dato que el 3D v3, así que ambos dicen lo mismo. El agujero se lee <b>placa-letra+fila</b> (ejemplo <b>B-F42</b> = placa B, columna F, fila 42; las filas se cuentan desde abajo como en el tablero). Una pata que dice "va a GND" se une con un cable corto al riel de tierra.</div>
+<nav><a href="#b_ENTRADA">0 Entrada de 12 V</a><a href="#b_REG5V">1 Regulador 5 V</a><a href="#b_POTENCIA">7 Potencia (PWM + MOSFET)</a><a href="#b_ALARMA">11 Alarma</a><a href="#b_SENSOR_IR">2 Sensor IR</a><a href="#b_SOBRECORRIENTE">3 Sobrecorriente</a><a href="#b_TEMPERATURA">4 Temperatura</a><a href="#b_LOGICA">5 Logica</a><a href="#b_LED_OBJ">LED de objeto</a><a href="#b_REFVEL">9 Referencia de velocidad</a><a href="#b_ERROR_AMP">10 Amplificador de error</a><a href="#b_PWM_GEN">6 Generador de PWM</a><a href="#b_ENCODER_FV">8 Encoder y F-V</a><a href="#rieles">Rieles y puentes</a></nav>
+<h2 id="rieles">Rieles y puentes entre placas (PRO'S KIT BX-4135 + protoboards sueltas)</h2>
+<div class="warn">Las placas A, B y C son las 3 protoboards de la BX-4135: el par de rieles de en medio lo comparten dos protoboards vecinas. Cada riel viene cortado a la mitad (filas 0 a 32 y 33 a 62): los dos puentes del medio los unen.</div>
+<table><tr><th>Placa</th><th>Riel izquierdo +</th><th>Riel izquierdo −</th><th>Riel derecho +</th><th>Riel derecho −</th></tr>
+<tr><td><b>A</b> (BX-4135)</td><td>+12 V</td><td>GND (0 V)</td><td>+5 V</td><td>GND (0 V)</td></tr>
+<tr><td><b>B</b> (BX-4135)</td><td>+5 V</td><td>GND (0 V)</td><td>+5 V</td><td>GND (0 V)</td></tr>
+<tr><td><b>C</b> (BX-4135)</td><td>+5 V</td><td>GND (0 V)</td><td>+5 V</td><td>GND (0 V)</td></tr>
+<tr><td><b>D</b> (suelta)</td><td>+12 V</td><td>GND (0 V)</td><td>+5 V</td><td>GND (0 V)</td></tr>
+<tr><td><b>E</b> (suelta)</td><td>+12 V</td><td>GND (0 V)</td><td>+5 V</td><td>GND (0 V)</td></tr>
+</table>
+<h3>Puentes entre rieles</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[240]</td><td>GND (0 V)</td><td>A-riel GND izq fila 10</td><td>A-riel GND der fila 8</td></tr>
+<tr><td>[241]</td><td>GND (0 V)</td><td>A-riel GND der fila 10</td><td>B-riel GND der fila 10</td></tr>
+<tr><td>[242]</td><td>GND (0 V)</td><td>B-riel GND der fila 12</td><td>C-riel GND der fila 12</td></tr>
+<tr><td>[243]</td><td>GND (0 V)</td><td>C-riel GND der fila 14</td><td>D-riel GND izq fila 14</td></tr>
+<tr><td>[244]</td><td>GND (0 V)</td><td>D-riel GND izq fila 16</td><td>D-riel GND der fila 16</td></tr>
+<tr><td>[245]</td><td>GND (0 V)</td><td>D-riel GND der fila 18</td><td>E-riel GND izq fila 18</td></tr>
+<tr><td>[246]</td><td>GND (0 V)</td><td>E-riel GND izq fila 20</td><td>E-riel GND der fila 20</td></tr>
+<tr><td>[247]</td><td>+5 V</td><td>A-riel +5 V der fila 8</td><td>B-riel +5 V der fila 8</td></tr>
+<tr><td>[248]</td><td>+5 V</td><td>B-riel +5 V der fila 10</td><td>C-riel +5 V der fila 10</td></tr>
+<tr><td>[249]</td><td>+5 V</td><td>C-riel +5 V der fila 12</td><td>D-riel +5 V der fila 12</td></tr>
+<tr><td>[250]</td><td>+5 V</td><td>D-riel +5 V der fila 14</td><td>E-riel +5 V der fila 14</td></tr>
+<tr><td>[251]</td><td>+12 V</td><td>A-riel +12 V izq fila 11</td><td>D-riel +12 V izq fila 8</td></tr>
+<tr><td>[252]</td><td>+12 V</td><td>D-riel +12 V izq fila 10</td><td>E-riel +12 V izq fila 10</td></tr>
+</table>
+<h2 id="b_ENTRADA">0 Entrada de 12 V · placa A</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>1000 µF</td><td>Cin</td></tr>
+<tr><td>1</td><td>1N4007</td><td>D1</td></tr>
+<tr><td>1</td><td>Entrada 12 V (jack)</td><td>J1</td></tr>
+<tr><td>1</td><td>Motor 12 V</td><td>TBM</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=2><b>Cin</b><br>1000 µF</td><td>+</td><td></td><td>A-H62</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>-</td><td></td><td>A-H59</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>D1</b><br>1N4007</td><td>A</td><td></td><td>A-J56</td><td>vin → J1 pata +12V</td></tr>
+<tr><td>K</td><td></td><td>A-J52</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>J1</b><br>Entrada 12 V (jack)</td><td>+12V</td><td></td><td>A-F56</td><td>vin → D1 pata A</td></tr>
+<tr><td>GND</td><td></td><td>A-F54</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>TBM</b><br>Motor 12 V</td><td>M+</td><td></td><td>A-G57</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>M-</td><td></td><td>A-G55</td><td>dm → M1 pata D, Dfw pata A</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[1]</td><td>+12 V</td><td>A-J62</td><td>A-riel +12 V izq fila 62</td></tr>
+<tr><td>[2]</td><td>+12 V</td><td>A-F57</td><td>A-riel +12 V izq fila 56</td></tr>
+<tr><td>[3]</td><td>+12 V</td><td>A-F52</td><td>A-riel +12 V izq fila 52</td></tr>
+<tr><td>[10]</td><td>GND (0 V)</td><td>A-J59</td><td>A-riel GND izq fila 59</td></tr>
+<tr><td>[11]</td><td>GND (0 V)</td><td>A-H54</td><td>A-riel GND izq fila 54</td></tr>
+<tr><td>[82]</td><td>dm</td><td>A-H55</td><td>A-J23</td></tr>
+<tr><td>[83]</td><td>dm</td><td>A-I55</td><td>A-F19</td></tr>
+<tr><td>[228]</td><td>vin</td><td>A-F56</td><td>dispositivo FUENTE · +12V</td></tr>
+<tr><td>[229]</td><td>GND (0 V)</td><td>A-F54</td><td>dispositivo FUENTE · GND</td></tr>
+<tr><td>[230]</td><td>+12 V</td><td>A-G57</td><td>dispositivo MOTOR · M+</td></tr>
+<tr><td>[231]</td><td>dm</td><td>A-G55</td><td>dispositivo MOTOR · M-</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>12 V que entran por el jack<br><span class=mut>V DC</span></td><td>12 V (fuente externa)</td><td>0 V: el jack no está conectado o la fuente está apagada.</td></tr>
+<tr><td>vm: 12 V después del diodo D1 (cátodo)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V con el motor andando (simulación: mínimo 11.13 V)</td><td>0 V: D1 puesto al revés. La banda (cátodo K) debe ir hacia vm, el riel de 12 V, y el otro extremo (ánodo A) hacia el jack; si la banda mira al jack, está al revés. 12 V sin caída con el motor parado es normal.</td></tr>
+</table>
+<h2 id="b_REG5V">1 Regulador 5 V · placa A</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>100 nF</td><td>C2</td></tr>
+<tr><td>1</td><td>100 µF</td><td>Cout</td></tr>
+<tr><td>1</td><td>Zener 1N4734A 5.6 V</td><td>DZ</td></tr>
+<tr><td>1</td><td>BD139</td><td>Q1</td></tr>
+<tr><td>1</td><td>100 Ω</td><td>Rtr</td></tr>
+<tr><td>1</td><td>510</td><td>Rz</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=2><b>C2</b><br>100 nF</td><td>1</td><td></td><td>A-B45</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>A-B43</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cout</b><br>100 µF</td><td>+</td><td></td><td>A-D45</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>-</td><td></td><td>A-D43</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>DZ</b><br>Zener 1N4734A 5.6 V</td><td>K</td><td></td><td>A-F42</td><td>REG.bz → Rz pata 2, Q1 pata B</td></tr>
+<tr><td>A</td><td></td><td>A-F38</td><td>REG.N1 → Rtr pata W</td></tr>
+<tr><td rowspan=3><b>Q1</b><br>BD139</td><td>E</td><td></td><td>A-J44</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>C</td><td></td><td>A-J43</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>B</td><td></td><td>A-J42</td><td>REG.bz → Rz pata 2, DZ pata K</td></tr>
+<tr><td rowspan=3><b>Rtr</b><br>100 Ω</td><td>1</td><td></td><td>A-G39</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>W</td><td></td><td>A-G38</td><td>REG.N1 → DZ pata A</td></tr>
+<tr><td>3</td><td></td><td>A-G37</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td rowspan=2><b>Rz</b><br>510</td><td>1</td><td></td><td>A-G46</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>A-G42</td><td>REG.bz → DZ pata K, Q1 pata B</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[4]</td><td>+12 V</td><td>A-F43</td><td>A-riel +12 V izq fila 43</td></tr>
+<tr><td>[5]</td><td>+12 V</td><td>A-F46</td><td>A-riel +12 V izq fila 46</td></tr>
+<tr><td>[12]</td><td>GND (0 V)</td><td>A-A43</td><td>A-riel GND der fila 43</td></tr>
+<tr><td>[13]</td><td>GND (0 V)</td><td>A-I39</td><td>A-riel GND izq fila 38</td></tr>
+<tr><td>[84]</td><td>+5 V</td><td>A-F44</td><td>A-riel +5 V der fila 44</td></tr>
+<tr><td>[85]</td><td>+5 V</td><td>A-A45</td><td>A-riel +5 V der fila 46</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>v5: salida del regulador (emisor de Q1)<br><span class=mut>V DC</span></td><td>5.0 V (simulación: 5.012 a 5.018 V). Debe estar entre 4.75 y 5.25 V</td><td>Fuera de rango: ajusta el trimpot Rtr (100 Ω) y revisa Q1 y el Zener.</td></tr>
+<tr><td>Base de Q1 (cátodo del Zener)<br><span class=mut>V DC</span></td><td>≈ 5.7 V</td><td>0 V: el Zener está al revés o falta Rz. 12 V: Rz sin carga (Zener abierto).</td></tr>
+</table>
+<h2 id="b_POTENCIA">7 Potencia (PWM + MOSFET) · placa A</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>74HC08</td><td>U10</td></tr>
+<tr><td>1</td><td>1N5819</td><td>Dfw</td></tr>
+<tr><td>1</td><td>IRFZ44N</td><td>M1</td></tr>
+<tr><td>1</td><td>2N3904</td><td>Q3</td></tr>
+<tr><td>1</td><td>2N3906</td><td>Q4</td></tr>
+<tr><td>1</td><td>47</td><td>Rg</td></tr>
+<tr><td>1</td><td>10k</td><td>Rpd</td></tr>
+<tr><td>1</td><td>0.5 Ω 5 W</td><td>Rsh</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=14><b>U10</b><br>74HC08</td><td>1</td><td>1A</td><td>A-F32</td><td>pwm → Rpu pata 2, U13 pata 1</td></tr>
+<tr><td>2</td><td>1B</td><td>A-F31</td><td>m → U9 pata 6, U9 pata 9, U9 pata 12</td></tr>
+<tr><td>3</td><td>1Y</td><td>A-F30</td><td>POT.pwmg → Q3 pata B, Q4 pata B</td></tr>
+<tr><td>4</td><td>2A</td><td>A-F29</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>2B</td><td>A-F28</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>2Y</td><td>A-F27</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>7</td><td>GND</td><td>A-F26</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>8</td><td>3Y</td><td>A-E26</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>9</td><td>3A</td><td>A-E27</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>10</td><td>3B</td><td>A-E28</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>11</td><td>4Y</td><td>A-E29</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>12</td><td>4A</td><td>A-E30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>13</td><td>4B</td><td>A-E31</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>14</td><td>VCC</td><td>A-E32</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Dfw</b><br>1N5819</td><td>A</td><td></td><td>A-J19</td><td>dm → M1 pata D, TBM pata M-</td></tr>
+<tr><td>K</td><td></td><td>A-J15</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td rowspan=3><b>M1</b><br>IRFZ44N</td><td>G</td><td></td><td>A-F24</td><td>POT.gate → Rg pata 2, Rpd pata 1</td></tr>
+<tr><td>D</td><td></td><td>A-F23</td><td>dm → Dfw pata A, TBM pata M-</td></tr>
+<tr><td>S</td><td></td><td>A-F22</td><td>sh → Rsh pata 1, U4 pata 3</td></tr>
+<tr><td rowspan=3><b>Q3</b><br>2N3904</td><td>E</td><td></td><td>A-C25</td><td>POT.g → Q4 pata E, Rg pata 1</td></tr>
+<tr><td>B</td><td></td><td>A-C24</td><td>POT.pwmg → Q4 pata B, U10 pata 3</td></tr>
+<tr><td>C</td><td></td><td>A-C23</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=3><b>Q4</b><br>2N3906</td><td>E</td><td></td><td>A-E20</td><td>POT.g → Q3 pata E, Rg pata 1</td></tr>
+<tr><td>B</td><td></td><td>A-E19</td><td>POT.pwmg → Q3 pata B, U10 pata 3</td></tr>
+<tr><td>C</td><td></td><td>A-E18</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rg</b><br>47</td><td>1</td><td></td><td>A-B25</td><td>POT.g → Q3 pata E, Q4 pata E</td></tr>
+<tr><td>2</td><td></td><td>A-B21</td><td>POT.gate → Rpd pata 1, M1 pata G</td></tr>
+<tr><td rowspan=2><b>Rpd</b><br>10k</td><td>1</td><td></td><td>A-C21</td><td>POT.gate → Rg pata 2, M1 pata G</td></tr>
+<tr><td>2</td><td></td><td>A-C17</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rsh</b><br>0.5 Ω 5 W</td><td>1</td><td></td><td>A-F18</td><td>sh → M1 pata S, U4 pata 3</td></tr>
+<tr><td>2</td><td></td><td>A-F13</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[6]</td><td>+12 V</td><td>A-H15</td><td>A-riel +12 V izq fila 14</td></tr>
+<tr><td>[14]</td><td>GND (0 V)</td><td>A-G29</td><td>A-riel GND izq fila 29</td></tr>
+<tr><td>[15]</td><td>GND (0 V)</td><td>A-G28</td><td>A-riel GND izq fila 28</td></tr>
+<tr><td>[16]</td><td>GND (0 V)</td><td>A-G26</td><td>A-riel GND izq fila 26</td></tr>
+<tr><td>[17]</td><td>GND (0 V)</td><td>A-D27</td><td>A-riel GND der fila 26</td></tr>
+<tr><td>[18]</td><td>GND (0 V)</td><td>A-D28</td><td>A-riel GND der fila 28</td></tr>
+<tr><td>[19]</td><td>GND (0 V)</td><td>A-D30</td><td>A-riel GND der fila 30</td></tr>
+<tr><td>[20]</td><td>GND (0 V)</td><td>A-D31</td><td>A-riel GND der fila 31</td></tr>
+<tr><td>[21]</td><td>GND (0 V)</td><td>A-B18</td><td>A-riel GND der fila 18</td></tr>
+<tr><td>[22]</td><td>GND (0 V)</td><td>A-B17</td><td>A-riel GND der fila 17</td></tr>
+<tr><td>[23]</td><td>GND (0 V)</td><td>A-H13</td><td>A-riel GND izq fila 13</td></tr>
+<tr><td>[82]</td><td>dm</td><td>A-H55</td><td>A-J23</td></tr>
+<tr><td>[83]</td><td>dm</td><td>A-I55</td><td>A-F19</td></tr>
+<tr><td>[86]</td><td>+5 V</td><td>A-D32</td><td>A-riel +5 V der fila 31</td></tr>
+<tr><td>[87]</td><td>+5 V</td><td>A-E23</td><td>A-riel +5 V der fila 23</td></tr>
+<tr><td>[119]</td><td>pwm</td><td>A-G32</td><td>D-E31</td></tr>
+<tr><td>[121]</td><td>m</td><td>A-G31</td><td>C-G57</td></tr>
+<tr><td>[124]</td><td>POT.pwmg</td><td>A-G30</td><td>A-E24</td></tr>
+<tr><td>[125]</td><td>POT.pwmg</td><td>A-A24</td><td>A-B19</td></tr>
+<tr><td>[126]</td><td>POT.gate</td><td>A-J24</td><td>A-E21</td></tr>
+<tr><td>[127]</td><td>sh</td><td>A-J22</td><td>A-H18</td></tr>
+<tr><td>[128]</td><td>sh</td><td>A-I18</td><td>B-G39</td></tr>
+<tr><td>[129]</td><td>POT.g</td><td>A-E25</td><td>A-A20</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>sh: caída en el shunt (0.5 Ω)<br><span class=mut>V DC (usa el rango de mV)</span></td><td>≈ 0.075 V con 0.15 A (motor andando); 0.33 V ≈ 0.67 A dispara</td><td>0 V con el motor andando: shunt abierto. Mucho mayor: motor frenado o corto.</td></tr>
+<tr><td>gate: compuerta del IRFZ44N<br><span class=mut>osciloscopio</span></td><td>pulsos de 0 a ≈ 4.4 V; con M = 0 queda en 0 V</td><td>Siempre 0 V: M = 0 o falla U10. Siempre 4.4 V: el PWM está al 100 %.</td></tr>
+<tr><td>dm: drenaje (motor)<br><span class=mut>osciloscopio</span></td><td>conmuta entre ≈ 0.5 V y ≈ 11.5 V</td><td>Siempre 11.5 V: el MOSFET no conduce.</td></tr>
+<tr><td>U10 74HC08: entre VCC (pata 14) y GND (pata 7)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_ALARMA">11 Alarma · placa A</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>buzzer activo 12 V</td><td>BZ</td></tr>
+<tr><td>1</td><td>LED rojo</td><td>Dl</td></tr>
+<tr><td>1</td><td>2N3904</td><td>Q6</td></tr>
+<tr><td>1</td><td>1k</td><td>Rb</td></tr>
+<tr><td>1</td><td>470</td><td>Rl</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=2><b>BZ</b><br>buzzer activo 12 V</td><td>+</td><td></td><td>A-J8</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>-</td><td></td><td>A-J5</td><td>ALA.cz → Q6 pata C</td></tr>
+<tr><td rowspan=2><b>Dl</b><br>LED rojo</td><td>A</td><td></td><td>A-B3</td><td>ALA.nl → Rl pata 2</td></tr>
+<tr><td>K</td><td></td><td>A-B1</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=3><b>Q6</b><br>2N3904</td><td>E</td><td></td><td>A-C7</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>B</td><td></td><td>A-C6</td><td>ALA.ba → Rb pata 2</td></tr>
+<tr><td>C</td><td></td><td>A-C5</td><td>ALA.cz → BZ pata -</td></tr>
+<tr><td rowspan=2><b>Rb</b><br>1k</td><td>1</td><td></td><td>A-E8</td><td>f → Rl pata 1, U8 pata 6, U8 pata 10</td></tr>
+<tr><td>2</td><td></td><td>A-E4</td><td>ALA.ba → Q6 pata B</td></tr>
+<tr><td rowspan=2><b>Rl</b><br>470</td><td>1</td><td></td><td>A-G7</td><td>f → Rb pata 1, U8 pata 6, U8 pata 10</td></tr>
+<tr><td>2</td><td></td><td>A-G3</td><td>ALA.nl → Dl pata A</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[7]</td><td>+12 V</td><td>A-F8</td><td>A-riel +12 V izq fila 10</td></tr>
+<tr><td>[24]</td><td>GND (0 V)</td><td>A-D7</td><td>A-riel GND der fila 7</td></tr>
+<tr><td>[25]</td><td>GND (0 V)</td><td>A-E1</td><td>A-riel GND der fila 1</td></tr>
+<tr><td>[130]</td><td>ALA.cz</td><td>A-F5</td><td>A-D5</td></tr>
+<tr><td>[131]</td><td>ALA.ba</td><td>A-D6</td><td>A-D4</td></tr>
+<tr><td>[132]</td><td>ALA.nl</td><td>A-D3</td><td>A-F3</td></tr>
+<tr><td>[133]</td><td>f</td><td>A-F7</td><td>A-D8</td></tr>
+<tr><td>[134]</td><td>f</td><td>A-C8</td><td>C-D49</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>f: falla enclavada (U8 pata 3)<br><span class=mut>V DC</span></td><td>0 V normal; ≈ 4.5 a 4.8 V con falla (queda hasta pulsar reset)</td><td>Se queda en 5 V después del reset: la causa de la falla aún existe.</td></tr>
+<tr><td>Colector de Q6 (buzzer)<br><span class=mut>V DC</span></td><td>12 V apagado; ≈ 0.04 V con alarma (suena)</td><td>Siempre 12 V: revisa Rb y Q6.</td></tr>
+</table>
+<h2 id="b_SENSOR_IR">2 Sensor IR · placa B</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LM393</td><td>U1</td></tr>
+<tr><td>1</td><td>2N3904</td><td>Q2</td></tr>
+<tr><td>1</td><td>47k</td><td>R1</td></tr>
+<tr><td>3</td><td>10k</td><td>R2, Ra, Rpu</td></tr>
+<tr><td>1</td><td>150</td><td>RE</td></tr>
+<tr><td>1</td><td>26.8k</td><td>Rb</td></tr>
+<tr><td>1</td><td>680</td><td>Rc</td></tr>
+<tr><td>1</td><td>220k</td><td>Rh</td></tr>
+<tr><td>1</td><td>270</td><td>Rled</td></tr>
+<tr><td>1</td><td>10k</td><td>T1</td></tr>
+<tr><td>1</td><td>TCRT5000</td><td>TCRT</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=8><b>U1</b><br>LM393</td><td>1</td><td>OUT A</td><td>B-F62</td><td>p → Rpu pata 2, Rh pata 1, U8 pata 12, U8 pata 13, U9 pata 13</td></tr>
+<tr><td>2</td><td>IN- A</td><td>B-F61</td><td>SEN.c → Q2 pata C, Rc pata 2</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>B-F60</td><td>SEN.th → Rh pata 2, T1 pata W</td></tr>
+<tr><td>4</td><td>GND</td><td>B-F59</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>B-E59</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>B-E60</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>B-E61</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>B-E62</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=3><b>Q2</b><br>2N3904</td><td>E</td><td></td><td>B-A51</td><td>SEN.e → RE pata 1</td></tr>
+<tr><td>B</td><td></td><td>B-A50</td><td>b → R1 pata 2, R2 pata 1, TCRT pata E</td></tr>
+<tr><td>C</td><td></td><td>B-A49</td><td>SEN.c → Rc pata 2, U1 pata 2</td></tr>
+<tr><td rowspan=2><b>R1</b><br>47k</td><td>1</td><td></td><td>B-G54</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-G50</td><td>b → R2 pata 1, Q2 pata B, TCRT pata E</td></tr>
+<tr><td rowspan=2><b>R2</b><br>10k</td><td>1</td><td></td><td>B-D50</td><td>b → R1 pata 2, Q2 pata B, TCRT pata E</td></tr>
+<tr><td>2</td><td></td><td>B-D46</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>RE</b><br>150</td><td>1</td><td></td><td>B-C51</td><td>SEN.e → Q2 pata E</td></tr>
+<tr><td>2</td><td></td><td>B-C47</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ra</b><br>10k</td><td>1</td><td></td><td>B-C62</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-C58</td><td>SEN.th1 → T1 pata 1</td></tr>
+<tr><td rowspan=2><b>Rb</b><br>26.8k</td><td>1</td><td></td><td>B-D56</td><td>SEN.th2 → T1 pata 3</td></tr>
+<tr><td>2</td><td></td><td>B-D52</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rc</b><br>680</td><td>1</td><td></td><td>B-F55</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-F51</td><td>SEN.c → Q2 pata C, U1 pata 2</td></tr>
+<tr><td rowspan=2><b>Rh</b><br>220k</td><td>1</td><td></td><td>B-I62</td><td>p → Rpu pata 2, U1 pata 1, U8 pata 12, U8 pata 13, U9 pata 13</td></tr>
+<tr><td>2</td><td></td><td>B-I58</td><td>SEN.th → T1 pata W, U1 pata 3</td></tr>
+<tr><td rowspan=2><b>Rled</b><br>270</td><td>1</td><td></td><td>B-I56</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-I52</td><td>SEN.nled → TCRT pata A</td></tr>
+<tr><td rowspan=2><b>Rpu</b><br>10k</td><td>1</td><td></td><td>B-J57</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-J53</td><td>p → Rh pata 1, U1 pata 1, U8 pata 12, U8 pata 13, U9 pata 13</td></tr>
+<tr><td rowspan=3><b>T1</b><br>10k</td><td>1</td><td></td><td>B-A58</td><td>SEN.th1 → Ra pata 2</td></tr>
+<tr><td>W</td><td></td><td>B-A57</td><td>SEN.th → Rh pata 2, U1 pata 3</td></tr>
+<tr><td>3</td><td></td><td>B-A56</td><td>SEN.th2 → Rb pata 1</td></tr>
+<tr><td rowspan=4><b>TCRT</b><br>TCRT5000</td><td>A</td><td></td><td>B-J49</td><td>SEN.nled → Rled pata 2</td></tr>
+<tr><td>K</td><td></td><td>B-J48</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>C</td><td></td><td>B-J47</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>E</td><td></td><td>B-J46</td><td>b → R1 pata 2, R2 pata 1, Q2 pata B</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[26]</td><td>GND (0 V)</td><td>B-G59</td><td>B-riel GND izq fila 59</td></tr>
+<tr><td>[27]</td><td>GND (0 V)</td><td>B-D59</td><td>B-riel GND der fila 59</td></tr>
+<tr><td>[28]</td><td>GND (0 V)</td><td>B-D60</td><td>B-riel GND der fila 60</td></tr>
+<tr><td>[29]</td><td>GND (0 V)</td><td>B-E52</td><td>B-riel GND der fila 52</td></tr>
+<tr><td>[30]</td><td>GND (0 V)</td><td>B-E47</td><td>B-riel GND der fila 47</td></tr>
+<tr><td>[31]</td><td>GND (0 V)</td><td>B-E46</td><td>B-riel GND der fila 46</td></tr>
+<tr><td>[32]</td><td>GND (0 V)</td><td>B-F48</td><td>B-riel GND izq fila 48</td></tr>
+<tr><td>[88]</td><td>+5 V</td><td>B-D62</td><td>B-riel +5 V der fila 62</td></tr>
+<tr><td>[89]</td><td>+5 V</td><td>B-F57</td><td>B-riel +5 V izq fila 56</td></tr>
+<tr><td>[90]</td><td>+5 V</td><td>B-G55</td><td>B-riel +5 V izq fila 55</td></tr>
+<tr><td>[91]</td><td>+5 V</td><td>B-H54</td><td>B-riel +5 V izq fila 54</td></tr>
+<tr><td>[92]</td><td>+5 V</td><td>B-F47</td><td>B-riel +5 V izq fila 47</td></tr>
+<tr><td>[93]</td><td>+5 V</td><td>B-F56</td><td>B-riel +5 V izq fila 58</td></tr>
+<tr><td>[136]</td><td>p</td><td>B-G62</td><td>B-H53</td></tr>
+<tr><td>[137]</td><td>p</td><td>B-H62</td><td>C-D61</td></tr>
+<tr><td>[140]</td><td>SEN.c</td><td>B-G61</td><td>B-H51</td></tr>
+<tr><td>[141]</td><td>SEN.c</td><td>B-J51</td><td>B-E49</td></tr>
+<tr><td>[142]</td><td>SEN.th</td><td>B-G60</td><td>B-F58</td></tr>
+<tr><td>[143]</td><td>SEN.th</td><td>B-G58</td><td>B-E57</td></tr>
+<tr><td>[144]</td><td>b</td><td>B-E50</td><td>B-H50</td></tr>
+<tr><td>[145]</td><td>b</td><td>B-I50</td><td>B-F46</td></tr>
+<tr><td>[146]</td><td>SEN.nled</td><td>B-F49</td><td>B-H52</td></tr>
+<tr><td>[220]</td><td>SEN.nled</td><td>B-J49</td><td>dispositivo TCRT · A</td></tr>
+<tr><td>[221]</td><td>GND (0 V)</td><td>B-J48</td><td>dispositivo TCRT · K</td></tr>
+<tr><td>[222]</td><td>+5 V</td><td>B-J47</td><td>dispositivo TCRT · C</td></tr>
+<tr><td>[223]</td><td>b</td><td>B-J46</td><td>dispositivo TCRT · E</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>Base de Q2 (b)<br><span class=mut>V DC</span></td><td>≈ 0.85 V sin objeto, 1.15 V con objeto</td><td>0 V: falta R1 (47 k). 5 V: falta R2 (10 k).</td></tr>
+<tr><td>Colector de Q2<br><span class=mut>V DC</span></td><td>≈ 4.2 V sin objeto, ≈ 2.9 V con objeto</td><td>5 V: Q2 no conduce. Cerca de 1 V: Q2 saturado.</td></tr>
+<tr><td>p: salida del comparador (U1 pata 1)<br><span class=mut>V DC</span></td><td>≈ 0.03 V sin objeto, ≈ 4.9 V con objeto</td><td>Siempre igual: ajusta el trimpot del umbral (SEN.T1) o revisa el TCRT5000.</td></tr>
+<tr><td>U1 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_SOBRECORRIENTE">3 Sobrecorriente · placa B</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LM393</td><td>U14</td></tr>
+<tr><td>1</td><td>LM358</td><td>U4</td></tr>
+<tr><td>1</td><td>10 µF</td><td>Cd</td></tr>
+<tr><td>1</td><td>100 nF</td><td>Cpk</td></tr>
+<tr><td>1</td><td>1N4148</td><td>D1</td></tr>
+<tr><td>1</td><td>22k</td><td>Rbl</td></tr>
+<tr><td>3</td><td>10k</td><td>Rd, Ra, Rb</td></tr>
+<tr><td>1</td><td>6.8k</td><td>Rf</td></tr>
+<tr><td>1</td><td>1k</td><td>Rg</td></tr>
+<tr><td>1</td><td>10k</td><td>T1</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=8><b>U14</b><br>LM393</td><td>1</td><td>OUT A</td><td>B-F35</td><td>setn → Rh pata 1, Rsn pata 2, U2 pata 1, U8 pata 2, U8 pata 4</td></tr>
+<tr><td>2</td><td>IN- A</td><td>B-F34</td><td>OC.dl → Rd pata 2, Cd pata +</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>B-F33</td><td>OC.ref → T1 pata W</td></tr>
+<tr><td>4</td><td>GND</td><td>B-F32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>B-E32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>B-E33</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>B-E34</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>B-E35</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=8><b>U4</b><br>LM358</td><td>1</td><td>OUT A</td><td>B-F41</td><td>OC.oa → Rf pata 1, D1 pata A</td></tr>
+<tr><td>2</td><td>IN- A</td><td>B-F40</td><td>OC.fb → Rg pata 1, Rf pata 2</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>B-F39</td><td>sh → M1 pata S, Rsh pata 1</td></tr>
+<tr><td>4</td><td>GND</td><td>B-F38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>B-E38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>B-E39</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>B-E40</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>B-E41</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cd</b><br>10 µF</td><td>+</td><td></td><td>B-H34</td><td>OC.dl → Rd pata 2, U14 pata 2</td></tr>
+<tr><td>-</td><td></td><td>B-H32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cpk</b><br>100 nF</td><td>1</td><td></td><td>B-G27</td><td>OC.pk → D1 pata K, Rbl pata 1, Rd pata 1</td></tr>
+<tr><td>2</td><td></td><td>B-G25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>D1</b><br>1N4148</td><td>A</td><td></td><td>B-F31</td><td>OC.oa → Rf pata 1, U4 pata 1</td></tr>
+<tr><td>K</td><td></td><td>B-F27</td><td>OC.pk → Cpk pata 1, Rbl pata 1, Rd pata 1</td></tr>
+<tr><td rowspan=2><b>Ra</b><br>10k</td><td>1</td><td></td><td>B-A35</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-A31</td><td>OC.rt → T1 pata 1</td></tr>
+<tr><td rowspan=2><b>Rb</b><br>10k</td><td>1</td><td></td><td>B-D29</td><td>OC.rb2 → T1 pata 3</td></tr>
+<tr><td>2</td><td></td><td>B-D25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rbl</b><br>22k</td><td>1</td><td></td><td>B-H27</td><td>OC.pk → D1 pata K, Cpk pata 1, Rd pata 1</td></tr>
+<tr><td>2</td><td></td><td>B-H23</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rd</b><br>10k</td><td>1</td><td></td><td>B-J30</td><td>OC.pk → D1 pata K, Cpk pata 1, Rbl pata 1</td></tr>
+<tr><td>2</td><td></td><td>B-J26</td><td>OC.dl → Cd pata +, U14 pata 2</td></tr>
+<tr><td rowspan=2><b>Rf</b><br>6.8k</td><td>1</td><td></td><td>B-I41</td><td>OC.oa → D1 pata A, U4 pata 1</td></tr>
+<tr><td>2</td><td></td><td>B-I37</td><td>OC.fb → Rg pata 1, U4 pata 2</td></tr>
+<tr><td rowspan=2><b>Rg</b><br>1k</td><td>1</td><td></td><td>B-H40</td><td>OC.fb → Rf pata 2, U4 pata 2</td></tr>
+<tr><td>2</td><td></td><td>B-H36</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=3><b>T1</b><br>10k</td><td>1</td><td></td><td>B-C31</td><td>OC.rt → Ra pata 2</td></tr>
+<tr><td>W</td><td></td><td>B-C30</td><td>OC.ref → U14 pata 3</td></tr>
+<tr><td>3</td><td></td><td>B-C29</td><td>OC.rb2 → Rb pata 1</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[8]</td><td>+12 V</td><td>B-D41</td><td>A-riel +12 V izq fila 41</td></tr>
+<tr><td>[33]</td><td>GND (0 V)</td><td>B-G38</td><td>B-riel GND izq fila 38</td></tr>
+<tr><td>[34]</td><td>GND (0 V)</td><td>B-D38</td><td>B-riel GND der fila 38</td></tr>
+<tr><td>[35]</td><td>GND (0 V)</td><td>B-D39</td><td>B-riel GND der fila 40</td></tr>
+<tr><td>[36]</td><td>GND (0 V)</td><td>B-J32</td><td>B-riel GND izq fila 29</td></tr>
+<tr><td>[37]</td><td>GND (0 V)</td><td>B-D32</td><td>B-riel GND der fila 31</td></tr>
+<tr><td>[38]</td><td>GND (0 V)</td><td>B-D33</td><td>B-riel GND der fila 35</td></tr>
+<tr><td>[39]</td><td>GND (0 V)</td><td>B-F36</td><td>B-riel GND izq fila 36</td></tr>
+<tr><td>[40]</td><td>GND (0 V)</td><td>B-E25</td><td>B-riel GND der fila 25</td></tr>
+<tr><td>[41]</td><td>GND (0 V)</td><td>B-F25</td><td>B-riel GND izq fila 25</td></tr>
+<tr><td>[42]</td><td>GND (0 V)</td><td>B-F23</td><td>B-riel GND izq fila 23</td></tr>
+<tr><td>[94]</td><td>+5 V</td><td>B-D35</td><td>B-riel +5 V der fila 35</td></tr>
+<tr><td>[128]</td><td>sh</td><td>A-I18</td><td>B-G39</td></tr>
+<tr><td>[147]</td><td>OC.oa</td><td>B-G41</td><td>B-J31</td></tr>
+<tr><td>[148]</td><td>OC.fb</td><td>B-G40</td><td>B-F37</td></tr>
+<tr><td>[149]</td><td>setn</td><td>B-G35</td><td>B-G18</td></tr>
+<tr><td>[150]</td><td>setn</td><td>B-I35</td><td>C-G50</td></tr>
+<tr><td>[152]</td><td>OC.dl</td><td>B-J34</td><td>B-I26</td></tr>
+<tr><td>[153]</td><td>OC.ref</td><td>B-J33</td><td>B-E30</td></tr>
+<tr><td>[154]</td><td>OC.pk</td><td>B-G30</td><td>B-I27</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>Salida del LM358 (ganancia 7.8)<br><span class=mut>V DC</span></td><td>≈ 0.55 V con 0.15 A (7.8 × sh)</td><td>0 V: falta Rg o Rf mal. Sin ganancia: Rf abierta.</td></tr>
+<tr><td>U14 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U4 LM358: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_TEMPERATURA">4 Temperatura · placa B</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LM393</td><td>U2</td></tr>
+<tr><td>1</td><td>22k</td><td>Ra</td></tr>
+<tr><td>1</td><td>68k</td><td>Rb</td></tr>
+<tr><td>1</td><td>10k</td><td>Rfix</td></tr>
+<tr><td>1</td><td>1M</td><td>Rh</td></tr>
+<tr><td>1</td><td>10k</td><td>T1</td></tr>
+<tr><td>1</td><td>NTC 10 k</td><td>TBN</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=8><b>U2</b><br>LM393</td><td>1</td><td>OUT A</td><td>B-F18</td><td>setn → Rh pata 1, Rsn pata 2, U14 pata 1, U8 pata 2, U8 pata 4</td></tr>
+<tr><td>2</td><td>IN- A</td><td>B-F17</td><td>tnode → Rfix pata 1, TBN pata NTC</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>B-F16</td><td>TMP.ref → Rh pata 2, T1 pata W</td></tr>
+<tr><td>4</td><td>GND</td><td>B-F15</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>B-E15</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>B-E16</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>B-E17</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>B-E18</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>TBN</b><br>NTC 10 k</td><td>5V</td><td></td><td>B-F13</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>NTC</td><td></td><td>B-F11</td><td>tnode → Rfix pata 1, U2 pata 2</td></tr>
+<tr><td rowspan=2><b>Ra</b><br>22k</td><td>1</td><td></td><td>B-A18</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>B-A14</td><td>TMP.rt → T1 pata 1</td></tr>
+<tr><td rowspan=2><b>Rb</b><br>68k</td><td>1</td><td></td><td>B-B12</td><td>TMP.rb2 → T1 pata 3</td></tr>
+<tr><td>2</td><td></td><td>B-B8</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rfix</b><br>10k</td><td>1</td><td></td><td>B-J11</td><td>tnode → TBN pata NTC, U2 pata 2</td></tr>
+<tr><td>2</td><td></td><td>B-J7</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rh</b><br>1M</td><td>1</td><td></td><td>B-H18</td><td>setn → Rsn pata 2, U14 pata 1, U2 pata 1, U8 pata 2, U8 pata 4</td></tr>
+<tr><td>2</td><td></td><td>B-H14</td><td>TMP.ref → T1 pata W, U2 pata 3</td></tr>
+<tr><td rowspan=3><b>T1</b><br>10k</td><td>1</td><td></td><td>B-D14</td><td>TMP.rt → Ra pata 2</td></tr>
+<tr><td>W</td><td></td><td>B-D13</td><td>TMP.ref → Rh pata 2, U2 pata 3</td></tr>
+<tr><td>3</td><td></td><td>B-D12</td><td>TMP.rb2 → Rb pata 1</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[43]</td><td>GND (0 V)</td><td>B-G15</td><td>B-riel GND izq fila 14</td></tr>
+<tr><td>[44]</td><td>GND (0 V)</td><td>B-B15</td><td>B-riel GND der fila 14</td></tr>
+<tr><td>[45]</td><td>GND (0 V)</td><td>B-D16</td><td>B-riel GND der fila 16</td></tr>
+<tr><td>[46]</td><td>GND (0 V)</td><td>B-E8</td><td>B-riel GND der fila 8</td></tr>
+<tr><td>[47]</td><td>GND (0 V)</td><td>B-F7</td><td>B-riel GND izq fila 6</td></tr>
+<tr><td>[95]</td><td>+5 V</td><td>B-D18</td><td>B-riel +5 V der fila 18</td></tr>
+<tr><td>[96]</td><td>+5 V</td><td>B-G13</td><td>B-riel +5 V izq fila 13</td></tr>
+<tr><td>[149]</td><td>setn</td><td>B-G35</td><td>B-G18</td></tr>
+<tr><td>[155]</td><td>tnode</td><td>B-G17</td><td>B-G11</td></tr>
+<tr><td>[156]</td><td>TMP.ref</td><td>B-G16</td><td>B-F14</td></tr>
+<tr><td>[157]</td><td>TMP.ref</td><td>B-G14</td><td>B-E13</td></tr>
+<tr><td>[238]</td><td>+5 V</td><td>B-F13</td><td>dispositivo NTC · 5V</td></tr>
+<tr><td>[239]</td><td>tnode</td><td>B-F11</td><td>dispositivo NTC · NTC</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>tnode: divisor del NTC<br><span class=mut>V DC</span></td><td>≈ 2.5 V a 25 °C; ≈ 3.7 V a 50 °C (dispara a ≈ 49.9 °C)</td><td>0 V: NTC desconectado o Rfix en corto. 5 V: Rfix abierta.</td></tr>
+<tr><td>U2 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_LOGICA">5 Logica · placa C</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>74HC14</td><td>U11</td></tr>
+<tr><td>1</td><td>74HC00</td><td>U8</td></tr>
+<tr><td>1</td><td>74HC08</td><td>U9</td></tr>
+<tr><td>3</td><td>100 nF</td><td>Cef, Cgf, Crf</td></tr>
+<tr><td>1</td><td>1 µF</td><td>Cpor</td></tr>
+<tr><td>1</td><td>1N4148</td><td>Dpor</td></tr>
+<tr><td>7</td><td>10k</td><td>Rpe, Rse, Rpg, Rsg, Rpr, Rsr, Rsn</td></tr>
+<tr><td>1</td><td>47k</td><td>Rpor</td></tr>
+<tr><td>1</td><td>Interruptor E</td><td>TBE</td></tr>
+<tr><td>1</td><td>Micro-switch cubierta</td><td>TBG</td></tr>
+<tr><td>1</td><td>Pulsador reset</td><td>TBR</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=14><b>U11</b><br>74HC14</td><td>1</td><td>1A</td><td>C-F44</td><td>LOG.ef → Rse pata 2, Cef pata 1</td></tr>
+<tr><td>2</td><td>1Y</td><td>C-F43</td><td>LOG.ein_n → U11 pata 3</td></tr>
+<tr><td>3</td><td>2A</td><td>C-F42</td><td>LOG.ein_n → U11 pata 2</td></tr>
+<tr><td>4</td><td>2Y</td><td>C-F41</td><td>LOG.e → U9 pata 1</td></tr>
+<tr><td>5</td><td>3A</td><td>C-F40</td><td>LOG.gf → Rsg pata 2, Cgf pata 1</td></tr>
+<tr><td>6</td><td>3Y</td><td>C-F39</td><td>LOG.gin_n → U11 pata 9</td></tr>
+<tr><td>7</td><td>GND</td><td>C-F38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>8</td><td>4Y</td><td>C-E38</td><td>LOG.g → U9 pata 2</td></tr>
+<tr><td>9</td><td>4A</td><td>C-E39</td><td>LOG.gin_n → U11 pata 6</td></tr>
+<tr><td>10</td><td>5Y</td><td>C-E40</td><td>LOG.rin_n → U11 pata 13</td></tr>
+<tr><td>11</td><td>5A</td><td>C-E41</td><td>LOG.rf → Rsr pata 2, Crf pata 1, Dpor pata K</td></tr>
+<tr><td>12</td><td>6Y</td><td>C-E42</td><td>LOG.rst → U8 pata 1</td></tr>
+<tr><td>13</td><td>6A</td><td>C-E43</td><td>LOG.rin_n → U11 pata 10</td></tr>
+<tr><td>14</td><td>VCC</td><td>C-E44</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=14><b>U8</b><br>74HC00</td><td>1</td><td>1A</td><td>C-F53</td><td>LOG.rst → U11 pata 12</td></tr>
+<tr><td>2</td><td>1B</td><td>C-F52</td><td>setn → Rh pata 1, Rsn pata 2, U14 pata 1, U2 pata 1, U8 pata 4</td></tr>
+<tr><td>3</td><td>1Y</td><td>C-F51</td><td>LOG.reset_n → U8 pata 9</td></tr>
+<tr><td>4</td><td>2A</td><td>C-F50</td><td>setn → Rh pata 1, Rsn pata 2, U14 pata 1, U2 pata 1, U8 pata 2</td></tr>
+<tr><td>5</td><td>2B</td><td>C-F49</td><td>fn → U8 pata 8, U9 pata 5</td></tr>
+<tr><td>6</td><td>2Y</td><td>C-F48</td><td>f → Rb pata 1, Rl pata 1, U8 pata 10</td></tr>
+<tr><td>7</td><td>GND</td><td>C-F47</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>8</td><td>3Y</td><td>C-E47</td><td>fn → U8 pata 5, U9 pata 5</td></tr>
+<tr><td>9</td><td>3A</td><td>C-E48</td><td>LOG.reset_n → U8 pata 3</td></tr>
+<tr><td>10</td><td>3B</td><td>C-E49</td><td>f → Rb pata 1, Rl pata 1, U8 pata 6</td></tr>
+<tr><td>11</td><td>4Y</td><td>C-E50</td><td>LOG.pn → U9 pata 10, Dlo pata K</td></tr>
+<tr><td>12</td><td>4A</td><td>C-E51</td><td>p → Rpu pata 2, Rh pata 1, U1 pata 1, U8 pata 13, U9 pata 13</td></tr>
+<tr><td>13</td><td>4B</td><td>C-E52</td><td>p → Rpu pata 2, Rh pata 1, U1 pata 1, U8 pata 12, U9 pata 13</td></tr>
+<tr><td>14</td><td>VCC</td><td>C-E53</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=14><b>U9</b><br>74HC08</td><td>1</td><td>1A</td><td>C-F62</td><td>LOG.e → U11 pata 4</td></tr>
+<tr><td>2</td><td>1B</td><td>C-F61</td><td>LOG.g → U11 pata 8</td></tr>
+<tr><td>3</td><td>1Y</td><td>C-F60</td><td>LOG.m1 → U9 pata 4</td></tr>
+<tr><td>4</td><td>2A</td><td>C-F59</td><td>LOG.m1 → U9 pata 3</td></tr>
+<tr><td>5</td><td>2B</td><td>C-F58</td><td>fn → U8 pata 5, U8 pata 8</td></tr>
+<tr><td>6</td><td>2Y</td><td>C-F57</td><td>m → U9 pata 9, U9 pata 12, U10 pata 2</td></tr>
+<tr><td>7</td><td>GND</td><td>C-F56</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>8</td><td>3Y</td><td>C-E56</td><td>n → —</td></tr>
+<tr><td>9</td><td>3A</td><td>C-E57</td><td>m → U9 pata 6, U9 pata 12, U10 pata 2</td></tr>
+<tr><td>10</td><td>3B</td><td>C-E58</td><td>LOG.pn → U8 pata 11, Dlo pata K</td></tr>
+<tr><td>11</td><td>4Y</td><td>C-E59</td><td>l → Rb5 pata 1</td></tr>
+<tr><td>12</td><td>4A</td><td>C-E60</td><td>m → U9 pata 6, U9 pata 9, U10 pata 2</td></tr>
+<tr><td>13</td><td>4B</td><td>C-E61</td><td>p → Rpu pata 2, Rh pata 1, U1 pata 1, U8 pata 12, U8 pata 13</td></tr>
+<tr><td>14</td><td>VCC</td><td>C-E62</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>TBE</b><br>Interruptor E</td><td>5V</td><td></td><td>C-J28</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>E</td><td></td><td>C-J26</td><td>ein → Rpe pata 1, Rse pata 1</td></tr>
+<tr><td rowspan=2><b>TBG</b><br>Micro-switch cubierta</td><td>5V</td><td></td><td>C-G36</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>G</td><td></td><td>C-G34</td><td>gin → Rpg pata 1, Rsg pata 1</td></tr>
+<tr><td rowspan=2><b>TBR</b><br>Pulsador reset</td><td>5V</td><td></td><td>C-B33</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>RST</td><td></td><td>C-B31</td><td>rin → Rpr pata 1, Rsr pata 1</td></tr>
+<tr><td rowspan=2><b>Cef</b><br>100 nF</td><td>1</td><td></td><td>C-C37</td><td>LOG.ef → Rse pata 2, U11 pata 1</td></tr>
+<tr><td>2</td><td></td><td>C-C35</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cgf</b><br>100 nF</td><td>1</td><td></td><td>C-H40</td><td>LOG.gf → Rsg pata 2, U11 pata 5</td></tr>
+<tr><td>2</td><td></td><td>C-H38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cpor</b><br>1 µF</td><td>+</td><td></td><td>C-H32</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>-</td><td></td><td>C-H30</td><td>LOG.por → Rpor pata 1, Dpor pata A</td></tr>
+<tr><td rowspan=2><b>Crf</b><br>100 nF</td><td>1</td><td></td><td>C-C32</td><td>LOG.rf → Rsr pata 2, Dpor pata K, U11 pata 11</td></tr>
+<tr><td>2</td><td></td><td>C-C30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Dpor</b><br>1N4148</td><td>A</td><td></td><td>C-D36</td><td>LOG.por → Cpor pata -, Rpor pata 1</td></tr>
+<tr><td>K</td><td></td><td>C-D32</td><td>LOG.rf → Rsr pata 2, Crf pata 1, U11 pata 11</td></tr>
+<tr><td rowspan=2><b>Rpe</b><br>10k</td><td>1</td><td></td><td>C-E28</td><td>ein → Rse pata 1, TBE pata E</td></tr>
+<tr><td>2</td><td></td><td>C-E24</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rpg</b><br>10k</td><td>1</td><td></td><td>C-F29</td><td>gin → Rsg pata 1, TBG pata G</td></tr>
+<tr><td>2</td><td></td><td>C-F25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rpor</b><br>47k</td><td>1</td><td></td><td>C-A34</td><td>LOG.por → Cpor pata -, Dpor pata A</td></tr>
+<tr><td>2</td><td></td><td>C-A30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rpr</b><br>10k</td><td>1</td><td></td><td>C-B29</td><td>rin → Rsr pata 1, TBR pata RST</td></tr>
+<tr><td>2</td><td></td><td>C-B25</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rse</b><br>10k</td><td>1</td><td></td><td>C-F35</td><td>ein → Rpe pata 1, TBE pata E</td></tr>
+<tr><td>2</td><td></td><td>C-F31</td><td>LOG.ef → Cef pata 1, U11 pata 1</td></tr>
+<tr><td rowspan=2><b>Rsg</b><br>10k</td><td>1</td><td></td><td>C-J37</td><td>gin → Rpg pata 1, TBG pata G</td></tr>
+<tr><td>2</td><td></td><td>C-J33</td><td>LOG.gf → Cgf pata 1, U11 pata 5</td></tr>
+<tr><td rowspan=2><b>Rsn</b><br>10k</td><td>1</td><td></td><td>C-J54</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>C-J50</td><td>setn → Rh pata 1, U14 pata 1, U2 pata 1, U8 pata 2, U8 pata 4</td></tr>
+<tr><td rowspan=2><b>Rsr</b><br>10k</td><td>1</td><td></td><td>C-C45</td><td>rin → Rpr pata 1, TBR pata RST</td></tr>
+<tr><td>2</td><td></td><td>C-C41</td><td>LOG.rf → Crf pata 1, Dpor pata K, U11 pata 11</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[48]</td><td>GND (0 V)</td><td>C-G56</td><td>C-riel GND izq fila 56</td></tr>
+<tr><td>[49]</td><td>GND (0 V)</td><td>C-G47</td><td>C-riel GND izq fila 48</td></tr>
+<tr><td>[50]</td><td>GND (0 V)</td><td>C-G38</td><td>C-riel GND izq fila 37</td></tr>
+<tr><td>[51]</td><td>GND (0 V)</td><td>C-E35</td><td>C-riel GND der fila 35</td></tr>
+<tr><td>[52]</td><td>GND (0 V)</td><td>C-E30</td><td>C-riel GND der fila 30</td></tr>
+<tr><td>[53]</td><td>GND (0 V)</td><td>C-G25</td><td>C-riel GND izq fila 24</td></tr>
+<tr><td>[54]</td><td>GND (0 V)</td><td>C-D24</td><td>C-riel GND der fila 24</td></tr>
+<tr><td>[55]</td><td>GND (0 V)</td><td>C-D25</td><td>C-riel GND der fila 25</td></tr>
+<tr><td>[97]</td><td>+5 V</td><td>C-D62</td><td>C-riel +5 V der fila 62</td></tr>
+<tr><td>[98]</td><td>+5 V</td><td>C-D53</td><td>C-riel +5 V der fila 53</td></tr>
+<tr><td>[99]</td><td>+5 V</td><td>C-D44</td><td>C-riel +5 V der fila 44</td></tr>
+<tr><td>[100]</td><td>+5 V</td><td>C-F54</td><td>C-riel +5 V izq fila 54</td></tr>
+<tr><td>[101]</td><td>+5 V</td><td>C-F36</td><td>C-riel +5 V izq fila 36</td></tr>
+<tr><td>[102]</td><td>+5 V</td><td>C-E33</td><td>C-riel +5 V der fila 31</td></tr>
+<tr><td>[103]</td><td>+5 V</td><td>C-I32</td><td>C-riel +5 V izq fila 31</td></tr>
+<tr><td>[104]</td><td>+5 V</td><td>C-G28</td><td>C-riel +5 V izq fila 28</td></tr>
+<tr><td>[121]</td><td>m</td><td>A-G31</td><td>C-G57</td></tr>
+<tr><td>[122]</td><td>m</td><td>C-H57</td><td>C-D57</td></tr>
+<tr><td>[123]</td><td>m</td><td>C-C57</td><td>C-D60</td></tr>
+<tr><td>[134]</td><td>f</td><td>A-C8</td><td>C-D49</td></tr>
+<tr><td>[135]</td><td>f</td><td>C-C49</td><td>C-G48</td></tr>
+<tr><td>[137]</td><td>p</td><td>B-H62</td><td>C-D61</td></tr>
+<tr><td>[138]</td><td>p</td><td>C-C61</td><td>C-D52</td></tr>
+<tr><td>[139]</td><td>p</td><td>C-C52</td><td>C-D51</td></tr>
+<tr><td>[150]</td><td>setn</td><td>B-I35</td><td>C-G50</td></tr>
+<tr><td>[151]</td><td>setn</td><td>C-H50</td><td>C-G52</td></tr>
+<tr><td>[158]</td><td>LOG.e</td><td>C-G62</td><td>C-G41</td></tr>
+<tr><td>[159]</td><td>LOG.g</td><td>C-G61</td><td>C-D38</td></tr>
+<tr><td>[160]</td><td>LOG.m1</td><td>C-G60</td><td>C-G59</td></tr>
+<tr><td>[161]</td><td>fn</td><td>C-G58</td><td>C-G49</td></tr>
+<tr><td>[162]</td><td>fn</td><td>C-H49</td><td>C-D47</td></tr>
+<tr><td>[163]</td><td>LOG.pn</td><td>C-D58</td><td>C-D50</td></tr>
+<tr><td>[164]</td><td>LOG.pn</td><td>C-C50</td><td>C-B13</td></tr>
+<tr><td>[165]</td><td>l</td><td>C-D59</td><td>C-A5</td></tr>
+<tr><td>[166]</td><td>LOG.rst</td><td>C-G53</td><td>C-D42</td></tr>
+<tr><td>[167]</td><td>LOG.reset_n</td><td>C-G51</td><td>C-D48</td></tr>
+<tr><td>[168]</td><td>LOG.ef</td><td>C-G44</td><td>C-E37</td></tr>
+<tr><td>[169]</td><td>LOG.ef</td><td>C-D37</td><td>C-I31</td></tr>
+<tr><td>[170]</td><td>LOG.ein_n</td><td>C-G43</td><td>C-G42</td></tr>
+<tr><td>[171]</td><td>LOG.gf</td><td>C-G40</td><td>C-H33</td></tr>
+<tr><td>[172]</td><td>LOG.gin_n</td><td>C-G39</td><td>C-D39</td></tr>
+<tr><td>[173]</td><td>LOG.rin_n</td><td>C-D40</td><td>C-D43</td></tr>
+<tr><td>[174]</td><td>LOG.rf</td><td>C-D41</td><td>C-E32</td></tr>
+<tr><td>[175]</td><td>gin</td><td>C-F37</td><td>C-H34</td></tr>
+<tr><td>[176]</td><td>gin</td><td>C-I34</td><td>C-I29</td></tr>
+<tr><td>[177]</td><td>rin</td><td>C-E45</td><td>C-E31</td></tr>
+<tr><td>[178]</td><td>rin</td><td>C-D45</td><td>C-E29</td></tr>
+<tr><td>[179]</td><td>LOG.por</td><td>C-E36</td><td>C-E34</td></tr>
+<tr><td>[180]</td><td>LOG.por</td><td>C-B34</td><td>C-I30</td></tr>
+<tr><td>[181]</td><td>ein</td><td>C-H35</td><td>C-G26</td></tr>
+<tr><td>[182]</td><td>ein</td><td>C-H26</td><td>C-D28</td></tr>
+<tr><td>[232]</td><td>+5 V</td><td>C-J28</td><td>dispositivo SW_E · 5V</td></tr>
+<tr><td>[233]</td><td>ein</td><td>C-J26</td><td>dispositivo SW_E · E</td></tr>
+<tr><td>[234]</td><td>+5 V</td><td>C-G36</td><td>dispositivo SW_G · 5V</td></tr>
+<tr><td>[235]</td><td>gin</td><td>C-G34</td><td>dispositivo SW_G · G</td></tr>
+<tr><td>[236]</td><td>+5 V</td><td>C-B33</td><td>dispositivo SW_R · 5V</td></tr>
+<tr><td>[237]</td><td>rin</td><td>C-B31</td><td>dispositivo SW_R · RST</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>setn: 5 V normal, 0 V en falla<br><span class=mut>V DC</span></td><td>5.0 V sin falla; ≈ 0 V cuando dispara corriente o temperatura</td><td>0 V siempre: umbral muy bajo; ajusta el trimpot de OC.T1 o TMP.T1.</td></tr>
+<tr><td>M: permiso de motor (U9 pata 11 → ver la salida de Xa2)<br><span class=mut>V DC</span></td><td>5 V con E=1, G=1, sin falla; 0 V si abres la cubierta o hay falla</td><td>0 V con todo bien: revisa E, G, F y U9.</td></tr>
+<tr><td>U8 74HC00: entre VCC (pata 14) y GND (pata 7)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U9 74HC08: entre VCC (pata 14) y GND (pata 7)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U11 74HC14: entre VCC (pata 14) y GND (pata 7)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_LED_OBJ">LED de objeto · placa C</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LED verde (objeto)</td><td>Dlo</td></tr>
+<tr><td>1</td><td>680</td><td>Rlo</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=2><b>Dlo</b><br>LED verde (objeto)</td><td>A</td><td></td><td>C-D15</td><td>LOG.lo → Rlo pata 2</td></tr>
+<tr><td>K</td><td></td><td>C-D13</td><td>LOG.pn → U8 pata 11, U9 pata 10</td></tr>
+<tr><td rowspan=2><b>Rlo</b><br>680</td><td>1</td><td></td><td>C-B19</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>C-B15</td><td>LOG.lo → Dlo pata A</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[105]</td><td>+5 V</td><td>C-E19</td><td>C-riel +5 V der fila 19</td></tr>
+<tr><td>[164]</td><td>LOG.pn</td><td>C-C50</td><td>C-B13</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>LED de objeto: ánodo (pata A)<br><span class=mut>V DC</span></td><td>≈ 2.0 V con objeto (el LED enciende, unos 4.4 mA con la resistencia de 680 Ω); 5 V sin objeto (apagado)</td><td>Nunca enciende: LED al revés (la pata larga es A) o Rlo (680 Ω) abierta.</td></tr>
+</table>
+<h2 id="b_REFVEL">9 Referencia de velocidad · placa C</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>100 nF</td><td>Cr</td></tr>
+<tr><td>1</td><td>2N3904</td><td>Q5</td></tr>
+<tr><td>1</td><td>10k</td><td>Rb5</td></tr>
+<tr><td>1</td><td>68k</td><td>Rt</td></tr>
+<tr><td>2</td><td>10k</td><td>T1, T2</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=2><b>Cr</b><br>100 nF</td><td>1</td><td></td><td>C-I8</td><td>vref → Rt pata 2, T1 pata 1, T2 pata 1, U5 pata 3</td></tr>
+<tr><td>2</td><td></td><td>C-I6</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=3><b>Q5</b><br>2N3904</td><td>E</td><td></td><td>C-J3</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>B</td><td></td><td>C-J2</td><td>REF.bq → Rb5 pata 2</td></tr>
+<tr><td>C</td><td></td><td>C-J1</td><td>REF.cq → T2 pata W</td></tr>
+<tr><td rowspan=2><b>Rb5</b><br>10k</td><td>1</td><td></td><td>C-E5</td><td>l → U9 pata 11</td></tr>
+<tr><td>2</td><td></td><td>C-E1</td><td>REF.bq → Q5 pata B</td></tr>
+<tr><td rowspan=2><b>Rt</b><br>68k</td><td>1</td><td></td><td>C-B8</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>C-B4</td><td>vref → T1 pata 1, T2 pata 1, Cr pata 1, U5 pata 3</td></tr>
+<tr><td rowspan=3><b>T1</b><br>10k</td><td>1</td><td></td><td>C-H7</td><td>vref → Rt pata 2, T2 pata 1, Cr pata 1, U5 pata 3</td></tr>
+<tr><td>W</td><td></td><td>C-H6</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>3</td><td></td><td>C-H5</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td rowspan=3><b>T2</b><br>10k</td><td>1</td><td></td><td>C-D4</td><td>vref → Rt pata 2, T1 pata 1, Cr pata 1, U5 pata 3</td></tr>
+<tr><td>W</td><td></td><td>C-D3</td><td>REF.cq → Q5 pata C</td></tr>
+<tr><td>3</td><td></td><td>C-D2</td><td><span class="mut">sin conexión</span></td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[56]</td><td>GND (0 V)</td><td>C-F6</td><td>C-riel GND izq fila 6</td></tr>
+<tr><td>[57]</td><td>GND (0 V)</td><td>C-F3</td><td>C-riel GND izq fila 2</td></tr>
+<tr><td>[106]</td><td>+5 V</td><td>C-E8</td><td>C-riel +5 V der fila 8</td></tr>
+<tr><td>[165]</td><td>l</td><td>C-D59</td><td>C-A5</td></tr>
+<tr><td>[183]</td><td>vref</td><td>C-F8</td><td>C-F7</td></tr>
+<tr><td>[184]</td><td>vref</td><td>C-J7</td><td>C-A4</td></tr>
+<tr><td>[185]</td><td>vref</td><td>C-J8</td><td>D-G60</td></tr>
+<tr><td>[186]</td><td>REF.cq</td><td>C-A3</td><td>C-F1</td></tr>
+<tr><td>[187]</td><td>REF.bq</td><td>C-B1</td><td>C-F2</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>vref: referencia de velocidad<br><span class=mut>V DC</span></td><td>≈ 0.53 V normal; ≈ 0.26 V reducida (con objeto)</td><td>Si la reducida no baja a la mitad: revisa Q5 y los trimpots REF.T1/REF.T2.</td></tr>
+</table>
+<h2 id="b_ERROR_AMP">10 Amplificador de error · placa D</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LM324</td><td>U5</td></tr>
+<tr><td>1</td><td>10 nF</td><td>Cf6</td></tr>
+<tr><td>2</td><td>100 nF</td><td>Cv, Cvc</td></tr>
+<tr><td>2</td><td>10k</td><td>R1, R3</td></tr>
+<tr><td>2</td><td>100k</td><td>Rf6, R4</td></tr>
+<tr><td>1</td><td>1k</td><td>Ro</td></tr>
+<tr><td>1</td><td>4.7k</td><td>Rv1</td></tr>
+<tr><td>1</td><td>5.1k</td><td>Rv2</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=14><b>U5</b><br>LM324</td><td>1</td><td>OUT 1</td><td>D-F62</td><td>ERR.vrb → R3 pata 1, U5 pata 2</td></tr>
+<tr><td>2</td><td>IN- 1</td><td>D-F61</td><td>ERR.vrb → R3 pata 1, U5 pata 1</td></tr>
+<tr><td>3</td><td>IN+ 1</td><td>D-F60</td><td>vref → Rt pata 2, T1 pata 1, T2 pata 1, Cr pata 1</td></tr>
+<tr><td>4</td><td>VCC</td><td>D-F59</td><td><span class="vm">+12 V</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ 2</td><td>D-F58</td><td>vspd → Rfv2 pata 2, Cfv2 pata +</td></tr>
+<tr><td>6</td><td>IN- 2</td><td>D-F57</td><td>ERR.vsb → R1 pata 1, U5 pata 7</td></tr>
+<tr><td>7</td><td>OUT 2</td><td>D-F56</td><td>ERR.vsb → R1 pata 1, U5 pata 6</td></tr>
+<tr><td>8</td><td>OUT 3</td><td>D-E56</td><td>ERR.vob → R4 pata 2, U5 pata 9</td></tr>
+<tr><td>9</td><td>IN- 3</td><td>D-E57</td><td>ERR.vob → R4 pata 2, U5 pata 8</td></tr>
+<tr><td>10</td><td>IN+ 3</td><td>D-E58</td><td>ERR.voff → Rv1 pata 2, Rv2 pata 1, Cv pata 1</td></tr>
+<tr><td>11</td><td>GND</td><td>D-E59</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>12</td><td>IN+ 4</td><td>D-E60</td><td>ERR.inp → R3 pata 2, R4 pata 1</td></tr>
+<tr><td>13</td><td>IN- 4</td><td>D-E61</td><td>ERR.inn → R1 pata 2, Rf6 pata 2, Cf6 pata 2</td></tr>
+<tr><td>14</td><td>OUT 4</td><td>D-E62</td><td>ERR.oa → Rf6 pata 1, Cf6 pata 1, Ro pata 1</td></tr>
+<tr><td rowspan=2><b>Cf6</b><br>10 nF</td><td>1</td><td></td><td>D-H55</td><td>ERR.oa → Rf6 pata 1, Ro pata 1, U5 pata 14</td></tr>
+<tr><td>2</td><td></td><td>D-H53</td><td>ERR.inn → R1 pata 2, Rf6 pata 2, U5 pata 13</td></tr>
+<tr><td rowspan=2><b>Cv</b><br>100 nF</td><td>1</td><td></td><td>D-B50</td><td>ERR.voff → Rv1 pata 2, Rv2 pata 1, U5 pata 10</td></tr>
+<tr><td>2</td><td></td><td>D-B48</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cvc</b><br>100 nF</td><td>1</td><td></td><td>D-G50</td><td>vctrl → Ro pata 2, U13 pata 3</td></tr>
+<tr><td>2</td><td></td><td>D-G48</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>R1</b><br>10k</td><td>1</td><td></td><td>D-G57</td><td>ERR.vsb → U5 pata 6, U5 pata 7</td></tr>
+<tr><td>2</td><td></td><td>D-G53</td><td>ERR.inn → Rf6 pata 2, Cf6 pata 2, U5 pata 13</td></tr>
+<tr><td rowspan=2><b>R3</b><br>10k</td><td>1</td><td></td><td>D-D55</td><td>ERR.vrb → U5 pata 1, U5 pata 2</td></tr>
+<tr><td>2</td><td></td><td>D-D51</td><td>ERR.inp → R4 pata 1, U5 pata 12</td></tr>
+<tr><td rowspan=2><b>R4</b><br>100k</td><td>1</td><td></td><td>D-B60</td><td>ERR.inp → R3 pata 2, U5 pata 12</td></tr>
+<tr><td>2</td><td></td><td>D-B56</td><td>ERR.vob → U5 pata 8, U5 pata 9</td></tr>
+<tr><td rowspan=2><b>Rf6</b><br>100k</td><td>1</td><td></td><td>D-F55</td><td>ERR.oa → Cf6 pata 1, Ro pata 1, U5 pata 14</td></tr>
+<tr><td>2</td><td></td><td>D-F51</td><td>ERR.inn → R1 pata 2, Cf6 pata 2, U5 pata 13</td></tr>
+<tr><td rowspan=2><b>Ro</b><br>1k</td><td>1</td><td></td><td>D-I54</td><td>ERR.oa → Rf6 pata 1, Cf6 pata 1, U5 pata 14</td></tr>
+<tr><td>2</td><td></td><td>D-I50</td><td>vctrl → Cvc pata 1, U13 pata 3</td></tr>
+<tr><td rowspan=2><b>Rv1</b><br>4.7k</td><td>1</td><td></td><td>D-C54</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>D-C50</td><td>ERR.voff → Rv2 pata 1, Cv pata 1, U5 pata 10</td></tr>
+<tr><td rowspan=2><b>Rv2</b><br>5.1k</td><td>1</td><td></td><td>D-E50</td><td>ERR.voff → Rv1 pata 2, Cv pata 1, U5 pata 10</td></tr>
+<tr><td>2</td><td></td><td>D-E46</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[9]</td><td>+12 V</td><td>D-G59</td><td>D-riel +12 V izq fila 59</td></tr>
+<tr><td>[58]</td><td>GND (0 V)</td><td>D-D59</td><td>D-riel GND der fila 59</td></tr>
+<tr><td>[59]</td><td>GND (0 V)</td><td>D-D46</td><td>D-riel GND der fila 46</td></tr>
+<tr><td>[60]</td><td>GND (0 V)</td><td>D-D48</td><td>D-riel GND der fila 48</td></tr>
+<tr><td>[61]</td><td>GND (0 V)</td><td>D-F48</td><td>D-riel GND izq fila 48</td></tr>
+<tr><td>[107]</td><td>+5 V</td><td>D-E54</td><td>D-riel +5 V der fila 54</td></tr>
+<tr><td>[185]</td><td>vref</td><td>C-J8</td><td>D-G60</td></tr>
+<tr><td>[188]</td><td>ERR.vrb</td><td>D-G62</td><td>D-G61</td></tr>
+<tr><td>[189]</td><td>ERR.vrb</td><td>D-H61</td><td>D-E55</td></tr>
+<tr><td>[190]</td><td>vspd</td><td>D-G58</td><td>E-F35</td></tr>
+<tr><td>[192]</td><td>ERR.vsb</td><td>D-H57</td><td>D-H56</td></tr>
+<tr><td>[193]</td><td>ERR.vob</td><td>D-D56</td><td>D-D57</td></tr>
+<tr><td>[194]</td><td>ERR.voff</td><td>D-D58</td><td>D-A50</td></tr>
+<tr><td>[195]</td><td>ERR.inp</td><td>D-D60</td><td>D-E51</td></tr>
+<tr><td>[196]</td><td>ERR.inn</td><td>D-D61</td><td>D-J53</td></tr>
+<tr><td>[197]</td><td>ERR.inn</td><td>D-C61</td><td>D-G51</td></tr>
+<tr><td>[198]</td><td>ERR.oa</td><td>D-D62</td><td>D-I55</td></tr>
+<tr><td>[199]</td><td>ERR.oa</td><td>D-J55</td><td>D-J54</td></tr>
+<tr><td>[200]</td><td>vctrl</td><td>D-H50</td><td>D-G39</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>vctrl: salida del amplificador de error<br><span class=mut>V DC</span></td><td>≈ 2.6 a 2.7 V en normal; sube a 7.6 V con el motor parado por falla</td><td>Fijo: el lazo no está cerrado.</td></tr>
+<tr><td>U5 LM324: entre VCC (pata 4) y GND (pata 11)<br><span class=mut>V DC</span></td><td>11.1 a 11.3 V (los 12 V después de D1)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_PWM_GEN">6 Generador de PWM · placa D</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>LM393</td><td>U13</td></tr>
+<tr><td>1</td><td>NE555</td><td>U6</td></tr>
+<tr><td>2</td><td>10 nF</td><td>Ct, Ccv</td></tr>
+<tr><td>1</td><td>1k</td><td>Ra5</td></tr>
+<tr><td>2</td><td>10k</td><td>Rb5, Rpu</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=8><b>U13</b><br>LM393</td><td>1</td><td>OUT A</td><td>D-F41</td><td>pwm → Rpu pata 2, U10 pata 1</td></tr>
+<tr><td>2</td><td>IN- A</td><td>D-F40</td><td>PWM.tri → Rb5 pata 2, Ct pata 1, U6 pata 2, U6 pata 6</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>D-F39</td><td>vctrl → Ro pata 2, Cvc pata 1</td></tr>
+<tr><td>4</td><td>GND</td><td>D-F38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>D-E38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>D-E39</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>D-E40</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>D-E41</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=8><b>U6</b><br>NE555</td><td>1</td><td>GND</td><td>D-F35</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>2</td><td>TRIG</td><td>D-F34</td><td>PWM.tri → Rb5 pata 2, Ct pata 1, U13 pata 2, U6 pata 6</td></tr>
+<tr><td>3</td><td>OUT</td><td>D-F33</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>4</td><td>RESET</td><td>D-F32</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>5</td><td>CTRL</td><td>D-E32</td><td>PWM.cv → Ccv pata 1</td></tr>
+<tr><td>6</td><td>THR</td><td>D-E33</td><td>PWM.tri → Rb5 pata 2, Ct pata 1, U13 pata 2, U6 pata 2</td></tr>
+<tr><td>7</td><td>DISCH</td><td>D-E34</td><td>PWM.dis → Ra5 pata 2, Rb5 pata 1</td></tr>
+<tr><td>8</td><td>VCC</td><td>D-E35</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ccv</b><br>10 nF</td><td>1</td><td></td><td>D-C32</td><td>PWM.cv → U6 pata 5</td></tr>
+<tr><td>2</td><td></td><td>D-C30</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ct</b><br>10 nF</td><td>1</td><td></td><td>D-J40</td><td>PWM.tri → Rb5 pata 2, U13 pata 2, U6 pata 2, U6 pata 6</td></tr>
+<tr><td>2</td><td></td><td>D-J38</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ra5</b><br>1k</td><td>1</td><td></td><td>D-C41</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>D-C37</td><td>PWM.dis → Rb5 pata 1, U6 pata 7</td></tr>
+<tr><td rowspan=2><b>Rb5</b><br>10k</td><td>1</td><td></td><td>D-D37</td><td>PWM.dis → Ra5 pata 2, U6 pata 7</td></tr>
+<tr><td>2</td><td></td><td>D-D33</td><td>PWM.tri → Ct pata 1, U13 pata 2, U6 pata 2, U6 pata 6</td></tr>
+<tr><td rowspan=2><b>Rpu</b><br>10k</td><td>1</td><td></td><td>D-B35</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>D-B31</td><td>pwm → U13 pata 1, U10 pata 1</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[62]</td><td>GND (0 V)</td><td>D-G38</td><td>D-riel GND izq fila 38</td></tr>
+<tr><td>[63]</td><td>GND (0 V)</td><td>D-D38</td><td>D-riel GND der fila 38</td></tr>
+<tr><td>[64]</td><td>GND (0 V)</td><td>D-D39</td><td>D-riel GND der fila 40</td></tr>
+<tr><td>[65]</td><td>GND (0 V)</td><td>D-G35</td><td>D-riel GND izq fila 35</td></tr>
+<tr><td>[66]</td><td>GND (0 V)</td><td>D-E30</td><td>D-riel GND der fila 30</td></tr>
+<tr><td>[108]</td><td>+5 V</td><td>D-D41</td><td>D-riel +5 V der fila 41</td></tr>
+<tr><td>[109]</td><td>+5 V</td><td>D-G32</td><td>D-riel +5 V der fila 31</td></tr>
+<tr><td>[110]</td><td>+5 V</td><td>D-C35</td><td>D-riel +5 V der fila 35</td></tr>
+<tr><td>[119]</td><td>pwm</td><td>A-G32</td><td>D-E31</td></tr>
+<tr><td>[120]</td><td>pwm</td><td>D-D31</td><td>D-G41</td></tr>
+<tr><td>[200]</td><td>vctrl</td><td>D-H50</td><td>D-G39</td></tr>
+<tr><td>[201]</td><td>PWM.tri</td><td>D-G40</td><td>D-G34</td></tr>
+<tr><td>[202]</td><td>PWM.tri</td><td>D-H34</td><td>D-C33</td></tr>
+<tr><td>[203]</td><td>PWM.dis</td><td>D-C34</td><td>D-E37</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>tri: rampa del 555 (U6 pata 6)<br><span class=mut>osciloscopio</span></td><td>rampa de 1.7 a 3.3 V a ≈ 6.9 kHz (osciloscopio)</td><td>Sin rampa: revisa Ct (10 nF), Ra5 y Rb5.</td></tr>
+<tr><td>pwm: salida del comparador<br><span class=mut>osciloscopio</span></td><td>pulsos de 0 a 5 V, ≈ 6.9 kHz; ciclo ≈ 44 % con vctrl = 2.4 V</td><td>Sin pulsos: revisa U2 pata 7.</td></tr>
+<tr><td>U13 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U6 NE555: entre VCC (pata 8) y GND (pata 1)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+<h2 id="b_ENCODER_FV">8 Encoder y F-V · placa E</h2>
+<h3>Componentes de este bloque (sepáralos antes de armar)</h3><table><tr><th>Cant.</th><th>Componente</th><th>Nombres</th></tr>
+<tr><td>1</td><td>74HC08</td><td>U12</td></tr>
+<tr><td>1</td><td>LM393</td><td>U3</td></tr>
+<tr><td>1</td><td>NE555</td><td>U7</td></tr>
+<tr><td>1</td><td>1 nF</td><td>Cd</td></tr>
+<tr><td>2</td><td>1 µF</td><td>Cfv, Cfv2</td></tr>
+<tr><td>2</td><td>10 nF</td><td>Ct7, Ccvm</td></tr>
+<tr><td>1</td><td>1N4148</td><td>Dcl</td></tr>
+<tr><td>1</td><td>optointerruptor ranurado</td><td>OPTO</td></tr>
+<tr><td>1</td><td>1M</td><td>Rhe</td></tr>
+<tr><td>1</td><td>220</td><td>Rled</td></tr>
+<tr><td>7</td><td>10k</td><td>Rpe, Ru1, Ru2, Rpq, Rtg, Rfv, Rfv2</td></tr>
+<tr><td>1</td><td>20k</td><td>Rt7</td></tr>
+</table>
+<h3>Conexiones pata por pata</h3><table><tr><th>Pieza</th><th>Pata</th><th>Nombre</th><th>Agujero</th><th>Va a</th></tr>
+<tr><td rowspan=14><b>U12</b><br>74HC08</td><td>1</td><td>1A</td><td>E-F50</td><td>ENC.mono → U7 pata 3, U12 pata 2</td></tr>
+<tr><td>2</td><td>1B</td><td>E-F49</td><td>ENC.mono → U7 pata 3, U12 pata 1</td></tr>
+<tr><td>3</td><td>1Y</td><td>E-F48</td><td>ENC.mq → Rfv pata 1</td></tr>
+<tr><td>4</td><td>2A</td><td>E-F47</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>2B</td><td>E-F46</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>2Y</td><td>E-F45</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>7</td><td>GND</td><td>E-F44</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>8</td><td>3Y</td><td>E-E44</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>9</td><td>3A</td><td>E-E45</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>10</td><td>3B</td><td>E-E46</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>11</td><td>4Y</td><td>E-E47</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>12</td><td>4A</td><td>E-E48</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>13</td><td>4B</td><td>E-E49</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>14</td><td>VCC</td><td>E-E50</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=8><b>U3</b><br>LM393</td><td>1</td><td>OUT A</td><td>E-F56</td><td>ENC.eq → Rpq pata 2, Rhe pata 1, Cd pata 1</td></tr>
+<tr><td>2</td><td>IN- A</td><td>E-F55</td><td>enc → Rpe pata 2, OPTO pata C</td></tr>
+<tr><td>3</td><td>IN+ A</td><td>E-F54</td><td>ENC.eref → Ru1 pata 2, Ru2 pata 1, Rhe pata 2</td></tr>
+<tr><td>4</td><td>GND</td><td>E-F53</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>5</td><td>IN+ B</td><td>E-E53</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>6</td><td>IN- B</td><td>E-E54</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>7</td><td>OUT B</td><td>E-E55</td><td><span class="mut">sin conexión</span></td></tr>
+<tr><td>8</td><td>VCC</td><td>E-E56</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=8><b>U7</b><br>NE555</td><td>1</td><td>GND</td><td>E-F62</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>2</td><td>TRIG</td><td>E-F61</td><td>ENC.tg → Cd pata 2, Rtg pata 2, Dcl pata A</td></tr>
+<tr><td>3</td><td>OUT</td><td>E-F60</td><td>ENC.mono → U12 pata 1, U12 pata 2</td></tr>
+<tr><td>4</td><td>RESET</td><td>E-F59</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>5</td><td>CTRL</td><td>E-E59</td><td>ENC.cvm → Ccvm pata 1</td></tr>
+<tr><td>6</td><td>THR</td><td>E-E60</td><td>ENC.dis7 → Rt7 pata 2, Ct7 pata 1, U7 pata 7</td></tr>
+<tr><td>7</td><td>DISCH</td><td>E-E61</td><td>ENC.dis7 → Rt7 pata 2, Ct7 pata 1, U7 pata 6</td></tr>
+<tr><td>8</td><td>VCC</td><td>E-E62</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ccvm</b><br>10 nF</td><td>1</td><td></td><td>E-C42</td><td>ENC.cvm → U7 pata 5</td></tr>
+<tr><td>2</td><td></td><td>E-C40</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cd</b><br>1 nF</td><td>1</td><td></td><td>E-D43</td><td>ENC.eq → Rpq pata 2, Rhe pata 1, U3 pata 1</td></tr>
+<tr><td>2</td><td></td><td>E-D41</td><td>ENC.tg → Rtg pata 2, Dcl pata A, U7 pata 2</td></tr>
+<tr><td rowspan=2><b>Cfv</b><br>1 µF</td><td>+</td><td></td><td>E-H39</td><td>ENC.vf1 → Rfv pata 2, Rfv2 pata 1</td></tr>
+<tr><td>-</td><td></td><td>E-H37</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Cfv2</b><br>1 µF</td><td>+</td><td></td><td>E-H34</td><td>vspd → Rfv2 pata 2, U5 pata 5</td></tr>
+<tr><td>-</td><td></td><td>E-H32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Ct7</b><br>10 nF</td><td>1</td><td></td><td>E-D51</td><td>ENC.dis7 → Rt7 pata 2, U7 pata 6, U7 pata 7</td></tr>
+<tr><td>2</td><td></td><td>E-D49</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Dcl</b><br>1N4148</td><td>A</td><td></td><td>E-J61</td><td>ENC.tg → Cd pata 2, Rtg pata 2, U7 pata 2</td></tr>
+<tr><td>K</td><td></td><td>E-J57</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td rowspan=4><b>OPTO</b><br>optointerruptor ranurado</td><td>A</td><td></td><td>E-F33</td><td>ENC.nled → Rled pata 2</td></tr>
+<tr><td>K</td><td></td><td>E-F32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td>C</td><td></td><td>E-E33</td><td>enc → Rpe pata 2, U3 pata 2</td></tr>
+<tr><td>E</td><td></td><td>E-E32</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+<tr><td rowspan=2><b>Rfv</b><br>10k</td><td>1</td><td></td><td>E-F43</td><td>ENC.mq → U12 pata 3</td></tr>
+<tr><td>2</td><td></td><td>E-F39</td><td>ENC.vf1 → Cfv pata +, Rfv2 pata 1</td></tr>
+<tr><td rowspan=2><b>Rfv2</b><br>10k</td><td>1</td><td></td><td>E-J39</td><td>ENC.vf1 → Rfv pata 2, Cfv pata +</td></tr>
+<tr><td>2</td><td></td><td>E-J35</td><td>vspd → Cfv2 pata +, U5 pata 5</td></tr>
+<tr><td rowspan=2><b>Rhe</b><br>1M</td><td>1</td><td></td><td>E-I58</td><td>ENC.eq → Rpq pata 2, Cd pata 1, U3 pata 1</td></tr>
+<tr><td>2</td><td></td><td>E-I54</td><td>ENC.eref → Ru1 pata 2, Ru2 pata 1, U3 pata 3</td></tr>
+<tr><td rowspan=2><b>Rled</b><br>220</td><td>1</td><td></td><td>E-E31</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-E27</td><td>ENC.nled → OPTO pata A</td></tr>
+<tr><td rowspan=2><b>Rpe</b><br>10k</td><td>1</td><td></td><td>E-H59</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-H55</td><td>enc → OPTO pata C, U3 pata 2</td></tr>
+<tr><td rowspan=2><b>Rpq</b><br>10k</td><td>1</td><td></td><td>E-C56</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-C52</td><td>ENC.eq → Rhe pata 1, Cd pata 1, U3 pata 1</td></tr>
+<tr><td rowspan=2><b>Rt7</b><br>20k</td><td>1</td><td></td><td>E-A62</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-A58</td><td>ENC.dis7 → Ct7 pata 1, U7 pata 6, U7 pata 7</td></tr>
+<tr><td rowspan=2><b>Rtg</b><br>10k</td><td>1</td><td></td><td>E-A38</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-A34</td><td>ENC.tg → Cd pata 2, Dcl pata A, U7 pata 2</td></tr>
+<tr><td rowspan=2><b>Ru1</b><br>10k</td><td>1</td><td></td><td>E-E39</td><td><span class="v5">+5 V</span> (riel)</td></tr>
+<tr><td>2</td><td></td><td>E-E35</td><td>ENC.eref → Ru2 pata 1, Rhe pata 2, U3 pata 3</td></tr>
+<tr><td rowspan=2><b>Ru2</b><br>10k</td><td>1</td><td></td><td>E-D57</td><td>ENC.eref → Ru1 pata 2, Rhe pata 2, U3 pata 3</td></tr>
+<tr><td>2</td><td></td><td>E-D53</td><td><span class="g">GND (0 V)</span> (riel)</td></tr>
+</table>
+<h3>Cables de este bloque</h3><table><tr><th>Cable</th><th>Red</th><th>De</th><th>A</th></tr>
+<tr><td>[67]</td><td>GND (0 V)</td><td>E-G62</td><td>E-riel GND izq fila 62</td></tr>
+<tr><td>[68]</td><td>GND (0 V)</td><td>E-G53</td><td>E-riel GND izq fila 53</td></tr>
+<tr><td>[69]</td><td>GND (0 V)</td><td>E-B53</td><td>E-riel GND der fila 53</td></tr>
+<tr><td>[70]</td><td>GND (0 V)</td><td>E-B54</td><td>E-riel GND der fila 54</td></tr>
+<tr><td>[71]</td><td>GND (0 V)</td><td>E-G47</td><td>E-riel GND izq fila 47</td></tr>
+<tr><td>[72]</td><td>GND (0 V)</td><td>E-G46</td><td>E-riel GND izq fila 46</td></tr>
+<tr><td>[73]</td><td>GND (0 V)</td><td>E-G44</td><td>E-riel GND izq fila 44</td></tr>
+<tr><td>[74]</td><td>GND (0 V)</td><td>E-D45</td><td>E-riel GND der fila 44</td></tr>
+<tr><td>[75]</td><td>GND (0 V)</td><td>E-D46</td><td>E-riel GND der fila 46</td></tr>
+<tr><td>[76]</td><td>GND (0 V)</td><td>E-C48</td><td>E-riel GND der fila 48</td></tr>
+<tr><td>[77]</td><td>GND (0 V)</td><td>E-C49</td><td>E-riel GND der fila 49</td></tr>
+<tr><td>[78]</td><td>GND (0 V)</td><td>E-F37</td><td>E-riel GND izq fila 37</td></tr>
+<tr><td>[79]</td><td>GND (0 V)</td><td>E-E40</td><td>E-riel GND der fila 40</td></tr>
+<tr><td>[80]</td><td>GND (0 V)</td><td>E-G32</td><td>E-riel GND izq fila 31</td></tr>
+<tr><td>[81]</td><td>GND (0 V)</td><td>E-D32</td><td>E-riel GND der fila 31</td></tr>
+<tr><td>[111]</td><td>+5 V</td><td>E-G59</td><td>E-riel +5 V der fila 59</td></tr>
+<tr><td>[112]</td><td>+5 V</td><td>E-D62</td><td>E-riel +5 V der fila 62</td></tr>
+<tr><td>[113]</td><td>+5 V</td><td>E-B56</td><td>E-riel +5 V der fila 56</td></tr>
+<tr><td>[114]</td><td>+5 V</td><td>E-C50</td><td>E-riel +5 V der fila 50</td></tr>
+<tr><td>[115]</td><td>+5 V</td><td>E-F57</td><td>E-riel +5 V der fila 58</td></tr>
+<tr><td>[116]</td><td>+5 V</td><td>E-D39</td><td>E-riel +5 V der fila 38</td></tr>
+<tr><td>[117]</td><td>+5 V</td><td>E-D38</td><td>E-riel +5 V der fila 37</td></tr>
+<tr><td>[118]</td><td>+5 V</td><td>E-D31</td><td>E-riel +5 V der fila 31</td></tr>
+<tr><td>[190]</td><td>vspd</td><td>D-G58</td><td>E-F35</td></tr>
+<tr><td>[191]</td><td>vspd</td><td>E-G35</td><td>E-F34</td></tr>
+<tr><td>[204]</td><td>ENC.tg</td><td>E-G61</td><td>E-E41</td></tr>
+<tr><td>[205]</td><td>ENC.tg</td><td>E-B41</td><td>E-D34</td></tr>
+<tr><td>[206]</td><td>ENC.mono</td><td>E-G60</td><td>E-G50</td></tr>
+<tr><td>[207]</td><td>ENC.mono</td><td>E-H50</td><td>E-G49</td></tr>
+<tr><td>[208]</td><td>ENC.cvm</td><td>E-D59</td><td>E-E42</td></tr>
+<tr><td>[209]</td><td>ENC.dis7</td><td>E-D60</td><td>E-D61</td></tr>
+<tr><td>[210]</td><td>ENC.dis7</td><td>E-C60</td><td>E-E58</td></tr>
+<tr><td>[211]</td><td>ENC.dis7</td><td>E-D58</td><td>E-E51</td></tr>
+<tr><td>[212]</td><td>ENC.eq</td><td>E-G56</td><td>E-F58</td></tr>
+<tr><td>[213]</td><td>ENC.eq</td><td>E-G58</td><td>E-E52</td></tr>
+<tr><td>[214]</td><td>ENC.eq</td><td>E-B52</td><td>E-E43</td></tr>
+<tr><td>[215]</td><td>enc</td><td>E-G55</td><td>E-D33</td></tr>
+<tr><td>[216]</td><td>ENC.eref</td><td>E-G54</td><td>E-E57</td></tr>
+<tr><td>[217]</td><td>ENC.eref</td><td>E-J54</td><td>E-D35</td></tr>
+<tr><td>[218]</td><td>ENC.mq</td><td>E-G48</td><td>E-G43</td></tr>
+<tr><td>[219]</td><td>ENC.nled</td><td>E-G33</td><td>E-D27</td></tr>
+<tr><td>[224]</td><td>ENC.nled</td><td>E-F33</td><td>dispositivo OPTO · A</td></tr>
+<tr><td>[225]</td><td>GND (0 V)</td><td>E-F32</td><td>dispositivo OPTO · K</td></tr>
+<tr><td>[226]</td><td>enc</td><td>E-E33</td><td>dispositivo OPTO · C</td></tr>
+<tr><td>[227]</td><td>GND (0 V)</td><td>E-E32</td><td>dispositivo OPTO · E</td></tr>
+</table>
+<h3>Pruebas al terminar el bloque</h3><table><tr><th>Medida</th><th>Esperado</th><th>Si no coincide</th></tr>
+<tr><td>vspd: velocidad medida (sale del filtro doble)<br><span class=mut>V DC</span></td><td>≈ 0.51 V a 1394 rpm; 1.1 mV por Hz de encoder</td><td>0 V con el motor girando: el encoder no da pulsos.</td></tr>
+<tr><td>U3 LM393: entre VCC (pata 8) y GND (pata 4)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U7 NE555: entre VCC (pata 8) y GND (pata 1)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+<tr><td>U12 74HC08: entre VCC (pata 14) y GND (pata 7)<br><span class=mut>V DC</span></td><td>5.0 V (entre 4.75 y 5.25 V)</td><td>0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.</td></tr>
+</table>
+</body></html>

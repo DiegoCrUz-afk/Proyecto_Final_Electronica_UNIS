@@ -1,0 +1,14 @@
+Piezas de la maqueta - MDF 3 mm - DXF R2010, dibujo en CENTIMETROS (los tamanos de esta lista estan en mm)
+MEDIDAS PROVISIONALES: banda 120 mm, entre ejes 230 mm, eje 6 mm, rodillo 20 mm, kerf 0.00
+
+placa_base       cortar x1    280.0 x 148.0 mm  Placa base
+lateral          cortar x2    270.0 x  43.0 mm  Lateral (con 2 pestanas)
+separador        cortar x2    136.0 x  12.0 mm  Separador
+soporte_motor    cortar x1     30.0 x  30.0 mm  Soporte de motor
+soporte_opto     cortar x1     30.0 x  25.0 mm  Soporte del opto
+disco_encoder    cortar x1     50.0 x  50.0 mm  Disco del encoder (20 ranuras)
+disco_rodillo    cortar x80   174.0 x 218.0 mm  Discos de rodillo (80 en esta hoja)
+pinon            cortar x1     22.0 x  22.0 mm  Pinon 12 dientes
+rueda            cortar x1     58.0 x  58.0 mm  Rueda 36 dientes
+
+Capas: CORTE (rojo) = cortar; ETIQUETA (azul) = cotas y textos, NO cortar.

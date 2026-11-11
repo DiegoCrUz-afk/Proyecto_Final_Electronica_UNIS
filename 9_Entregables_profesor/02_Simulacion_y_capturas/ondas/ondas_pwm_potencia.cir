@@ -1,0 +1,15 @@
+* ondas_pwm_potencia
+.include "C:/Users/Diego Cruz/Documents/Proyecto_Final_Electronica_UNIS/3_archivos_tecnicos/modelos.inc"
+.include "C:/Users/Diego Cruz/Documents/Proyecto_Final_Electronica_UNIS/3_archivos_tecnicos/sistema.inc"
+.lib NE555.sub
+Vvm vm 0 12
+Vv5 v5 0 5
+Vm m 0 5
+Vc vctrl 0 2.4
+XP v5 vctrl pwm PWM_GEN
+XW v5 vm pwm m dm sh POTENCIA
+Rmot vm mot 12
+Lmot mot dm 3m
+.save V(pwm) V(xp:tri) V(xw:gate) V(dm) V(sh)
+.tran 0 0.012 0.010 0.1u
+.end

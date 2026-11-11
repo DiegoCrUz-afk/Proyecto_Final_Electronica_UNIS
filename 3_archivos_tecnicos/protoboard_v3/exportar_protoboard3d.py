@@ -163,6 +163,33 @@ for p_ in parts:
             "0 V: falta el cable de alimentación del chip o su GND. Si mide menos de 4.75 V, revisa el regulador de 5 V.", black=[p_["ref"], g_["n"]])
 E.m("m_led", "LED de objeto", "LED de objeto: ánodo (pata A)", ["LOG.Dlo", "A"], "≈ 2.0 V con objeto (el LED enciende, unos 4.4 mA con la resistencia de 680 Ω); 5 V sin objeto (apagado)",
     "Nunca enciende: LED al revés (la pata larga es A) o Rlo (680 Ω) abierta.")
+# mediciones extra para el modo medicion (no cambian ninguna pieza ni cable)
+G2, G3, G4, G5, G6 = "2 · Sensor IR", "3 · Sobrecorriente", "4 · Temperatura", "5 · Lógica y alarma", "6 · Velocidad (referencia, encoder y error)"
+E.m("m_ein", G5, "E: entrada del interruptor (toggle)", ["ENT.TBE", "E"], "5 V con el toggle en encendido; 0 V en apagado",
+    "0 V siempre: no llega el cable 232 (5V) o el 233 (E), o usaste la pata lateral equivocada del toggle (la central es COM y va a 5V). 5 V siempre: falta la resistencia Rpe de 10 kΩ a GND.")
+E.m("m_gin", G5, "G: entrada del micro-switch de cubierta", ["ENT.TBG", "G"], "5 V con la palanca presionada (cubierta cerrada); 0 V con la palanca suelta",
+    "0 V siempre: revisa los cables 234 y 235 y que uses COM y NO. 5 V siempre: usaste COM y NC (al revés) o falta la resistencia Rpg de 10 kΩ a GND.")
+E.m("m_rin", G5, "RST: entrada del pulsador de reset", ["ENT.TBR", "RST"], "0 V en reposo; 5 V mientras pulsas",
+    "5 V siempre: las patas del pulsador son del mismo lado (usa las de la diagonal) o falta Rpr (10 kΩ a GND). 0 V al pulsar: revisa los cables 236 y 237.")
+E.m("m_irled", G2, "LED infrarrojo del TCRT5000: ánodo (pata A)", ["SEN.TCRT", "A"], "≈ 1.2 V (el LED conduce con unos 14 mA; con la cámara del celular se ve una luz violeta)",
+    "5 V: no pasa corriente por el LED (A y K al revés, o K sin GND). 0 V: falta 5 V o Rled (270 Ω) abierta.")
+E.m("m_ocref", G3, "Referencia de disparo de corriente (cursor del trimpot OC.T1)", ["OC.T1", "W"], "≈ 2.0 V con el trimpot ajustado para disparar a ≈ 0.7 A; más voltaje = dispara con más corriente",
+    "0 V o 5 V fijo: falta Ra o Rb, o el trimpot está en un extremo. El voltaje debe cambiar al girar el trimpot.")
+E.m("m_tref", G4, "Referencia de disparo de temperatura (cursor del trimpot TMP.T1)", ["TMP.T1", "W"], "≈ 3.65 V con el trimpot al centro (dispara a ≈ 49 °C); de ≈ 3.4 V (43 °C) a ≈ 3.9 V (56 °C) al girarlo",
+    "Fijo en un extremo: revisa Ra (22 k), Rb (68 k) y el trimpot TMP.T1.")
+E.m("m_eled", G6, "LED infrarrojo del opto del encoder: ánodo (pata A)", ["ENC.OPTO", "A"], "≈ 1.2 V (LED encendido, unos 17 mA con Rled de 220 Ω)",
+    "5 V: no pasa corriente por el LED (A y K al revés, o K sin GND). 0 V: falta 5 V o Rled (220 Ω) abierta.")
+E.m("m_enc", G6, "enc: colector del fototransistor del opto", ["ENC.OPTO", "C"], "0 V con la ranura libre (pasa la luz); 5 V cuando el disco la tapa; al girar el disco se ven pulsos",
+    "Siempre 5 V: el LED no ilumina o C y E están al revés. Siempre 0 V: falta la pull-up Rpe (10 kΩ) o el disco no tapa la luz.", mode="V DC (o osciloscopio al girar)")
+E.m("m_voff", G6, "Voff: nivel fijo del amplificador de error", ["ERR.Rv1", "2"], "≈ 2.6 V (divisor 4.7 k / 5.1 k desde 5 V)",
+    "0 V o 5 V: falta Rv1 o Rv2.")
+E.m("m_alled", G5, "LED rojo de alarma: ánodo (pata A)", ["ALA.Dl", "A"], "≈ 2 V con alarma (el LED rojo enciende, unos 6 mA); 0 V sin alarma",
+    "Hay alarma y no enciende: LED al revés (la pata larga es A) o Rl (470 Ω) abierta.")
+_orden_g = []
+for m_ in E.MEAS:
+    if m_["grp"] not in _orden_g:
+        _orden_g.append(m_["grp"])
+E.MEAS.sort(key=lambda m_: _orden_g.index(m_["grp"]))
 # pruebas de cada bloque: las mediciones guiadas (E.MEAS) cuya punta roja cae en una pieza del bloque
 tests = defaultdict(list)
 for m_ in E.MEAS:
@@ -170,8 +197,30 @@ for m_ in E.MEAS:
     if pr:
         tests[pr["blk"]].append(m_["id"])
 tests = dict(tests)
+# orden del modo medicion: de la entrada hacia el final, con la alimentacion del chip primero
+MED_BLOQUES = ["ENTRADA", "REG5V", "SENSOR_IR", "SOBRECORRIENTE", "TEMPERATURA", "LOGICA", "LED_OBJ", "REFVEL", "ENCODER_FV", "ERROR_AMP", "PWM_GEN", "POTENCIA", "ALARMA"]
+MED_ORDEN = {
+    "ENTRADA": ["m_vin", "m_vm"], "REG5V": ["m_bz", "m_v5"],
+    "SENSOR_IR": ["m_vcc_U1", "m_irled", "m_vb", "m_vc", "m_p"],
+    "SOBRECORRIENTE": ["m_vcc_U4", "m_vcc_U14", "m_oa", "m_ocref"],
+    "TEMPERATURA": ["m_vcc_U2", "m_tn", "m_tref"],
+    "LOGICA": ["m_vcc_U8", "m_vcc_U9", "m_vcc_U11", "m_ein", "m_gin", "m_rin", "m_setn", "m_m"],
+    "LED_OBJ": ["m_led"], "REFVEL": ["m_vref"],
+    "ENCODER_FV": ["m_vcc_U3", "m_vcc_U7", "m_vcc_U12", "m_eled", "m_enc", "m_vspd"],
+    "ERROR_AMP": ["m_vcc_U5", "m_voff", "m_vctrl"],
+    "PWM_GEN": ["m_vcc_U13", "m_vcc_U6", "m_tri", "m_pwm"],
+    "POTENCIA": ["m_vcc_U10", "m_sh", "m_gate", "m_dm"],
+    "ALARMA": ["m_f", "m_alled", "m_cz"],
+}
+_ids = {m_["id"] for m_ in E.MEAS}
+med = {}
+for blk_ in MED_BLOQUES:
+    lst = [i_ for i_ in MED_ORDEN.get(blk_, []) if i_ in _ids]
+    lst += [i_ for i_ in tests.get(blk_, []) if i_ not in lst]
+    if lst and blk_ in blocks:
+        med[blk_] = lst
 data = dict(parts=parts, wires=W, tracks=[], zones=zones, nets=nets, meas=E.MEAS, offs=offs, dims=dims, gnd=gnd, cu={b: "" for b in BL}, power=E.POWER, cell=1.27, pitch=2.54, w_trace=.8, w_wide=1.6,
-            sim=E.datos_sim(), titles=titles, boards_list=BL, blocks=blocks, rails=rails, bx=P.BX, tests=tests)
+            sim=E.datos_sim(), titles=titles, boards_list=BL, blocks=blocks, rails=rails, bx=P.BX, tests=tests, med=med)
 tpl = open(os.path.join(AQUI, "plantilla_proto3d_v3.html"), encoding="utf-8").read()
 three = open(os.path.join(PROY, "montaje3d", "lib3d", "three.min.js"), encoding="utf-8").read()
 orbit = open(os.path.join(PROY, "montaje3d", "lib3d", "OrbitControls.js"), encoding="utf-8").read()
