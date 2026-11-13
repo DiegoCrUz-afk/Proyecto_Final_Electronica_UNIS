@@ -1,0 +1,10 @@
+* ondas_sensor_ir
+.include modelos.inc
+.include sistema.inc
+.lib NE555.sub
+Vv5 v5 0 5
+Bi 0 b I=(2u+48u*u(time-0.012))+2.5u*sin(2*pi*1k*time)
+XS v5 b p SENSOR_IR
+.save V(b) V(p) V(xs:c)
+.tran 0 0.024 0 2u
+.end
